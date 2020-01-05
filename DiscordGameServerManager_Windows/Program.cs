@@ -425,9 +425,9 @@ namespace DiscordGameServerManager_Windows
                     }
                     break;
                 case 1:
-                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
-                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld");
-                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit");
+                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass).ConfigureAwait(false).GetAwaiter().GetResult();
+                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld").ConfigureAwait(false).GetAwaiter().GetResult();
+                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit").ConfigureAwait(false).GetAwaiter().GetResult();
                     /*psi.Arguments = " stop";
                     process.StartInfo = psi;
                     process.Start();*/
@@ -448,9 +448,9 @@ namespace DiscordGameServerManager_Windows
                     {
                         try
                         {
-                            Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
-                            Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld");
-                            Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit");
+                            Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass).ConfigureAwait(false).GetAwaiter().GetResult();
+                            Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld").ConfigureAwait(false).GetAwaiter().GetResult();
+                            Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit").ConfigureAwait(false).GetAwaiter().GetResult();
                         }
                         catch (Exception ex)
                         {
@@ -559,7 +559,7 @@ namespace DiscordGameServerManager_Windows
             Messages.write();
         }
 
-        private static void Rcon(string ipaddress, int port, string password, string command)
+        private static async Task Rcon(string ipaddress, int port, string password, string command)
         {
 
             SourceRcon Sr = new SourceRcon();
@@ -572,13 +572,11 @@ namespace DiscordGameServerManager_Windows
                 {
                     Thread.Sleep(10);
                 }
-                Sr.ServerCommand(command);
-                Thread.Sleep(1000);
+                await Sr.ServerCommand(command);
             }
             else
             {
                 Console.WriteLine("No connection!");
-                Thread.Sleep(1000);
             }
         }
         static void ErrorOutput(string input)

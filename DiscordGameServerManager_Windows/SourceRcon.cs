@@ -4,6 +4,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections;
+using System.Threading.Tasks;
 
 namespace DiscordGameServerManager_Windows
 {
@@ -45,7 +46,7 @@ namespace DiscordGameServerManager_Windows
             return true;
         }
 
-        public void ServerCommand(string command)
+        public async Task ServerCommand(string command)
         {
             if (connected)
             {
