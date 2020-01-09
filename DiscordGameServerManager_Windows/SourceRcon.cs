@@ -46,7 +46,7 @@ namespace DiscordGameServerManager_Windows
             return true;
         }
 
-        public async Task ServerCommand(string command)
+        public void ServerCommand(string command)
         {
             if (connected)
             {

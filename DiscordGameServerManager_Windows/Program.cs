@@ -16,6 +16,7 @@ namespace DiscordGameServerManager_Windows
     class Program
     {
         public static Thread TimerThread;
+        public static Thread RconThread;
         static DiscordClient discord;
         static DiscordChannel discordChannel;
         static DiscordChannel message_channel;
@@ -35,7 +36,20 @@ namespace DiscordGameServerManager_Windows
             bool success = DiscordTrustManager.createJSON();
             Console.WriteLine("Result:" + success);
             Console.WriteLine(Config.bot.token);
-            //Starts the bot through a try catch statement, if it fails it will print to console the error message
+            try
+            {
+                RconThread = new Thread(() =>
+                {
+                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
+                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld");
+                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit");
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to create RCON thread");
+                Console.WriteLine(ex.Message);
+            }
             try
             {
                 Messages.load();
@@ -45,6 +59,7 @@ namespace DiscordGameServerManager_Windows
                 Console.WriteLine("Failed to load DMs.json");
                 Console.WriteLine(ex.Message);
             }
+            //Starts the bot through a try catch statement, if it fails it will print to console the error message
             try
             {
                 MainDiscord(args).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -425,9 +440,15 @@ namespace DiscordGameServerManager_Windows
                     }
                     break;
                 case 1:
-                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass).ConfigureAwait(false).GetAwaiter().GetResult();
-                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld").ConfigureAwait(false).GetAwaiter().GetResult();
-                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit").ConfigureAwait(false).GetAwaiter().GetResult();
+                    try
+                    {
+                        RconThread.Start();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Failed to start RCON thread");
+                        Console.WriteLine(ex.Message);
+                    }
                     /*psi.Arguments = " stop";
                     process.StartInfo = psi;
                     process.Start();*/
@@ -448,9 +469,7 @@ namespace DiscordGameServerManager_Windows
                     {
                         try
                         {
-                            Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass).ConfigureAwait(false).GetAwaiter().GetResult();
-                            Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld").ConfigureAwait(false).GetAwaiter().GetResult();
-                            Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit").ConfigureAwait(false).GetAwaiter().GetResult();
+                            RconThread.Start();
                         }
                         catch (Exception ex)
                         {
@@ -559,7 +578,7 @@ namespace DiscordGameServerManager_Windows
             Messages.write();
         }
 
-        private static async Task Rcon(string ipaddress, int port, string password, string command)
+        private static void Rcon(string ipaddress, int port, string password, string command)
         {
 
             SourceRcon Sr = new SourceRcon();
@@ -572,11 +591,13 @@ namespace DiscordGameServerManager_Windows
                 {
                     Thread.Sleep(10);
                 }
-                await Sr.ServerCommand(command);
+                Thread.Sleep(1000);
+                Sr.ServerCommand(command);
             }
             else
             {
                 Console.WriteLine("No connection!");
+                Thread.Sleep(1000);
             }
         }
         static void ErrorOutput(string input)

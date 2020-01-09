@@ -22,5 +22,9 @@ namespace DiscordGameServerManager_Windows
             var response_string = await response.Content.ReadAsStringAsync();
             return response_string;
         }
+        public static async System.Threading.Tasks.Task<string> parse_Details(string details) 
+        {
+            return "";
+        }
     }
 }
