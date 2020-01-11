@@ -10,7 +10,6 @@ using System.Threading;
 using System.IO.Compression;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Runtime;
 namespace DiscordGameServerManager_Windows
 {
     class Program
@@ -36,6 +35,7 @@ namespace DiscordGameServerManager_Windows
             bool success = DiscordTrustManager.createJSON();
             Console.WriteLine("Result:" + success);
             Console.WriteLine(Config.bot.token);
+            OS_Info.GetOSPlatform();
             try
             {
                 RconThread = new Thread(() =>
@@ -166,6 +166,7 @@ namespace DiscordGameServerManager_Windows
                     }
                     else if (dmchannel != true)
                     {
+
                         foreach (var dm in Messages.userDM.Values)
                         {
                             if (dm.Id == e.Channel.Id) 
@@ -351,14 +352,7 @@ namespace DiscordGameServerManager_Windows
             psi.RedirectStandardOutput = true;
             psi.RedirectStandardError = true;
             psi.CreateNoWindow = true;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                psi.FileName = "steamcmd.exe";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
-            {
-                psi.FileName = "steamcmd";
-            }
+            psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
             psi.Arguments = " +login anonymous +force_install_dir " + Config.bot.game_dir + " +app_update 376030 +app_run 376030 " + Config.bot.game_launch_args;
             thread = new Thread(() =>
             {

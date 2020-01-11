@@ -113,6 +113,8 @@ namespace DiscordGameServerManager_Windows
             channel.category = Dchannel.Guild.Name;
             User.username = name;
             User.userID = id;
+            bool[] perms_array = new bool[0];
+            setPermissions(perms_array);
             users.Add(User);
             channel.users = users;
             channel_dictionary.channels.Add(Dchannel.Id, channel);
