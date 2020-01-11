@@ -39,10 +39,7 @@ namespace DiscordGameServerManager_Windows
                 //byte[] json_data = Encoding.ASCII.GetBytes(json);
                 //File.Open(dir + "/" + config, FileMode.Open, FileAccess.Write, FileShare.Write).Write(json_data,0,json_data.Length-1);
             }
-            else
-            {
-                load();
-            }
+            load();
         }
         public static void write() 
         {
