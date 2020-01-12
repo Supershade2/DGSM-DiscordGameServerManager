@@ -80,9 +80,14 @@ namespace DiscordGameServerManager_Windows
         {
             try
             {
-                if (m.Date == DateTime.Now && m.MessageOn)
+                if (m.Date == DateTime.Now && m.MessageOn && Config.bot.useHeuristics)
                 {
                     DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, Heuristics.produceString(m.message_head + Heuristics.newline + m.message_body), false, null);
+                    await discordMessage.AcknowledgeAsync();
+                }
+                else if (m.Date == DateTime.Now && m.MessageOn) 
+                {
+                    DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, m.message_head + Heuristics.newline + m.message_body, false, null);
                     await discordMessage.AcknowledgeAsync();
                 }
             }
