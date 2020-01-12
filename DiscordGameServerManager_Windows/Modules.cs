@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using Newtonsoft.Json;
@@ -12,54 +13,146 @@ namespace DiscordGameServerManager_Windows
 
     class Modules
     {
+        public static Process process;
         public static ProcessModuleCollection ModuleCollection;
         private const string dir = "Resources/Modules";
-        public static bool BuildModules() 
+        private const string module_list = "modules.json";
+        public static Module_collection module_Collection;
+        public Modules() 
         {
-            var auto = ProjectRootElement.Create();
-            var propertyGroup = auto.AddPropertyGroup();
-            var slItemGroup = auto.CreateItemGroupElement();
-            var sl1ItemGroup = auto.CreateItemGroupElement();
-            var sourceitem = auto.CreateItemGroupElement();
-            IEnumerable<string> module_dirs = Directory.EnumerateDirectories(dir);
-            foreach (var moduledir in module_dirs)
+            Module sample = new Module();
+            sample.main_cs = "example.cs";
+            sample.module_resources = @"\\path to module resources\\";
+            sample.references = new List<string>();
+            sample.references.Add("System");
+            sample.references.Add("System.Core");
+            sample.references.Add("System.Collections.Generic");
+            sample.properties = new Dictionary<string, string>();
+            sample.properties.Add("TargetFrameworkVersion", "v4.5");
+            sample.properties.Add("RootNamespace", "Module_Namespace");
+            sample.properties.Add("OutputType", "Exe");
+            List<Module> modules = new List<Module>();
+            modules.Add(sample);
+            if (!File.Exists(dir + "/" + module_list)) 
             {
-                IEnumerable<string> modules = Directory.EnumerateFiles(moduledir);
-                foreach (var module in modules)
+                switch (Directory.Exists(dir))
                 {
-                    propertyGroup.AddProperty("DefaultTargets", "Build");
-                    //auto.SetProperty("DefaultTargets","Build");
-                    auto.AddProperty("TargetFrameworkVersion", "v4.5");
-                    auto.AddProperty("RootNamespace", "AutoJoiner");
-                    auto.AddProperty("OutputType", "Exe");
-                    auto.InsertAfterChild(slItemGroup, auto.LastChild);
-                    slItemGroup.AddItem("Reference", "System");
-                    slItemGroup.AddItem("Reference", "System.Core");
-                    slItemGroup.AddItem("Reference", "System.Linq");
-                    slItemGroup.AddItem("Reference", "System.Reflection");
-                    slItemGroup.AddItem("Reference", "System.IO");
-                    slItemGroup.AddItem("Reference", "System.Runtime.InteropServices");
-                    slItemGroup.AddItem("Reference", "System.Collections.Generic");
-                    auto.InsertAfterChild(sl1ItemGroup, auto.LastChild);
-                    auto.InsertAfterChild(sourceitem, auto.LastChild);
-                    sourceitem.AddItem("Compile", moduledir + @"\\Template.cs");
-                    var target = auto.AddTarget("Build");
-                    var task = target.AddTask("Csc");
-                    task.SetParameter("Sources", "@(Compile)");
-                    task.SetParameter("OutputAssembly", moduledir + @"\\AutoJoiners\\" + Path.GetFileNameWithoutExtension(module+".exe"));
-                    auto.Save(moduledir + @"\\output.csproj");
-                    Project program = new Project(auto.DirectoryPath + @"\\output.csproj");
-                    program.Build();
+                    case true:
+                        string json = JsonConvert.SerializeObject(modules, Formatting.Indented);
+                        File.WriteAllText(dir + "/" + module_list, json);
+                        break;
+                    default:
+                        Directory.CreateDirectory(dir);
+                        string json0 = JsonConvert.SerializeObject(modules, Formatting.Indented);
+                        File.WriteAllText(dir + "/" + module_list, json0);
+                        break;
                 }
             }
-            return false;
+        }
+        public static void Initialize_Collection() 
+        {
+            string json = File.ReadAllText(dir + "/" + module_list);
+            List<Module> modules = JsonConvert.DeserializeObject<List<Module>>(json);
+            module_Collection = new Module_collection(modules);
+        }
+        public static void BuildModules() 
+        {
+            List<bool> results = module_Collection.BuildModules(dir).GetResults();
+            for (int i = 0; i < results.Count; i++) 
+            {
+                Console.WriteLine("Module number:"+i+Heuristics.newline+"succeeded:"+results[i]+".");  
+            }
         }
     }
-    public struct module 
-    { 
-       public string cs_path { get; set; }
-       public List<string> references { get; set; }
-       public Dictionary<string,string> properties { get; set; }
+    public struct Module
+    {
+        public string main_cs { get; set; }
+        public string module_resources { get; set; }
+        public List<string> references { get; set; }
+        public Dictionary<string, string> properties { get; set; }
 
+    }
+    internal class Module_collection
+    {
+        public Module_collection(List<Module> modules)
+        {
+            this.modules = modules;
+        }
+        public extensions BuildModules(string dir)
+        {
+            extensions exts = new extensions();
+            List<string> property_keys = new List<string>();
+            List<string> property_values = new List<string>();
+            try
+            {
+                IEnumerable<string> module_dirs = Directory.EnumerateDirectories(dir);
+                foreach (var moduledir in module_dirs)
+                {
+                    foreach (var module in modules)
+                    {
+                        var auto = ProjectRootElement.Create();
+                        var propertyGroup = auto.AddPropertyGroup();
+                        var slItemGroup = auto.CreateItemGroupElement();
+                        var sl1ItemGroup = auto.CreateItemGroupElement();
+                        var sourceitem = auto.CreateItemGroupElement();
+                        foreach (var prop in module.properties.Keys)
+                        {
+                            property_keys.Add(prop);
+                        }
+                        foreach (var value in module.properties.Values)
+                        {
+                            property_values.Add(value);
+                        }
+                        propertyGroup.AddProperty("DefaultTargets", "Build");
+                        for (int index = 0; index < module.properties.Keys.Count; index++)
+                        {
+                            auto.AddProperty(property_keys[index], property_values[index]);
+                        }
+                        auto.InsertAfterChild(slItemGroup, auto.LastChild);
+                        foreach (var reference in module.references)
+                        {
+                            slItemGroup.AddItem("Reference", reference);
+                        }
+                        auto.InsertAfterChild(sl1ItemGroup, auto.LastChild);
+                        auto.InsertAfterChild(sourceitem, auto.LastChild);
+                        sourceitem.AddItem("Compile", moduledir + module.main_cs);
+                        /** For reference to how to point to a file with a literal string
+                         * sourceitem.AddItem("Compile", moduledir + @"\\Template.cs");*/
+                        var target = auto.AddTarget("Build");
+                        var task = target.AddTask("Csc");
+                        task.SetParameter("Sources", "@(Compile)");
+                        var namekey = (from string key in property_keys
+                                    where (key.Contains("RootNamespace"))
+                                    select key);
+                        string name = "";
+                        module.properties.TryGetValue(namekey.First(), out name);
+                        task.SetParameter("OutputAssembly", moduledir + @"\\submodules\\" + Path.GetFileNameWithoutExtension(name + ".exe"));
+                        auto.Save(moduledir + @"\\output.csproj");
+                        Project program = new Project(auto.DirectoryPath + @"\\output.csproj");
+                        exts.SetResult(program.Build());
+                    }
+                }
+                return exts;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                exts.SetResult(false);
+                return exts;
+            }
+        }
+        internal class extensions
+        {
+            public ref List<bool> GetResults()
+            {
+                return ref result;
+            }
+            public void SetResult(bool r) 
+            {
+                result.Add(r);
+            }
+            private List<bool> result;
+        }
+        public List<Module> modules { get; set; }
     }
 }
