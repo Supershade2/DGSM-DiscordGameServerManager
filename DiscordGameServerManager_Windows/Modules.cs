@@ -17,8 +17,8 @@ namespace DiscordGameServerManager_Windows
         public static ProcessModuleCollection ModuleCollection;
         private const string dir = "Resources/Modules";
         private const string module_list = "modules.json";
-        public static Module_collection module_Collection;
-        public Modules() 
+        public static Modulecollection module_Collection;
+        public Modules()
         {
             Module sample = new Module();
             sample.main_cs = "example.cs";
@@ -26,6 +26,7 @@ namespace DiscordGameServerManager_Windows
             sample.references = new List<string>();
             sample.references.Add("System");
             sample.references.Add("System.Core");
+            sample.references.Add("System.IO.Pipes");
             sample.references.Add("System.Collections.Generic");
             sample.properties = new Dictionary<string, string>();
             sample.properties.Add("TargetFrameworkVersion", "v4.5");
@@ -33,34 +34,35 @@ namespace DiscordGameServerManager_Windows
             sample.properties.Add("OutputType", "Exe");
             List<Module> modules = new List<Module>();
             modules.Add(sample);
-            if (!File.Exists(dir + "/" + module_list)) 
+            string json;
+            if (!File.Exists(dir + "/" + module_list))
             {
                 switch (Directory.Exists(dir))
                 {
                     case true:
-                        string json = JsonConvert.SerializeObject(modules, Formatting.Indented);
+                        json = JsonConvert.SerializeObject(modules, Formatting.Indented);
                         File.WriteAllText(dir + "/" + module_list, json);
                         break;
                     default:
                         Directory.CreateDirectory(dir);
-                        string json0 = JsonConvert.SerializeObject(modules, Formatting.Indented);
-                        File.WriteAllText(dir + "/" + module_list, json0);
+                        json = JsonConvert.SerializeObject(modules, Formatting.Indented);
+                        File.ReadAllText(dir + "/" + module_list);
                         break;
                 }
             }
         }
-        public static void Initialize_Collection() 
+        public static void Initialize_Collection()
         {
             string json = File.ReadAllText(dir + "/" + module_list);
             List<Module> modules = JsonConvert.DeserializeObject<List<Module>>(json);
-            module_Collection = new Module_collection(modules);
+            module_Collection = new Modulecollection(modules);
         }
-        public static void BuildModules() 
+        public static void BuildModules()
         {
             List<bool> results = module_Collection.BuildModules(dir).GetResults();
-            for (int i = 0; i < results.Count; i++) 
+            for (int i = 0; i < results.Count; i++)
             {
-                Console.WriteLine("Module number:"+i+Heuristics.newline+"succeeded:"+results[i]+".");  
+                Console.WriteLine("Module number:" + i + Heuristics.newline + "succeeded:" + results[i] + ".");
             }
         }
     }
@@ -70,13 +72,13 @@ namespace DiscordGameServerManager_Windows
         public string module_resources { get; set; }
         public List<string> references { get; set; }
         public Dictionary<string, string> properties { get; set; }
-
+        public bool precompiled { get; set; }
     }
-    internal class Module_collection
+    internal class Modulecollection
     {
-        public Module_collection(List<Module> modules)
+        public Modulecollection(List<Module> modulelist)
         {
-            this.modules = modules;
+            this.modulelist = modulelist;
         }
         public extensions BuildModules(string dir)
         {
@@ -88,7 +90,7 @@ namespace DiscordGameServerManager_Windows
                 IEnumerable<string> module_dirs = Directory.EnumerateDirectories(dir);
                 foreach (var moduledir in module_dirs)
                 {
-                    foreach (var module in modules)
+                    foreach (var module in modulelist)
                     {
                         var auto = ProjectRootElement.Create();
                         var propertyGroup = auto.AddPropertyGroup();
@@ -122,11 +124,11 @@ namespace DiscordGameServerManager_Windows
                         var task = target.AddTask("Csc");
                         task.SetParameter("Sources", "@(Compile)");
                         var namekey = (from string key in property_keys
-                                    where (key.Contains("RootNamespace"))
-                                    select key);
+                                       where (key.Contains("RootNamespace"))
+                                       select key);
                         string name = "";
                         module.properties.TryGetValue(namekey.First(), out name);
-                        task.SetParameter("OutputAssembly", moduledir + @"\\submodules\\" + Path.GetFileNameWithoutExtension(name + ".exe"));
+                        task.SetParameter("OutputAssembly", moduledir + Path.GetFileNameWithoutExtension(name + ".exe"));
                         auto.Save(moduledir + @"\\output.csproj");
                         Project program = new Project(auto.DirectoryPath + @"\\output.csproj");
                         exts.SetResult(program.Build());
@@ -147,12 +149,12 @@ namespace DiscordGameServerManager_Windows
             {
                 return ref result;
             }
-            public void SetResult(bool r) 
+            public void SetResult(bool r)
             {
                 result.Add(r);
             }
             private List<bool> result;
         }
-        public List<Module> modules { get; set; }
+        public List<Module> modulelist { get; set; }
     }
 }

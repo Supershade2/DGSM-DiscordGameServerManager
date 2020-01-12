@@ -20,14 +20,14 @@ namespace DiscordGameServerManager_Windows
         static DiscordChannel discordChannel;
         static DiscordChannel message_channel;
         static string prefix = Config.bot.prefix.ToLower();
-        static bool thread_running;
         static bool backup_requested = false;
         static bool server_startup;
         static string user = "";
-        static Dictionary<string, string> prompts = new Dictionary<string, string>();
+        public static Dictionary<string, string> prompts = new Dictionary<string, string>();
         static bool IsValid = false;
         static ulong botID = Config.bot.ID;
         static bool dmchannel = false;
+        public static DiscordDmChannel discordDm = null;
         static void Main(string[] args)
         {
             //Creates the permissions.json file then prints whether it succeeds or fails to the console
@@ -62,6 +62,35 @@ namespace DiscordGameServerManager_Windows
             //Starts the bot through a try catch statement, if it fails it will print to console the error message
             try
             {
+                discord = new DiscordClient(new DiscordConfiguration
+                {
+                    Token = Config.bot.token,
+                    TokenType = TokenType.Bot
+                });
+                discordChannel = discord.GetChannelAsync(Config.bot.discord_channel).Result;
+                message_channel = discord.GetChannelAsync(Config.bot.message_channel).Result;
+                discord.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                if (!TimerThread.IsAlive)
+                {
+                    TimerThread = new Thread(async () =>
+                    {
+                        Stopwatch timer = new Stopwatch();
+                        timer.Start();
+                        TimeSpan ts = timer.Elapsed;
+                        while (true)
+                        {
+                            if (ts.Hours >= 12)
+                            {
+                                foreach (var m in Config.bot._messages)
+                                {
+                                    await Messages.message_send(m, message_channel, discord);
+                                    timer.Restart();
+                                }
+                            }
+                        }
+                    });
+                    TimerThread.Start();
+                }
                 MainDiscord(args).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch (Exception ex)
@@ -72,36 +101,6 @@ namespace DiscordGameServerManager_Windows
         }
         static async Task MainDiscord(string[] args)
         {
-            DiscordDmChannel discordDm = null;
-            discord = new DiscordClient(new DiscordConfiguration
-            {
-                Token = Config.bot.token,
-                TokenType = TokenType.Bot
-            });
-            discordChannel = discord.GetChannelAsync(Config.bot.discord_channel).Result;
-            message_channel = discord.GetChannelAsync(Config.bot.message_channel).Result;
-            if (!thread_running) 
-            {
-                TimerThread = new Thread(async () =>
-                {
-                    Stopwatch timer = new Stopwatch();
-                    timer.Start();
-                    TimeSpan ts = timer.Elapsed;
-                    while (true) 
-                    {
-                        if (ts.Hours >= 12)
-                        {
-                            foreach (var m in Config.bot._messages)
-                            {
-                                await Messages.message_send(m, message_channel, discord);
-                                timer.Restart();
-                            }
-                        }
-                    }
-                });
-                TimerThread.Start();
-            }
-            thread_running = true;
             //Discord channel id gets fetched from the id specified in config.json
             if (DiscordTrustManager.users.ToArray().Length == 0) 
             {
@@ -117,12 +116,10 @@ namespace DiscordGameServerManager_Windows
             };
             discord.MessageCreated += async e =>
             {
-               ProcessMessage(e);
+               await ProcessMessage(e);
             };
-            await discord.ConnectAsync().ConfigureAwait(false);
-            await Task.Delay(-1).ConfigureAwait(true);
         }
-        public static async void ProcessMessage(DSharpPlus.EventArgs.MessageCreateEventArgs e) 
+        public static async Task ProcessMessage(DSharpPlus.EventArgs.MessageCreateEventArgs e) 
         {
             DiscordDmChannel discordDm = null;
             IsValid = false;
@@ -323,9 +320,12 @@ namespace DiscordGameServerManager_Windows
                     if (item == '%')
                     {
                         IsParsing = IsParsing != true ? true : false;
-                        foreach (var i in username)
+                        if (IsParsing) 
                         {
-                            output += i;
+                            foreach (var i in username)
+                            {
+                                output += i;
+                            }
                         }
                     }
                     if (!IsParsing)
