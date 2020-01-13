@@ -69,6 +69,7 @@ namespace DiscordGameServerManager_Windows
                 });
                 discordChannel = discord.GetChannelAsync(Config.bot.discord_channel).Result;
                 message_channel = discord.GetChannelAsync(Config.bot.message_channel).Result;
+                discord.InitializeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 discord.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 if (!TimerThread.IsAlive)
                 {
@@ -91,7 +92,7 @@ namespace DiscordGameServerManager_Windows
                     });
                     TimerThread.Start();
                 }
-                MainDiscord(args).ConfigureAwait(false).GetAwaiter().GetResult();
+                MainDiscord(args);
             }
             catch (Exception ex)
             {
@@ -99,10 +100,10 @@ namespace DiscordGameServerManager_Windows
                 Console.WriteLine(ex.Message);
             }
         }
-        static async Task MainDiscord(string[] args)
+        static void MainDiscord(string[] args)
         {
             //Discord channel id gets fetched from the id specified in config.json
-            if (DiscordTrustManager.users.ToArray().Length == 0) 
+            if (DiscordTrustManager.users.ToArray().Length == 0)
             {
                 DiscordTrustManager.setTotalUsers(discordChannel.Guild.MemberCount);
             }
@@ -116,7 +117,7 @@ namespace DiscordGameServerManager_Windows
             };
             discord.MessageCreated += async e =>
             {
-               await ProcessMessage(e);
+                await ProcessMessage(e);
             };
         }
         public static async Task ProcessMessage(DSharpPlus.EventArgs.MessageCreateEventArgs e) 
@@ -321,11 +322,11 @@ namespace DiscordGameServerManager_Windows
                     {
                         IsParsing = IsParsing != true ? true : false;
                         if (IsParsing) 
+                        { 
+                        foreach (var i in username)
                         {
-                            foreach (var i in username)
-                            {
-                                output += i;
-                            }
+                            output += i;
+                        }
                         }
                     }
                     if (!IsParsing)

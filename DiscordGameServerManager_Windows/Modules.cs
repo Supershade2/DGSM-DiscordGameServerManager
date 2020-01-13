@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Construction;
@@ -13,8 +12,6 @@ namespace DiscordGameServerManager_Windows
 
     class Modules
     {
-        public static Process process;
-        public static ProcessModuleCollection ModuleCollection;
         private const string dir = "Resources/Modules";
         private const string module_list = "modules.json";
         public static Modulecollection module_Collection;
@@ -29,7 +26,7 @@ namespace DiscordGameServerManager_Windows
             sample.references.Add("System.IO.Pipes");
             sample.references.Add("System.Collections.Generic");
             sample.properties = new Dictionary<string, string>();
-            sample.properties.Add("TargetFrameworkVersion", "v4.5");
+            sample.properties.Add("TargetFramework", "netcoreapp2.2");
             sample.properties.Add("RootNamespace", "Module_Namespace");
             sample.properties.Add("OutputType", "Exe");
             List<Module> modules = new List<Module>();
@@ -50,6 +47,7 @@ namespace DiscordGameServerManager_Windows
                         break;
                 }
             }
+            Initialize_Collection();
         }
         public static void Initialize_Collection()
         {
@@ -92,11 +90,11 @@ namespace DiscordGameServerManager_Windows
                 {
                     foreach (var module in modulelist)
                     {
-                        var auto = ProjectRootElement.Create();
-                        var propertyGroup = auto.AddPropertyGroup();
-                        var slItemGroup = auto.CreateItemGroupElement();
-                        var sl1ItemGroup = auto.CreateItemGroupElement();
-                        var sourceitem = auto.CreateItemGroupElement();
+                        var pr = ProjectRootElement.Create();
+                        var propertyGroup = pr.AddPropertyGroup();
+                        var slItemGroup = pr.CreateItemGroupElement();
+                        var sl1ItemGroup = pr.CreateItemGroupElement();
+                        var sourceitem = pr.CreateItemGroupElement();
                         foreach (var prop in module.properties.Keys)
                         {
                             property_keys.Add(prop);
@@ -108,29 +106,29 @@ namespace DiscordGameServerManager_Windows
                         propertyGroup.AddProperty("DefaultTargets", "Build");
                         for (int index = 0; index < module.properties.Keys.Count; index++)
                         {
-                            auto.AddProperty(property_keys[index], property_values[index]);
+                            pr.AddProperty(property_keys[index], property_values[index]);
                         }
-                        auto.InsertAfterChild(slItemGroup, auto.LastChild);
+                        pr.InsertAfterChild(slItemGroup, pr.LastChild);
                         foreach (var reference in module.references)
                         {
                             slItemGroup.AddItem("Reference", reference);
                         }
-                        auto.InsertAfterChild(sl1ItemGroup, auto.LastChild);
-                        auto.InsertAfterChild(sourceitem, auto.LastChild);
+                        pr.InsertAfterChild(sl1ItemGroup, pr.LastChild);
+                        pr.InsertAfterChild(sourceitem, pr.LastChild);
                         sourceitem.AddItem("Compile", moduledir + module.main_cs);
                         /** For reference to how to point to a file with a literal string
                          * sourceitem.AddItem("Compile", moduledir + @"\\Template.cs");*/
-                        var target = auto.AddTarget("Build");
+                        var target = pr.AddTarget("Build");
                         var task = target.AddTask("Csc");
                         task.SetParameter("Sources", "@(Compile)");
                         var namekey = (from string key in property_keys
                                        where (key.Contains("RootNamespace"))
                                        select key);
                         string name = "";
-                        module.properties.TryGetValue(namekey.First(), out name);
+                        module.properties.TryGetValue(namekey.Single(), out name);
                         task.SetParameter("OutputAssembly", moduledir + Path.GetFileNameWithoutExtension(name + ".exe"));
-                        auto.Save(moduledir + @"\\output.csproj");
-                        Project program = new Project(auto.DirectoryPath + @"\\output.csproj");
+                        pr.Save(moduledir + @"\\output.csproj");
+                        Project program = new Project(pr.DirectoryPath + @"\\output.csproj");
                         exts.SetResult(program.Build());
                     }
                 }
