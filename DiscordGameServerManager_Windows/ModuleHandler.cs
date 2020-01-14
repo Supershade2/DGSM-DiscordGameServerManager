@@ -66,7 +66,7 @@ namespace DiscordGameServerManager_Windows
         public static void getProcessModules(string name) 
         {
             startInfo = new ProcessStartInfo("dotnet");
-            startInfo.Arguments = "run -- "+pipenames[current_pipe];
+            startInfo.Arguments = "run "+dir+name+" -- "+pipenames[current_pipe];
             current_pipe = current_pipe < pipenames.Count ? current_pipe+1:current_pipe;
             process.StartInfo = startInfo;
             process.Start();
