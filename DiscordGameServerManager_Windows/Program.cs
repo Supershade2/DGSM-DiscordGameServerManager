@@ -78,11 +78,12 @@ namespace DiscordGameServerManager_Windows
                         Stopwatch timer = new Stopwatch();
                         timer.Start();
                         TimeSpan ts = timer.Elapsed;
+                        Messages.message[] thread_messages = Config.bot._messages;
                         while (true)
                         {
                             if (ts.Hours >= 12)
                             {
-                                foreach (var m in Config.bot._messages)
+                                foreach (var m in thread_messages)
                                 {
                                     await Messages.message_send(m, message_channel, discord);
                                     timer.Restart();
