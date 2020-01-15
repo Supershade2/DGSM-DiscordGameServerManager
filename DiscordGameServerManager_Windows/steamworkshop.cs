@@ -60,7 +60,7 @@ namespace DiscordGameServerManager_Windows
                         { "appid", Default_appID}
                     };
                 var content = new FormUrlEncodedContent(values);
-                var response = await client.GetAsync("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/", content);
+                var response = await client.GetAsync("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/"+content);
                 details[i] = await response.Content.ReadAsStringAsync();
             }
             return details;
@@ -77,7 +77,7 @@ namespace DiscordGameServerManager_Windows
                         { "appid", app_id}
                     };
                 var content = new FormUrlEncodedContent(values);
-                var response = await client.GetAsync("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/", content);
+                var response = await client.GetAsync("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/"+content);
                 details[i] = await response.Content.ReadAsStringAsync();
             }
             return details;
