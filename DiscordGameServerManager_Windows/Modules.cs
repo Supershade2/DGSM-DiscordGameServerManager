@@ -43,7 +43,7 @@ namespace DiscordGameServerManager_Windows
                     default:
                         Directory.CreateDirectory(dir);
                         json = JsonConvert.SerializeObject(modules, Formatting.Indented);
-                        File.ReadAllText(dir + "/" + module_list);
+                        File.WriteAllText(dir + "/" + module_list, json);
                         break;
                 }
             }
@@ -70,7 +70,7 @@ namespace DiscordGameServerManager_Windows
         public string module_resources { get; set; }
         public List<string> references { get; set; }
         public Dictionary<string, string> properties { get; set; }
-        public bool precompiled { get; set; }
+        public bool prepackaged { get; set; }
     }
     internal class Modulecollection
     {

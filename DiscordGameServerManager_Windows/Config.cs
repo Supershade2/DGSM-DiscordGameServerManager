@@ -55,6 +55,7 @@ namespace DiscordGameServerManager_Windows
     public struct BotConfig
     {
         public string token { get; set; }
+        public ulong server_guild_id { get; set; }
         public ulong discord_channel { get; set; }
         public ulong message_channel { get; set; }
         public string steamcmd_dir { get; set; }

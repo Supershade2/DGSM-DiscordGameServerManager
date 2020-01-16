@@ -14,11 +14,35 @@ namespace DiscordGameServerManager_Windows
 {
     class Program
     {
-        public static Thread TimerThread;
+        
+        public static Thread TimerThread = new Thread(async () =>
+        {
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+            TimeSpan ts = timer.Elapsed;
+            Messages.message[] thread_messages = Config.bot._messages;
+            while (true)
+            {
+                if (ts.Hours >= 12)
+                {
+                    foreach (var m in thread_messages)
+                    {
+                        await Messages.message_send(m, message_channel, discord);
+                        timer.Restart();
+                    }
+                }
+            }
+        });
         public static Thread RconThread;
-        static DiscordClient discord;
+        static Modules modules;
+        static DiscordClient discord = new DiscordClient(new DiscordConfiguration
+        {
+            Token = Config.bot.token,
+            TokenType = TokenType.Bot
+        });
         static DiscordChannel discordChannel;
         static DiscordChannel message_channel;
+        static DiscordGuild Guild;
         static string prefix = Config.bot.prefix.ToLower();
         static bool backup_requested = false;
         static bool server_startup;
@@ -59,38 +83,23 @@ namespace DiscordGameServerManager_Windows
                 Console.WriteLine("Failed to load DMs.json");
                 Console.WriteLine(ex.Message);
             }
+            try
+            {
+                modules = new Modules();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             //Starts the bot through a try catch statement, if it fails it will print to console the error message
             try
             {
-                discord = new DiscordClient(new DiscordConfiguration
-                {
-                    Token = Config.bot.token,
-                    TokenType = TokenType.Bot
-                });
-                discordChannel = discord.GetChannelAsync(Config.bot.discord_channel).Result;
-                message_channel = discord.GetChannelAsync(Config.bot.message_channel).Result;
                 discord.InitializeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 discord.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                discordChannel = discord.GetChannelAsync(Config.bot.discord_channel).Result;
+                message_channel = discord.GetChannelAsync(Config.bot.message_channel).Result;
                 if (!TimerThread.IsAlive)
                 {
-                    TimerThread = new Thread(async () =>
-                    {
-                        Stopwatch timer = new Stopwatch();
-                        timer.Start();
-                        TimeSpan ts = timer.Elapsed;
-                        Messages.message[] thread_messages = Config.bot._messages;
-                        while (true)
-                        {
-                            if (ts.Hours >= 12)
-                            {
-                                foreach (var m in thread_messages)
-                                {
-                                    await Messages.message_send(m, message_channel, discord);
-                                    timer.Restart();
-                                }
-                            }
-                        }
-                    });
                     TimerThread.Start();
                 }
                 MainDiscord(args);
@@ -103,23 +112,34 @@ namespace DiscordGameServerManager_Windows
         }
         static void MainDiscord(string[] args)
         {
-            //Discord channel id gets fetched from the id specified in config.json
-            if (DiscordTrustManager.users.ToArray().Length == 0)
+            while (true) 
             {
-                DiscordTrustManager.setTotalUsers(discordChannel.Guild.MemberCount);
+                //Discord channel id gets fetched from the id specified in config.json
+                if (DiscordTrustManager.users.Count == 0)
+                {
+                    if (discordChannel.Guild == null)
+                    {
+                        Guild = discord.GetGuildAsync(Config.bot.server_guild_id).ConfigureAwait(false).GetAwaiter().GetResult();
+                        DiscordTrustManager.setTotalUsers(Guild.MemberCount);
+                    }
+                    else 
+                    {
+                        DiscordTrustManager.setTotalUsers(discordChannel.Guild.MemberCount);
+                    }
+                }
+                //This will execute if a user dm's the bot, the bot then will add the dm as a list of logged dm's
+                discord.DmChannelCreated += async e =>
+                {
+                    dmchannel = true;
+                    discordDm = e.Channel;
+                    //Logs Direct messages in memory
+                    await LogDMs();
+                };
+                discord.MessageCreated += async e =>
+                {
+                    await ProcessMessage(e);
+                };
             }
-            //This will execute if a user dm's the bot, the bot then will add the dm as a list of logged dm's
-            discord.DmChannelCreated += async e =>
-            {
-                dmchannel = true;
-                discordDm = e.Channel;
-                //Logs Direct messages in memory
-                await LogDMs();
-            };
-            discord.MessageCreated += async e =>
-            {
-                await ProcessMessage(e);
-            };
         }
         public static async Task ProcessMessage(DSharpPlus.EventArgs.MessageCreateEventArgs e) 
         {
