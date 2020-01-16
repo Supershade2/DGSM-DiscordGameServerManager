@@ -34,18 +34,17 @@ namespace DiscordGameServerManager_Windows
             }
         });
         public static Thread RconThread;
-        static Modules modules;
         static DiscordClient discord = new DiscordClient(new DiscordConfiguration
         {
             Token = Config.bot.token,
             TokenType = TokenType.Bot
         });
-        static DiscordChannel discordChannel;
-        static DiscordChannel message_channel;
+        static DiscordChannel discordChannel = discord.GetChannelAsync(Config.bot.discord_channel).Result;
+        static DiscordChannel message_channel = discord.GetChannelAsync(Config.bot.message_channel).Result;
         static DiscordGuild Guild;
         static string prefix = Config.bot.prefix.ToLower();
         static bool backup_requested = false;
-        static bool server_startup;
+        static bool server_startup = false;
         static string user = "";
         public static Dictionary<string, string> prompts = new Dictionary<string, string>();
         static bool IsValid = false;
@@ -83,21 +82,11 @@ namespace DiscordGameServerManager_Windows
                 Console.WriteLine("Failed to load DMs.json");
                 Console.WriteLine(ex.Message);
             }
-            try
-            {
-                modules = new Modules();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
             //Starts the bot through a try catch statement, if it fails it will print to console the error message
             try
             {
                 discord.InitializeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 discord.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                discordChannel = discord.GetChannelAsync(Config.bot.discord_channel).Result;
-                message_channel = discord.GetChannelAsync(Config.bot.message_channel).Result;
                 if (!TimerThread.IsAlive)
                 {
                     TimerThread.Start();
