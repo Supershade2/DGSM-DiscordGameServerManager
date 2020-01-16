@@ -22,6 +22,10 @@ namespace DiscordGameServerManager_Windows
         private static bool default_perm_value = false;
         static DiscordTrustManager()
         {
+            if (channel_dictionary.channels == null) 
+            {
+                channel_dictionary.channels = new Dictionary<ulong, channel>();
+            }
             switch (load()) 
             {
                 case false:
@@ -81,12 +85,13 @@ namespace DiscordGameServerManager_Windows
         public static int getTotalUsers() 
         {
             usernum = Messages.userDM.Count;
-
             return usernum;
         }
         public static void setTotalUsers(int usercount) 
         {
             usernum = usercount;
+            Details.d.user_count = usercount;
+            Details.write();
         }
         public static void getTotalUsers(BotConfig bot) 
         {
@@ -100,7 +105,7 @@ namespace DiscordGameServerManager_Windows
             User.username = name;
             User.userID = id;
             bool[] perms_array = new bool[0];
-            setPermissions(perms_array);
+            setPermissions(perms_array, User);
             users.Add(User);
             channel.users = users;
             channel_dictionary.channels.Add(dmChannel.Id,channel);
@@ -114,7 +119,7 @@ namespace DiscordGameServerManager_Windows
             User.username = name;
             User.userID = id;
             bool[] perms_array = new bool[0];
-            setPermissions(perms_array);
+            setPermissions(perms_array,User);
             users.Add(User);
             channel.users = users;
             channel_dictionary.channels.Add(Dchannel.Id, channel);
@@ -145,7 +150,7 @@ namespace DiscordGameServerManager_Windows
         {
             channel.name = name;
         }
-        public static void setPermissions(bool[] perm_values)
+        public static void setPermissions(bool[] perm_values, user u)
         {
             switch (perm_values.Length)
             {
@@ -206,6 +211,11 @@ namespace DiscordGameServerManager_Windows
                     perms.voice = default_perm_value;
                     break;
             }
+            int indx = users.IndexOf(u);
+            user usr = new user();
+            usr.perms = new permissions();
+            usr.perms = perms;
+            users[indx] = usr;
         }
         public static void setPermissions(ulong channel_id, ulong user_id,bool[] perm_values) 
         {
@@ -310,10 +320,6 @@ namespace DiscordGameServerManager_Windows
         }
         public static bool createJSON()
         {
-            for (int i = 0; i < users.ToArray().Length; i++) 
-            {
-                users.ToArray()[i].perms = perms;
-            }
             try
             {
                 if (!File.Exists(dir + "/" + config))

@@ -30,8 +30,21 @@ namespace DiscordGameServerManager_Windows
         }
         public static void load()
         {
-            string json = File.ReadAllText(dir + "/" + config);
-            d = JsonConvert.DeserializeObject<details>(json);
+            FileInfo f_info = new FileInfo(dir + "/" + config);
+            if (f_info.Length > 0) 
+            {
+                string json = File.ReadAllText(dir + "/" + config);
+                d = JsonConvert.DeserializeObject<details>(json);
+            }
+            else 
+            {
+                write();
+            }
+        }
+        public static void write() 
+        {
+            string json = JsonConvert.SerializeObject(d, Formatting.Indented);
+            File.WriteAllText(dir + "/" + config, json);
         }
     }
     public struct details 

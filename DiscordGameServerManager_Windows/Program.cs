@@ -91,7 +91,10 @@ namespace DiscordGameServerManager_Windows
                 {
                     TimerThread.Start();
                 }
-                MainDiscord(args);
+                while (true) 
+                {
+                    MainDiscord(args);
+                }
             }
             catch (Exception ex)
             {
@@ -101,10 +104,8 @@ namespace DiscordGameServerManager_Windows
         }
         static void MainDiscord(string[] args)
         {
-            while (true) 
-            {
-                //Discord channel id gets fetched from the id specified in config.json
-                if (DiscordTrustManager.users.Count == 0)
+            //Discord channel id gets fetched from the id specified in config.json
+            if (DiscordTrustManager.users.Count == 0)
                 {
                     if (discordChannel.Guild == null)
                     {
@@ -128,7 +129,6 @@ namespace DiscordGameServerManager_Windows
                 {
                     await ProcessMessage(e);
                 };
-            }
         }
         public static async Task ProcessMessage(DSharpPlus.EventArgs.MessageCreateEventArgs e) 
         {
@@ -138,11 +138,18 @@ namespace DiscordGameServerManager_Windows
             switch (isBot)
             {
                 case false:
+                    if (DiscordTrustManager.channel_dictionary.channels.Count == 0)
+                    {
+                        DiscordTrustManager.addChannel(e.Author.Username + e.Author.Discriminator, e.Author.Id, e.Channel);
+                    }
+                    if (!DiscordTrustManager.channel_dictionary.channels.ContainsKey(e.Channel.Id))
+                    {
+                        DiscordTrustManager.addChannel(e.Author.Username + e.Author.Discriminator, e.Author.Id, e.Channel);
+                    }
                     foreach (var chnl in DiscordTrustManager.channel_dictionary.channels)
                     {
                         if (chnl.Key != e.Channel.Id)
                         {
-                            DiscordTrustManager.addChannel(e.Author.Username + e.Author.Discriminator, e.Author.Id, e.Channel);
                         }
                         else 
                         {
