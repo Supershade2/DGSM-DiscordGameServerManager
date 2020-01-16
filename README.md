@@ -24,6 +24,9 @@ C# discord bot that can be utilized to manage game servers through discord<br />
 	token: discord bots token gets put in here
 </li>
 <li>
+	server_guild_id: ID of the server or guild goes here
+</li>
+<li>
 	discord_channel: discord channel id for the designated management channel goes here
 </li>
 <li>
