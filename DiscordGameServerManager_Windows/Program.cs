@@ -63,9 +63,9 @@ namespace DiscordGameServerManager_Windows
             {
                 RconThread = new Thread(() =>
                 {
-                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
-                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld");
-                    Rcon("127.0.0.1", Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit");
+                    Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
+                    Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld");
+                    Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit");
                 });
             }
             catch (Exception ex)

@@ -23,6 +23,10 @@ namespace DiscordGameServerManager_Windows
                 File.Create(dir + "/" + config).Close();
                 bot = new BotConfig();
                 bot.useHeuristics = false;
+                bot.rcon_address = "127.0.0.1";
+                bot.rcon_pass = "password";
+                bot.rcon_port = 27015;
+                bot.admin_pass = "ARK admin pass goes here";
                 //initializes default messages for specific dates
                 bot._messages = new Messages.message[14];
                 bot._messages[12].Date = DateTime.Parse("12/24/2020");
@@ -62,6 +66,7 @@ namespace DiscordGameServerManager_Windows
         public string game_dir { get; set; }
         public string wsapikey { get; set; }
         public string wscollectionid { get; set; }
+        public string rcon_address { get; set; }
         public int rcon_port { get; set; }
         public string rcon_pass { get; set; }
         public string admin_pass { get; set; }
