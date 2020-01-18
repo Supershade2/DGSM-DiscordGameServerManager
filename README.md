@@ -42,6 +42,9 @@ C# discord bot that can be utilized to manage game servers through discord<br />
 	wscollectionid: id of the steam workshop collection goes here
 </li>
 <li>
+	rcon_address: address of the server to use RCON
+</li>
+<li>
 	rcon_port: rcon port number for the server goes here
 </li>
 <li>
