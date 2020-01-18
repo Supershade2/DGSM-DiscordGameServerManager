@@ -104,7 +104,7 @@ namespace DiscordGameServerManager_Windows
         }
         static void MainDiscord(string[] args)
         {
-            //Discord channel id gets fetched from the id specified in config.json
+            //Discord guild gets fetched from the id specified in config.json
             if (DiscordTrustManager.users.Count == 0)
                 {
                     if (discordChannel.Guild == null)

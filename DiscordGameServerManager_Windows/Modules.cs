@@ -15,6 +15,7 @@ namespace DiscordGameServerManager_Windows
         private const string dir = "Resources/Modules";
         private const string module_list = "modules.json";
         public static Modulecollection module_Collection;
+        public static Modules m = new Modules();
         public Modules()
         {
             Module sample = new Module();
