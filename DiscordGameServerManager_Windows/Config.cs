@@ -69,7 +69,6 @@ namespace DiscordGameServerManager_Windows
         public string rcon_address { get; set; }
         public int rcon_port { get; set; }
         public string rcon_pass { get; set; }
-        public string admin_pass { get; set; }
         public string game_launch_args { get; set; }
         public string prefix { get; set; }
         public string backup_dir { get; set; }

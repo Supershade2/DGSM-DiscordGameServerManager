@@ -63,7 +63,7 @@ namespace DiscordGameServerManager_Windows
             {
                 RconThread = new Thread(() =>
                 {
-                    Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
+                    //Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
                     Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld");
                     Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit");
                 });
