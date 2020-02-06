@@ -26,7 +26,6 @@ namespace DiscordGameServerManager_Windows
                 bot.rcon_address = "127.0.0.1";
                 bot.rcon_pass = "password";
                 bot.rcon_port = 27015;
-                bot.admin_pass = "ARK admin pass goes here";
                 //initializes default messages for specific dates
                 bot._messages = new Messages.message[14];
                 bot._messages[12].Date = DateTime.Parse("12/24/2020");

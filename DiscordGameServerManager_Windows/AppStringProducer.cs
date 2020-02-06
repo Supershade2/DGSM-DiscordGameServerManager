@@ -23,7 +23,14 @@ namespace DiscordGameServerManager_Windows
             switch (needs_extension)
             {
                 case true:
-
+                    if (OS_Info.platform == OSPlatform.Windows)
+                    {
+                        return System.IO.Path.GetFileNameWithoutExtension(app) + ".exe";
+                    }
+                    else if (OS_Info.platform == OSPlatform.Linux || OS_Info.platform == OSPlatform.OSX) 
+                    {
+                        return System.IO.Path.GetFileNameWithoutExtension(app) + ".deb";
+                    }
                     break;
                 default:
                     break;

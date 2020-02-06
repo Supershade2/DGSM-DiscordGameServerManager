@@ -87,6 +87,7 @@ namespace DiscordGameServerManager_Windows
             try
             {
                 IEnumerable<string> module_dirs = Directory.EnumerateDirectories(dir);
+                exts.subprograms = modulelist;
                 foreach (var moduledir in module_dirs)
                 {
                     foreach (var module in modulelist)
@@ -155,5 +156,6 @@ namespace DiscordGameServerManager_Windows
             result.Add(r);
         }
         private List<bool> result;
+		public List<Module> subprograms{get; set;}
     }
 }
