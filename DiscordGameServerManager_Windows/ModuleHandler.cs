@@ -63,8 +63,23 @@ namespace DiscordGameServerManager_Windows
             }
         }
         public static void InitializePipes(string[] names) 
-        { 
-            
+        {
+            if (names.Length == Modules.module_Collection.modulelist.Count)
+            {
+                for (int i = 0; i < names.Length; i++)
+                {
+                    namedPipeServerStreams[i] = new NamedPipeServerStream(names[i]);
+                    pipenames.Add(names[i]);
+                }
+            }
+            else if (names.Length > Modules.module_Collection.modulelist.Count)
+            {
+                Console.WriteLine("Too many names given for number of modules");
+            }
+            else 
+            {
+                Console.WriteLine("Too few names given for number of modules");
+            }
         }
         public static void StartProcessModule(string name) 
         {
@@ -113,7 +128,14 @@ namespace DiscordGameServerManager_Windows
         public static void ReadPipe(int index) 
         {
             List<string> pipedata = new List<string>();
-
+            string data = "";
+            List<byte> data_bytes = new List<byte>();
+            byte data_byte;
+            do
+            {
+                data_byte = (byte)namedPipeServerStreams[index].ReadByte();
+                data_bytes.Add(data_byte);
+            } while ((int)data_byte != -1);
         }
     }
 }
