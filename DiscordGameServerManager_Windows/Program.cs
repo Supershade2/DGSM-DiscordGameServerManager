@@ -61,12 +61,7 @@ namespace DiscordGameServerManager_Windows
             OS_Info.GetOSPlatform();
             try
             {
-                RconThread = new Thread(() =>
-                {
-                    //Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
-                    Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld");
-                    Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit");
-                });
+                CreateRcon(true);
             }
             catch (Exception ex)
             {
@@ -388,6 +383,7 @@ namespace DiscordGameServerManager_Windows
                     temp = null;
                     if (Game_Profile._profile.Is_Steam == true)
                     {
+                        CreateRcon(false);
                         switch (option)
                         {
                             case 0:
@@ -544,6 +540,39 @@ namespace DiscordGameServerManager_Windows
             //output = "";
             //error = "";
         }
+        //Iinitializes RCON thread with either main config arguments or Game_Profile Arguments
+        static void CreateRcon(bool MainConfig) 
+        {
+            switch (MainConfig)
+            {
+                case true:
+                    if (Config.bot.rcon_pass != "" || Config.bot.rcon_pass != null)
+                    {
+                        RconThread = new Thread(() =>
+                        {
+                            //Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
+                            Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld");
+                            Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit");
+                        });
+                    }
+                    break;
+                default:
+                    if (Game_Profile._profile.rcon_address != null || Game_Profile._profile.rcon_address != "")
+                    {
+                        RconThread = new Thread(() =>
+                        {
+                            //Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
+                            string[] args = Game_Profile._profile.rcon_commands;
+                            for (int i = 0; i < args.Length; i++)
+                            {
+                                Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, args[i]);
+                            }
+                        });
+                    }
+                    break;
+            }
+        }
+        //Forces Ark server shutdown by Terminating the process
         static void force_shutdown_ARK(Thread thread)
         {
             if (thread.IsAlive)
@@ -579,6 +608,7 @@ namespace DiscordGameServerManager_Windows
         static async Task message_send(string str, DiscordChannel discordChannel)
         {
             DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, str, false, null);
+            await discordMessage.RespondAsync();
         }
         static async Task LogDMs()
         {

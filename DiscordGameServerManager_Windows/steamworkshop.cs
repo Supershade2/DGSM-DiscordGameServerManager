@@ -82,15 +82,131 @@ namespace DiscordGameServerManager_Windows
             }
             return details;
         }
-        private static async Task<string[]> parse_Details(string details) 
+        private static async Task<string[]> parse_Details(string details)
         {
-            string[] items = new string[2];
-            return items;
+            List<string> items = new List<string>();
+            char[] ca = details.ToCharArray();
+            bool Is_open = false;
+            bool keyfound = false;
+            string trigger = "publishedfileid";
+            string item = "";
+            for (int i = 0; i < ca.Length; i++)
+            {
+                if (ca[i] == '"')
+                {
+                    Is_open = Is_open == true ? false : true;
+                    if (!keyfound)
+                    {
+                        switch (Is_open)
+                        {
+                            case true:
+                                break;
+                            default:
+                                keyfound = item.ToLower() == trigger.ToLower() ? true : false;
+                                item = "";
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (Is_open)
+                        {
+                            case true:
+                                break;
+                            default:
+                                items.Add(item);
+                                item = "";
+                                keyfound = false;
+                                break;
+                        }
+                    }
+                }
+                else if (Is_open)
+                {
+                    item += ca[i];
+                }
+            }
+            return items.ToArray();
+        }
+        private static async Task<string[]> get_Downloads(string details)
+        {
+            List<string> items = new List<string>();
+            char[] ca = details.ToCharArray();
+            bool Is_open = false;
+            bool keyfound = false;
+            string trigger = "file_url";
+            string item = "";
+            for (int i = 0; i < ca.Length; i++)
+            {
+                if (ca[i] == '"')
+                {
+                    Is_open = Is_open == true ? false : true;
+                    if (!keyfound)
+                    {
+                        switch (Is_open)
+                        {
+                            case true:
+                                break;
+                            default:
+                                keyfound = item.ToLower() == trigger.ToLower() ? true : false;
+                                item = "";
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (Is_open)
+                        {
+                            case true:
+                                break;
+                            default:
+                                if (item.ToLower().Contains(".zip"))
+                                {
+                                    items.Add(item);
+                                }
+                                item = "";
+                                keyfound = false;
+                                break;
+                        }
+                    }
+                }
+                else if (Is_open)
+                {
+                    item += ca[i];
+                }
+            }
+            return items.ToArray();
         }
         public static async Task<bool> GetFiles(string files) 
         {
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            return false;
+            //client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            try
+            {
+                string[] collection = await parse_Details(await get_CollectionDetailsAsync());
+                string[] file_details = await get_PublishedFileDetails(collection);
+                string combined = "";
+                for (int i = 0; i < file_details.Length; i++)
+                {
+                    combined += file_details[i];
+                }
+                string[] downloads = await get_Downloads(combined);
+                for (int i = 0; i < downloads.Length; i++)
+                {
+                    var response = await client.GetAsync(downloads[i]);
+                    if (!Directory.Exists("/mods"))
+                    {
+                        Directory.CreateDirectory("/mods");
+                    }
+                    FileStream fs = new FileStream(string.Format("/mods/{0}.zip", file_details[i]), FileMode.CreateNew, FileAccess.Write);
+                    await response.Content.CopyToAsync(fs);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync("Method: GetFiles"+Environment.NewLine+ex.Message);
+                return false;
+            }
         }
     }
 }
