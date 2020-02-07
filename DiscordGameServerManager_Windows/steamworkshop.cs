@@ -3,10 +3,6 @@ using System.Net.Http;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System.Text;
-using SteamKit2;
-using SteamWebAPI2.Utilities;
-using SteamWebAPI2.Interfaces;
 
 namespace DiscordGameServerManager_Windows
 {
@@ -82,7 +78,7 @@ namespace DiscordGameServerManager_Windows
             }
             return details;
         }
-        private static async Task<string[]> parse_Details(string details)
+        private static string[] parse_Details(string details)
         {
             List<string> items = new List<string>();
             char[] ca = details.ToCharArray();
@@ -182,7 +178,7 @@ namespace DiscordGameServerManager_Windows
             //client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             try
             {
-                string[] collection = await parse_Details(await get_CollectionDetailsAsync());
+                string[] collection = parse_Details(await get_CollectionDetailsAsync());
                 string[] file_details = await get_PublishedFileDetails(collection);
                 string combined = "";
                 for (int i = 0; i < file_details.Length; i++)
