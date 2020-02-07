@@ -14,6 +14,7 @@ namespace DiscordGameServerManager_Windows
         static Details()
         { 
             d.culture_name = cinfo.Name;
+            d.default_extension = AppStringProducer.GetSystemCompatibleString("", true);
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
@@ -51,5 +52,6 @@ namespace DiscordGameServerManager_Windows
     {
         public int user_count { get; set; }
         public string culture_name { get; set; }
+        public string default_extension { get; set; }
     }
 }

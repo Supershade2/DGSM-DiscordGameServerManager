@@ -20,7 +20,7 @@ namespace DiscordGameServerManager_Windows
         }
         public static string GetSystemCompatibleString(string app, bool needs_extension) 
         {
-            string f = "";
+            string f;
             switch (needs_extension)
             {
                 case true:
@@ -32,6 +32,7 @@ namespace DiscordGameServerManager_Windows
                     {
                         return System.IO.Path.GetFileNameWithoutExtension(app) + ".deb";
                     }
+                    f = System.IO.Path.GetFileNameWithoutExtension(app) + Details.d.default_extension;
                     break;
                 default:
                     f = GetSystemCompatibleString(app);
