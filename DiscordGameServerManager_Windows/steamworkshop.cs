@@ -177,7 +177,7 @@ namespace DiscordGameServerManager_Windows
             }
             return items.ToArray();
         }
-        public static async Task<bool> GetFiles(string files) 
+        public static async Task<bool> GetFiles() 
         {
             //client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             try
