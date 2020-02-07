@@ -16,6 +16,11 @@ C# discord bot that can be utilized to manage game servers through discord<br />
   </li>
   </ul>
   <em>Wiki pages of interest</em>
-  
-[Home](https://github.com/Supershade2/DGSM-DiscordGameServerManager/wiki)<br />
+  <ul>
+	<li>
+[Home](https://github.com/Supershade2/DGSM-DiscordGameServerManager/wiki)
+	</li>
+	<li>
 [Configuration](https://github.com/Supershade2/DGSM-DiscordGameServerManager/wiki/Configuration-overview:-Config.json)
+	</li>
+</ul>
