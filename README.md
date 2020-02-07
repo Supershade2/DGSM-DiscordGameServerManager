@@ -1,5 +1,5 @@
 # DGSM-DiscordGameServerManager
-C# discord bot that can be utilized to manage game servers through discord<br />
+C# discord bot that can be utilized to manage game servers through discord
 
 <em>Libraries/Sources used</em>
 <ul>
