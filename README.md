@@ -20,7 +20,9 @@ C# discord bot that can be utilized to manage game servers through discord<br />
 		  <li>
 	  <a href="https://www.nuget.org/packages/Microsoft.Build.Tasks.Core/">Core</a>
 		  </li>
+		  <li>
 		  <a href="https://www.nuget.org/packages/Microsoft.Build/">Build</a>
+		  </li>
 		  <li>
 		  <a href="https://www.nuget.org/packages/Microsoft.Build.Framework/">FrameWork</a>
 		  </li>
