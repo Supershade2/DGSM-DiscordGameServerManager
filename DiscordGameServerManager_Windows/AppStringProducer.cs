@@ -63,6 +63,7 @@ namespace DiscordGameServerManager_Windows
                     }
                     break;
                 default:
+                    f = GetSystemCompatibleString(app);
                     break;
             }
             return f;
