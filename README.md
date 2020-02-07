@@ -3,16 +3,16 @@ C# discord bot that can be utilized to manage game servers through discord<br />
 <em>Libraries/Sources used</em>
 <ul>
   <li>
-    DSharpplus: https://github.com/DSharpPlus/DSharpPlus
+	  <a href="https://github.com/DSharpPlus/DSharpPlus">DSharpplus</a>
   </li>
   <li>
-    NewtonsoftJSON: https://www.newtonsoft.com/json
+	  <a href="https://www.newtonsoft.com/json">NewtonsoftJSON</a>
   </li>
   <li>
-    SourceRcon: https://github.com/aiusepsi/SourceRcon
+	  <a href="https://github.com/aiusepsi/SourceRcon">SourceRcon</a>
   </li>
   <li>
-	MSBUILD:<br /> https://www.nuget.org/packages/Microsoft.Build.Runtime/ <br /> https://www.nuget.org/packages/Microsoft.Build.Tasks.Core/ <br /> https://www.nuget.org/packages/Microsoft.Build/ <br /> https://www.nuget.org/packages/Microsoft.Build.Framework/ <br /> https://www.nuget.org/packages/Microsoft.Build.Utilities.Core/
+	  MSBUILD:<br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Runtime/">Runtime</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Tasks.Core/">Core</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build/">Build</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Framework/">FrameWork</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Utilities.Core/">Utilities Core</a>
   </li>
   </ul>
   <em>Wiki pages of interest</em>
