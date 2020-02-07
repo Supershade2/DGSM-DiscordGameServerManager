@@ -12,7 +12,8 @@ C# discord bot that can be utilized to manage game servers through discord<br />
 	  <a href="https://github.com/aiusepsi/SourceRcon">SourceRcon</a>
   </li>
   <li>
-	  MSBUILD:<br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Runtime/">Runtime</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Tasks.Core/">Core</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build/">Build</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Framework/">FrameWork</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Utilities.Core/">Utilities Core</a>
+	  <a href="https://www.nuget.org/packages/Microsoft.Build.Runtime/">MSBUILD Runtime</a> <br />
+	  <a href="https://www.nuget.org/packages/Microsoft.Build.Tasks.Core/">MSBUILD Core</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build/">MSBUILD Build</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Framework/">MSBUILD FrameWork</a> <br /> <a href="https://www.nuget.org/packages/Microsoft.Build.Utilities.Core/">MSBUILD Utilities Core</a>
   </li>
   </ul>
   <em>Wiki pages of interest</em>
