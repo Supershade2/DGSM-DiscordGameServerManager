@@ -20,12 +20,13 @@ namespace DiscordGameServerManager_Windows
         }
         public static string GetSystemCompatibleString(string app, bool needs_extension) 
         {
+            string f = "";
             switch (needs_extension)
             {
                 case true:
                     if (OS_Info.platform == OSPlatform.Windows)
                     {
-                        return System.IO.Path.GetFileNameWithoutExtension(app) + ".exe";
+                        return System.IO.Path.GetFileNameWithoutExtension(app) + ".bat";
                     }
                     else if (OS_Info.platform == OSPlatform.Linux || OS_Info.platform == OSPlatform.OSX) 
                     {
@@ -33,9 +34,38 @@ namespace DiscordGameServerManager_Windows
                     }
                     break;
                 default:
+                    f = GetSystemCompatibleString(app);
                     break;
             }
-            return "";
+            return f;
+        }
+        public static string GetSystemCompatibleString(string app, bool needs_extension, bool isScript) 
+        {
+            string f = "";
+            switch (needs_extension)
+            {
+                case true:
+                    switch (isScript)
+                    {
+                        case true:
+                            if (OS_Info.platform == OSPlatform.Windows)
+                            {
+                                return System.IO.Path.GetFileNameWithoutExtension(app) + ".cmd";
+                            }
+                            else if (OS_Info.platform == OSPlatform.Linux || OS_Info.platform == OSPlatform.OSX)
+                            {
+                                return System.IO.Path.GetFileNameWithoutExtension(app) + ".sh";
+                            }
+                            break;
+                        default:
+                            f = GetSystemCompatibleString(app, needs_extension);
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return f;
         }
     }
 }
