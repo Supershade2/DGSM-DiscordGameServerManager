@@ -128,7 +128,7 @@ namespace DiscordGameServerManager_Windows
             }
             return items.ToArray();
         }
-        private static async Task<string[]> get_Downloads(string details)
+        private static string[] get_Downloads(string details)
         {
             List<string> items = new List<string>();
             char[] ca = details.ToCharArray();
@@ -189,7 +189,7 @@ namespace DiscordGameServerManager_Windows
                 {
                     combined += file_details[i];
                 }
-                string[] downloads = await get_Downloads(combined);
+                string[] downloads = get_Downloads(combined);
                 for (int i = 0; i < downloads.Length; i++)
                 {
                     var response = await client.GetAsync(downloads[i]);
