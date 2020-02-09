@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Pipes;
+using System.IO.Pipelines;
 using System.Runtime;
 using System.Text;
 using System.Threading;
@@ -15,6 +16,7 @@ namespace DiscordGameServerManager_Windows
         public static int available_async_threads;
         public static Process process = new Process();
         public static ProcessStartInfo startInfo;
+        public static Pipe pipe = new Pipe();
         public static NamedPipeServerStream[] namedPipeServerStreams;
         public static Thread[] pipe_threads;
         static Random random = new Random();
@@ -32,14 +34,11 @@ namespace DiscordGameServerManager_Windows
             string name = System.Reflection.Assembly.GetEntryAssembly().FullName;
             char[] name_parts = name.ToCharArray();
             string pipename = "";
-            char last = ' ';
             for (int i = 0; i < namedPipeServerStreams.Length; i++)
             {
-
                 foreach (char c in name_parts)
                 {
-                    pipename += (char)random.Next(last + c);
-                    last = c;
+                    pipename += (char)random.Next(65,90);
                 }
                 if (pipenames.Count > 0) 
                 {
@@ -48,11 +47,19 @@ namespace DiscordGameServerManager_Windows
                         while (s.ToLower() == pipename.ToLower())
                         {
                             pipename = "";
-                            random = new Random();
+                            random = new Random(DateTime.UtcNow.Millisecond);
                             foreach (char c in name_parts)
                             {
-                                pipename += (char)random.Next(last + c);
-                                last = c;
+                                int num = random.Next(1,10);
+                                if (num > 5) 
+                                {
+                                    char ch = (char)random.Next(97, 122);
+                                    pipename += ch;
+                                }
+                                else 
+                                {
+                                    pipename += (char)random.Next(65, 90);
+                                }
                             }
                         }
                     }
@@ -119,23 +126,30 @@ namespace DiscordGameServerManager_Windows
             if (current_pipe+1 < available_threads)
             {
                 pipe_threads[current_pipe].Start();
-                ReadPipe(current_pipe);
+                ReadPipe(current_pipe).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             pipe_indexes.Add(current_pipe);
             current_pipe = current_pipe < pipenames.Count ? current_pipe+1:current_pipe;
             // Display the properties of each of the modules.
         }
-        public static void ReadPipe(int index) 
+        public static async Task<bool> ReadPipe(int index) 
         {
             List<string> pipedata = new List<string>();
             string data = "";
             List<byte> data_bytes = new List<byte>();
-            byte data_byte;
+            int data_byte;
+            namedPipeServerStreams[index].WaitForConnection();
             do
             {
-                data_byte = (byte)namedPipeServerStreams[index].ReadByte();
-                data_bytes.Add(data_byte);
-            } while ((int)data_byte != -1);
+                data_byte = namedPipeServerStreams[index].ReadByte();
+                data_bytes.Add((byte)data_byte);
+            } while (data_byte != -1);
+            byte[] str_bytes = Encoding.Convert(Encoding.UTF8, Encoding.ASCII, data_bytes.ToArray());
+            for (int i = 0; i < str_bytes.Length; i++) 
+            {
+                data += str_bytes[i];
+            }
+            return true;
         }
     }
 }

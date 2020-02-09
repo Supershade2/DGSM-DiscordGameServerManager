@@ -92,46 +92,49 @@ namespace DiscordGameServerManager_Windows
                 {
                     foreach (var module in modulelist)
                     {
-                        var pr = ProjectRootElement.Create();
-                        var propertyGroup = pr.AddPropertyGroup();
-                        var slItemGroup = pr.CreateItemGroupElement();
-                        var sl1ItemGroup = pr.CreateItemGroupElement();
-                        var sourceitem = pr.CreateItemGroupElement();
-                        foreach (var prop in module.properties.Keys)
+                        if (!module.prepackaged) 
                         {
-                            property_keys.Add(prop);
+                            var pr = ProjectRootElement.Create();
+                            var propertyGroup = pr.AddPropertyGroup();
+                            var slItemGroup = pr.CreateItemGroupElement();
+                            var sl1ItemGroup = pr.CreateItemGroupElement();
+                            var sourceitem = pr.CreateItemGroupElement();
+                            foreach (var prop in module.properties.Keys)
+                            {
+                                property_keys.Add(prop);
+                            }
+                            foreach (var value in module.properties.Values)
+                            {
+                                property_values.Add(value);
+                            }
+                            propertyGroup.AddProperty("DefaultTargets", "Build");
+                            for (int index = 0; index < module.properties.Keys.Count; index++)
+                            {
+                                pr.AddProperty(property_keys[index], property_values[index]);
+                            }
+                            pr.InsertAfterChild(slItemGroup, pr.LastChild);
+                            foreach (var reference in module.references)
+                            {
+                                slItemGroup.AddItem("Reference", reference);
+                            }
+                            pr.InsertAfterChild(sl1ItemGroup, pr.LastChild);
+                            pr.InsertAfterChild(sourceitem, pr.LastChild);
+                            sourceitem.AddItem("Compile", moduledir + module.main_cs);
+                            /** For reference to how to point to a file with a literal string
+                             * sourceitem.AddItem("Compile", moduledir + @"\\Template.cs");*/
+                            var target = pr.AddTarget("Build");
+                            var task = target.AddTask("Csc");
+                            task.SetParameter("Sources", "@(Compile)");
+                            var namekey = (from string key in property_keys
+                                           where (key.Contains("RootNamespace"))
+                                           select key);
+                            string name = "";
+                            module.properties.TryGetValue(namekey.Single(), out name);
+                            task.SetParameter("OutputAssembly", moduledir + Path.GetFileNameWithoutExtension(name + ".exe"));
+                            pr.Save(moduledir + @"\\output.csproj");
+                            Project program = new Project(pr.DirectoryPath + @"\\output.csproj");
+                            exts.SetResult(program.Build());
                         }
-                        foreach (var value in module.properties.Values)
-                        {
-                            property_values.Add(value);
-                        }
-                        propertyGroup.AddProperty("DefaultTargets", "Build");
-                        for (int index = 0; index < module.properties.Keys.Count; index++)
-                        {
-                            pr.AddProperty(property_keys[index], property_values[index]);
-                        }
-                        pr.InsertAfterChild(slItemGroup, pr.LastChild);
-                        foreach (var reference in module.references)
-                        {
-                            slItemGroup.AddItem("Reference", reference);
-                        }
-                        pr.InsertAfterChild(sl1ItemGroup, pr.LastChild);
-                        pr.InsertAfterChild(sourceitem, pr.LastChild);
-                        sourceitem.AddItem("Compile", moduledir + module.main_cs);
-                        /** For reference to how to point to a file with a literal string
-                         * sourceitem.AddItem("Compile", moduledir + @"\\Template.cs");*/
-                        var target = pr.AddTarget("Build");
-                        var task = target.AddTask("Csc");
-                        task.SetParameter("Sources", "@(Compile)");
-                        var namekey = (from string key in property_keys
-                                       where (key.Contains("RootNamespace"))
-                                       select key);
-                        string name = "";
-                        module.properties.TryGetValue(namekey.Single(), out name);
-                        task.SetParameter("OutputAssembly", moduledir + Path.GetFileNameWithoutExtension(name + ".exe"));
-                        pr.Save(moduledir + @"\\output.csproj");
-                        Project program = new Project(pr.DirectoryPath + @"\\output.csproj");
-                        exts.SetResult(program.Build());
                     }
                 }
                 return exts;

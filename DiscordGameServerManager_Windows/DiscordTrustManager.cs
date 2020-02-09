@@ -134,9 +134,13 @@ namespace DiscordGameServerManager_Windows
             channel_dictionary.channels.Add(Dchannel.Id, channel);
             write();
         }
-        private static void updateChannel(ulong id) 
-        { 
-            
+        public static void updateChannel(ulong id, DiscordDmChannel dmChannel) 
+        {
+            channel_dictionary.channels.Remove(dmChannel.Id);
+            User.userID = id;
+            channel.users = users;
+            channel_dictionary.channels.Add(dmChannel.Id, channel);
+            write();
         }
         public static void setChannelID(ulong id, int index)
         {
@@ -292,7 +296,7 @@ namespace DiscordGameServerManager_Windows
                 if (usr.userID == id) 
                 {
                     int index = ch.users.IndexOf(usr);
-                    u = ch.users.ElementAt<user>(index);
+                    u = ch.users.ElementAt(index);
                     u.registered = true;
                     ch.users[index] = u;
                     channel_dictionary.channels.Remove(dmChannel.Id);
@@ -310,7 +314,7 @@ namespace DiscordGameServerManager_Windows
                 if (usr.userID == _user.userID) 
                 {
                     int index = ch.users.IndexOf(usr);
-                    u = ch.users.ElementAt<user>(index);
+                    u = ch.users.ElementAt(index);
                     u.perms = perms;
                     ch.users[index] = u;
                     channel_dictionary.channels.Remove(channel_id);

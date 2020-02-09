@@ -14,12 +14,12 @@ namespace DiscordGameServerManager_Windows
         static Details()
         { 
             d.culture_name = cinfo.Name;
-            d.default_extension = AppStringProducer.GetSystemCompatibleString("", true);
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
             if (!File.Exists(dir + "/" + config))
             {
+                d.default_extension = AppStringProducer.GetSystemCompatibleString("", true);
                 File.Create(dir + "/" + config).Close();
                 string json = JsonConvert.SerializeObject(d, Formatting.Indented);
                 File.WriteAllText(dir + "/" + config, json);
