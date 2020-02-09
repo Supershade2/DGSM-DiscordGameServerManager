@@ -3,15 +3,36 @@ C# discord bot that can be utilized to manage game servers through discord<br />
 <em>Libraries/Sources used</em>
 <ul>
   <li>
-    DSharpplus: https://github.com/DSharpPlus/DSharpPlus
+	  <a href="https://github.com/DSharpPlus/DSharpPlus">DSharpplus</a>
   </li>
   <li>
-    NewtonsoftJSON: https://www.newtonsoft.com/json
+	  <a href="https://www.newtonsoft.com/json">NewtonsoftJSON</a>
   </li>
   <li>
-    SourceRcon: https://github.com/aiusepsi/SourceRcon
+	  <a href="https://github.com/aiusepsi/SourceRcon">SourceRcon</a>
   </li>
   <li>
-	MSBUILD:<br /> https://www.nuget.org/packages/Microsoft.Build.Runtime/ <br /> https://www.nuget.org/packages/Microsoft.Build.Tasks.Core/ <br /> https://www.nuget.org/packages/Microsoft.Build/ <br /> https://www.nuget.org/packages/Microsoft.Build.Framework/ <br /> https://www.nuget.org/packages/Microsoft.Build.Utilities.Core/
+	  <a href="https://www.nuget.org/packages/Microsoft.Build.Runtime/">MSBUILD Runtime</a>
   </li>
-  </ul><br />
+	<li>
+	  <a href="https://www.nuget.org/packages/Microsoft.Build.Tasks.Core/">MSBUILD Core</a>
+		  </li>
+		  <li>
+		  <a href="https://www.nuget.org/packages/Microsoft.Build/">MSBUILD Build</a>
+		  </li>
+		  <li>
+		  <a href="https://www.nuget.org/packages/Microsoft.Build.Framework/">MSBUILD FrameWork</a>
+		  </li>
+		  <li>
+		  <a href="https://www.nuget.org/packages/Microsoft.Build.Utilities.Core/">MSBUILD Utilities Core</a>
+		  </li>
+  </ul>
+  <em>Wiki pages of interest</em>
+  <ul>
+	<li>
+		<a href="https://github.com/Supershade2/DGSM-DiscordGameServerManager/wiki">Home</a>
+	</li>
+	<li>
+	<a href="https://github.com/Supershade2/DGSM-DiscordGameServerManager/wiki/Configuration-overview:-Config.json">Configuration</a>
+	</li>
+</ul>
