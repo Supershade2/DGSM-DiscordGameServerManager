@@ -12,7 +12,6 @@ namespace DiscordGameServerManager_Windows
         private const string dir = "Resources";
         private const string config = "config.json";
         public static BotConfig bot;
-        private static System.Globalization.CultureInfo cinfo = System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name);
         static Config()
         {
             if (!Directory.Exists(dir))
@@ -22,6 +21,13 @@ namespace DiscordGameServerManager_Windows
             {
                 File.Create(dir + "/" + config).Close();
                 bot = new BotConfig();
+                Cluster temp_clust = new Cluster();
+                temp_clust.servers = new GameServer[5];
+                temp_clust.servers[0].main_port = 7777;
+                temp_clust.servers[0].raw_port = 7778;
+                temp_clust.servers[0].query_port = 27015;
+                temp_clust.servers[0].RCON_port = 27020;
+                bot.cluster = temp_clust;
                 bot.useHeuristics = false;
                 bot.rcon_address = "127.0.0.1";
                 bot.rcon_pass = "password";
@@ -55,6 +61,18 @@ namespace DiscordGameServerManager_Windows
             bot = JsonConvert.DeserializeObject<BotConfig>(json);
         }
     }
+    public struct GameServer 
+    { 
+        public int main_port { get; set; }
+        public int raw_port { get; set; }
+        public int query_port { get; set; }
+        public int RCON_port { get; set; }
+    }
+    public struct Cluster 
+    { 
+        public int port_gap { get; set; }
+        public GameServer[] servers { get; set; }
+    }
     public struct BotConfig
     {
         public string token { get; set; }
@@ -69,6 +87,7 @@ namespace DiscordGameServerManager_Windows
         public int rcon_port { get; set; }
         public string rcon_pass { get; set; }
         public string game_launch_args { get; set; }
+        public Cluster cluster { get; set; }
         public string prefix { get; set; }
         public string backup_dir { get; set; }
         public string game { get; set; }
