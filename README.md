@@ -11,6 +11,9 @@ C# discord bot that can be utilized to manage game servers through discord<br />
   <li>
 	  <a href="https://github.com/aiusepsi/SourceRcon">SourceRcon</a>
   </li>
+	<li>
+		<a href="https://www.nuget.org/packages/System.IO.Pipelines/">Pipelines</a>
+	</li>
   <li>
 	  <a href="https://www.nuget.org/packages/Microsoft.Build.Runtime/">MSBUILD Runtime</a>
   </li>
