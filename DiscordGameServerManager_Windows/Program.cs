@@ -33,7 +33,7 @@ namespace DiscordGameServerManager_Windows
                 }
             }
         });
-        public static Thread RconThread;
+        public static Thread[] RconThread;
         static DiscordClient discord = new DiscordClient(new DiscordConfiguration
         {
             Token = Config.bot.token,
@@ -450,7 +450,10 @@ namespace DiscordGameServerManager_Windows
                 case 1:
                     try
                     {
-                        RconThread.Start();
+                        for (int i = 0; i < RconThread.Length; i++)
+                        {
+                            RconThread[i].Start();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -477,7 +480,10 @@ namespace DiscordGameServerManager_Windows
                     {
                         try
                         {
-                            RconThread.Start();
+                            for (int i = 0; i < RconThread.Length; i++) 
+                            {
+                                RconThread[i].Start();
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -546,26 +552,42 @@ namespace DiscordGameServerManager_Windows
             switch (MainConfig)
             {
                 case true:
-                    if (Config.bot.rcon_pass != "" || Config.bot.rcon_pass != null)
+                    RconThread = new Thread[Config.bot.cluster.servers.Length];
+                    for (int i = 0; i < Config.bot.cluster.servers.Length; i++) 
                     {
-                        RconThread = new Thread(() =>
+                        if (!string.IsNullOrEmpty(Config.bot.cluster.servers[i].RCON_pass))
                         {
-                            //Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
-                            Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats saveworld");
-                            Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "cheats quit");
-                        });
+                            if (!string.IsNullOrEmpty(Config.bot.cluster.servers[i].address))
+                            {
+                                RconThread[i] = new Thread(() =>
+                                {
+                                    //Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
+                                    Rcon(Config.bot.cluster.servers[i].address, Config.bot.cluster.servers[i].RCON_port, Config.bot.cluster.servers[i].RCON_pass, "cheats saveworld");
+                                    Rcon(Config.bot.cluster.servers[i].address, Config.bot.cluster.servers[i].RCON_port, Config.bot.cluster.servers[i].RCON_pass, "cheats quit");
+                                });
+                            }
+                            else 
+                            {
+                                RconThread[i] = new Thread(() =>
+                                {
+                                    //Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
+                                    Rcon(Config.bot.cluster.servers[0].address, Config.bot.cluster.servers[i].RCON_port, Config.bot.cluster.servers[i].RCON_pass, "cheats saveworld");
+                                    Rcon(Config.bot.cluster.servers[0].address, Config.bot.cluster.servers[i].RCON_port, Config.bot.cluster.servers[i].RCON_pass, "cheats quit");
+                                });
+                            }
+                        }
                     }
                     break;
                 default:
                     if (Game_Profile._profile.rcon_address != null || Game_Profile._profile.rcon_address != "")
                     {
-                        RconThread = new Thread(() =>
+                        RconThread[0] = new Thread(() =>
                         {
                             //Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, "enablecheats " + Config.bot.admin_pass);
                             string[] args = Game_Profile._profile.rcon_commands;
                             for (int i = 0; i < args.Length; i++)
                             {
-                                Rcon(Config.bot.rcon_address, Config.bot.rcon_port, Config.bot.rcon_pass, args[i]);
+                                Rcon(Game_Profile._profile.rcon_address, Game_Profile._profile.rcon_port, Game_Profile._profile.rcon_pass, args[i]);
                             }
                         });
                     }
@@ -587,6 +609,10 @@ namespace DiscordGameServerManager_Windows
                     try
                     {
                         Process[] proc = Process.GetProcessesByName("ShooterGameServer");
+                        /*for (int i = 0; i < proc.Length; i++) 
+                        {
+                            proc[i].Kill();
+                        }*/
                         proc[0].Kill();
                     }
                     catch (Exception ex_1)

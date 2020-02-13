@@ -22,16 +22,15 @@ namespace DiscordGameServerManager_Windows
                 File.Create(dir + "/" + config).Close();
                 bot = new BotConfig();
                 Cluster temp_clust = new Cluster();
-                temp_clust.servers = new GameServer[5];
+                temp_clust.servers = new GameServer[1];
+                temp_clust.servers[0].address = "127.0.0.1";
+                temp_clust.servers[0].RCON_pass = "password";
                 temp_clust.servers[0].main_port = 7777;
                 temp_clust.servers[0].raw_port = 7778;
                 temp_clust.servers[0].query_port = 27015;
                 temp_clust.servers[0].RCON_port = 27020;
                 bot.cluster = temp_clust;
                 bot.useHeuristics = false;
-                bot.rcon_address = "127.0.0.1";
-                bot.rcon_pass = "password";
-                bot.rcon_port = 27015;
                 //initializes default messages for specific dates
                 bot._messages = new Messages.message[14];
                 bot._messages[12].Date = DateTime.Parse("12/24/2020");
@@ -63,11 +62,13 @@ namespace DiscordGameServerManager_Windows
     }
     public struct GameServer 
     { 
+        public string address { get; set; }
         public int main_port { get; set; }
         public bool use_mods { get; set; }
         public int raw_port { get; set; }
         public int query_port { get; set; }
         public int RCON_port { get; set; }
+        public string RCON_pass { get; set; }
     }
     public struct Cluster 
     { 
@@ -84,9 +85,6 @@ namespace DiscordGameServerManager_Windows
         public string game_dir { get; set; }
         public string wsapikey { get; set; }
         public string wscollectionid { get; set; }
-        public string rcon_address { get; set; }
-        public int rcon_port { get; set; }
-        public string rcon_pass { get; set; }
         public string game_launch_args { get; set; }
         public string prefix { get; set; }
         public string backup_dir { get; set; }
