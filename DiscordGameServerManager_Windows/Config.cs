@@ -64,6 +64,7 @@ namespace DiscordGameServerManager_Windows
     public struct GameServer 
     { 
         public int main_port { get; set; }
+        public bool use_mods { get; set; }
         public int raw_port { get; set; }
         public int query_port { get; set; }
         public int RCON_port { get; set; }
@@ -87,15 +88,15 @@ namespace DiscordGameServerManager_Windows
         public int rcon_port { get; set; }
         public string rcon_pass { get; set; }
         public string game_launch_args { get; set; }
-        public Cluster cluster { get; set; }
         public string prefix { get; set; }
         public string backup_dir { get; set; }
         public string game { get; set; }
         public ulong ID { get; set; }
         public string gametracking_url { get; set; }
-        public Messages.message[] _messages { get; set; }
         public bool useHeuristics { get; set; }
         public string registration_key { get; set; }
         public string invite { get; set; }
+        public Cluster cluster { get; set; }
+        public Messages.message[] _messages { get; set; }
     }
 }

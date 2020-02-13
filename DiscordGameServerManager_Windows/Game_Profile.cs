@@ -37,6 +37,7 @@ namespace DiscordGameServerManager_Windows
     {
         public bool Is_Steam { get; set; }
         public string file_location { get; set; }
+        public string mod_dir { get; set; }
         public string rcon_address { get; set; }
         public int rcon_port { get; set; }
         public string rcon_pass { get; set; }

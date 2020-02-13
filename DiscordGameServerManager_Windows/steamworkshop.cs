@@ -195,6 +195,7 @@ namespace DiscordGameServerManager_Windows
                     }
                     FileStream fs = new FileStream(string.Format("/mods/{0}.zip", file_details[i]), FileMode.CreateNew, FileAccess.Write);
                     await response.Content.CopyToAsync(fs);
+                    fs.Flush();
                 }
                 return true;
             }
