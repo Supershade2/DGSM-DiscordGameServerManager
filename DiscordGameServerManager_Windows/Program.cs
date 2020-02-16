@@ -491,7 +491,7 @@ namespace DiscordGameServerManager_Windows
                         }
                     }
                     force_shutdown_ARK(thread[0]);
-                    thread.Start();
+                    thread[0].Start();
                     Console.WriteLine(process.StartInfo.WorkingDirectory);
                     Console.WriteLine(process.StartInfo.Arguments);
                     process.Start();
