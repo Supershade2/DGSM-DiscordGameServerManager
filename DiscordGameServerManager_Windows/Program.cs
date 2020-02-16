@@ -359,7 +359,7 @@ namespace DiscordGameServerManager_Windows
             //string error;
             Process process = new Process();
             ProcessStartInfo psi = new ProcessStartInfo();
-            Thread thread;
+            Thread[] thread = new Thread[Config.bot.cluster.servers.Length];
             psi.WorkingDirectory = Config.bot.steamcmd_dir;
             psi.UseShellExecute = true;
             psi.RedirectStandardOutput = true;
@@ -367,7 +367,7 @@ namespace DiscordGameServerManager_Windows
             psi.CreateNoWindow = true;
             psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
             psi.Arguments = " +login anonymous +force_install_dir " + Config.bot.game_dir + " +app_update 376030 +app_run 376030 " + Config.bot.game_launch_args;
-            thread = new Thread(() =>
+            thread[0] = new Thread(() =>
             {
                 process.StartInfo = psi;
                 process.Start();
@@ -388,14 +388,14 @@ namespace DiscordGameServerManager_Windows
                         {
                             case 0:
                                 psi.Arguments = Game_Profile._profile.steam_game_args;
-                                thread.Start();
+                                thread[0].Start();
                                 break;
                             case 1:
-                                thread.Abort();
+                                thread[0].Abort();
                                 break;
                             case 2:
-                                thread.Abort();
-                                thread.Start();
+                                thread[0].Abort();
+                                thread[0].Start();
                                 break;
                             default:
                                 break;
@@ -407,14 +407,14 @@ namespace DiscordGameServerManager_Windows
                         {
                             case 0:
                                 psi.Arguments = Game_Profile._profile.start_command;
-                                thread.Start();
+                                thread[0].Start();
                                 break;
                             case 1:
-                                thread.Abort();
+                                thread[0].Abort();
                                 break;
                             case 2:
-                                thread.Abort();
-                                thread.Start();
+                                thread[0].Abort();
+                                thread[0].Start();
                                 break;
                             default:
                                 break;
@@ -425,10 +425,10 @@ namespace DiscordGameServerManager_Windows
             switch (option)
             {
                 case 0:
-                    if (!thread.IsAlive)
+                    if (!thread[0].IsAlive)
                         try
                         {
-                            thread.Start();
+                            thread[0].Start();
                         }
                         catch (Exception ex)
                         {
@@ -476,7 +476,7 @@ namespace DiscordGameServerManager_Windows
                     }*/
                     break;
                 case 2:
-                    if (thread.IsAlive)
+                    if (thread[0].IsAlive)
                     {
                         try
                         {
@@ -490,7 +490,7 @@ namespace DiscordGameServerManager_Windows
                             Console.WriteLine(ex.Message);
                         }
                     }
-                    force_shutdown_ARK(thread);
+                    force_shutdown_ARK(thread[0]);
                     thread.Start();
                     Console.WriteLine(process.StartInfo.WorkingDirectory);
                     Console.WriteLine(process.StartInfo.Arguments);

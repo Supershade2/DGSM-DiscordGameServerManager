@@ -12,7 +12,7 @@ namespace DiscordGameServerManager_Windows
         private const string Default_appID = "376030";
         //private static SteamWebInterfaceFactory InterfaceFactory = new SteamWebInterfaceFactory(Config.bot.wsapikey);
         //private static ISteamWebAPIUtil WebAPIUtil;
-        public static async Task<string> get_CollectionDetailsAsync() 
+        private static async Task<string> get_CollectionDetailsAsync() 
         {
             //Steam.Models.SteamServerInfo serverInfo;
             //var steamInterface = InterfaceFactory.CreateSteamWebInterface<SteamUser>(new HttpClient());
@@ -188,14 +188,21 @@ namespace DiscordGameServerManager_Windows
                 string[] downloads = get_Downloads(combined);
                 for (int i = 0; i < downloads.Length; i++)
                 {
-                    var response = await client.GetAsync(downloads[i]);
-                    if (!Directory.Exists("/mods"))
+                    string id = collection.Length == downloads.Length + 1 ? collection[i + 1] : collection[i];
+                    if (!Directory.Exists("./mods"))
                     {
-                        Directory.CreateDirectory("/mods");
+                        Directory.CreateDirectory("./mods");
                     }
-                    FileStream fs = new FileStream(string.Format("/mods/{0}.zip", file_details[i]), FileMode.CreateNew, FileAccess.Write);
-                    await response.Content.CopyToAsync(fs);
-                    fs.Flush();
+                    if (id == "793692615")
+                    {
+                        string file = string.Format("./mods/{0}.zip", id);
+                        download("http://depotcontent.akamai.steamusercontent.com/staticcontent/346110/614094907/depot_346110_646724364382594689.zip", file);
+                    }
+                    else
+                    {
+                        string file = string.Format("./mods/{0}.zip", collection.Length == downloads.Length + 1 ? collection[i + 1] : collection[i]);
+                        download(downloads[i], file);
+                    }
                 }
                 return true;
             }
@@ -203,6 +210,33 @@ namespace DiscordGameServerManager_Windows
             {
                 await Console.Out.WriteLineAsync("Method: GetFiles"+Environment.NewLine+ex.Message);
                 return false;
+            }
+        }
+        private static void download(string url, string file)
+        {
+            if (!File.Exists(file))
+            {
+                var response = client.GetAsync(url).ConfigureAwait(false).GetAwaiter().GetResult();
+                var status = response.StatusCode;
+                if (status.ToString().ToLower() == "ok")
+                {
+                    var content = response.Content;
+                    Console.Out.WriteLineAsync("Creating file: " + file).ConfigureAwait(false).GetAwaiter().GetResult();
+                    FileStream fs = new FileStream(file, FileMode.CreateNew, FileAccess.Write);
+                    content.CopyToAsync(fs).ConfigureAwait(false).GetAwaiter().GetResult();
+                    fs.Flush();
+                    fs.Dispose();
+                }
+                else
+                {
+                    var content = response.Content;
+                    Console.Out.WriteLineAsync("Creating file(may require manual downloading): " + file).ConfigureAwait(false).GetAwaiter().GetResult();
+                    FileStream fs = new FileStream(file, FileMode.CreateNew, FileAccess.Write);
+                    content.CopyToAsync(fs).ConfigureAwait(false).GetAwaiter().GetResult();
+                    fs.Flush();
+                    fs.Dispose();
+                    File.AppendAllText("./Checklist.txt", "Potential Error: " + file + Environment.NewLine);
+                }
             }
         }
     }
