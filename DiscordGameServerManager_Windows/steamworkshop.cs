@@ -3,13 +3,16 @@ using System.Net.Http;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Security;
 
 namespace DiscordGameServerManager_Windows
 {
     class steamworkshop
     {
         private static readonly HttpClient client = new HttpClient();
-        private const string Default_appID = "376030";
+        private const string Default_appID = "346110";
+        //private const string build_workshop = "workshop_build_item ";
+        private const string download_workshop = "workshop_download_item ";
         //private static SteamWebInterfaceFactory InterfaceFactory = new SteamWebInterfaceFactory(Config.bot.wsapikey);
         //private static ISteamWebAPIUtil WebAPIUtil;
         private static async Task<string> get_CollectionDetailsAsync() 
@@ -193,16 +196,6 @@ namespace DiscordGameServerManager_Windows
                     {
                         Directory.CreateDirectory("./mods");
                     }
-                    if (id == "793692615")
-                    {
-                        string file = string.Format("./mods/{0}.zip", id);
-                        download("http://depotcontent.akamai.steamusercontent.com/staticcontent/346110/614094907/depot_346110_646724364382594689.zip", file);
-                    }
-                    else
-                    {
-                        string file = string.Format("./mods/{0}.zip", collection.Length == downloads.Length + 1 ? collection[i + 1] : collection[i]);
-                        download(downloads[i], file);
-                    }
                 }
                 return true;
             }
@@ -212,31 +205,15 @@ namespace DiscordGameServerManager_Windows
                 return false;
             }
         }
-        private static void download(string url, string file)
+        public static async void download(System.Diagnostics.Process p, System.Diagnostics.ProcessStartInfo psi)
         {
-            if (!File.Exists(file))
+            string[] collection = parse_Details(await get_CollectionDetailsAsync());
+            for (int i = 0; i < collection.Length; i++) 
             {
-                var response = client.GetAsync(url).ConfigureAwait(false).GetAwaiter().GetResult();
-                var status = response.StatusCode;
-                if (status.ToString().ToLower() == "ok")
-                {
-                    var content = response.Content;
-                    Console.Out.WriteLineAsync("Creating file: " + file).ConfigureAwait(false).GetAwaiter().GetResult();
-                    FileStream fs = new FileStream(file, FileMode.CreateNew, FileAccess.Write);
-                    content.CopyToAsync(fs).ConfigureAwait(false).GetAwaiter().GetResult();
-                    fs.Flush();
-                    fs.Dispose();
-                }
-                else
-                {
-                    var content = response.Content;
-                    Console.Out.WriteLineAsync("Creating file(may require manual downloading): " + file).ConfigureAwait(false).GetAwaiter().GetResult();
-                    FileStream fs = new FileStream(file, FileMode.CreateNew, FileAccess.Write);
-                    content.CopyToAsync(fs).ConfigureAwait(false).GetAwaiter().GetResult();
-                    fs.Flush();
-                    fs.Dispose();
-                    File.AppendAllText("./Checklist.txt", "Potential Error: " + file + Environment.NewLine);
-                }
+                psi.Arguments = "+login anonymous "+download_workshop + Default_appID + " " + collection[i]+" +quit";
+                p.StartInfo = psi;
+                p.Start();
+                p.WaitForExit(30000);
             }
         }
     }

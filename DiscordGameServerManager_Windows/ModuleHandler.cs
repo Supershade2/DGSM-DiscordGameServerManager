@@ -5,6 +5,8 @@ using System.IO.Pipes;
 using System.IO.Pipelines;
 using System.Runtime;
 using System.Text;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 namespace DiscordGameServerManager_Windows
@@ -16,6 +18,7 @@ namespace DiscordGameServerManager_Windows
         public static int available_async_threads;
         public static Process process = new Process();
         public static ProcessStartInfo startInfo;
+        public static Socket info = new Socket(AddressFamily.Unix,SocketType.Rdm,ProtocolType.IPv4);
         public static Pipe pipe = new Pipe();
         public static NamedPipeServerStream[] namedPipeServerStreams;
         public static Thread[] pipe_threads;
@@ -26,6 +29,15 @@ namespace DiscordGameServerManager_Windows
         public ModuleHandler(string d)
         {
             dir = d;
+            ThreadPool.GetAvailableThreads(out available_threads, out available_async_threads);
+        }
+        public static void InitializeSocket() 
+        {
+            ThreadPool.GetAvailableThreads(out available_threads, out available_async_threads);
+            IPAddress address = IPAddress.Parse("127.0.0.1");
+            IPEndPoint iPEnd = new IPEndPoint(address, 35);
+            info.Bind(iPEnd);
+            info.Listen(available_async_threads);
         }
         public static void InitializePipes() 
         {
@@ -93,63 +105,98 @@ namespace DiscordGameServerManager_Windows
             startInfo = new ProcessStartInfo("dotnet");
             startInfo.Arguments = "run "+dir+name+" -- "+pipenames[current_pipe];
             process.StartInfo = startInfo;
-            pipe_threads[current_pipe] = new Thread(() => 
+            if (pipe_threads[current_pipe] != null) 
             {
-                string current_name = pipenames[current_pipe];
-                string directory = dir;
-                string mName = name;
-                int current_index = current_pipe;
-                Process module = process;
-                module.Start();
-                ProcessModule pModule;
-                ProcessModuleCollection processModuleC;
-                processModuleC = module.Modules;
-                System.IO.TextWriter text = new System.IO.StreamWriter(directory+mName+"_output.txt");
-                for (int i = 0; i < processModuleC.Count; i++)
+                pipe_threads[current_pipe] = new Thread(() =>
                 {
-                    pModule = processModuleC[i];
-                    text.WriteLine("Properties of the modules  associated "
-        + "with " + name + " process are:");
-                    text.WriteLine("The moduleName is "
-                        + pModule.ModuleName);
-                    text.WriteLine("The " + pModule.ModuleName + "'s base address is: "
-                        + pModule.BaseAddress);
-                    text.WriteLine("The " + pModule.ModuleName + "'s Entry point address is: "
-                        + pModule.EntryPointAddress);
-                    text.WriteLine("The " + pModule.ModuleName + "'s File name is: "
-                        + pModule.FileName);
-                }
-                text.Flush();
-                text.Close();
-            });
-            ThreadPool.GetAvailableThreads(out available_threads, out available_async_threads);
-            if (current_pipe+1 < available_threads)
-            {
-                pipe_threads[current_pipe].Start();
-                ReadPipe(current_pipe).ConfigureAwait(false).GetAwaiter().GetResult();
+                    string current_name = pipenames[current_pipe];
+                    string directory = dir;
+                    string mName = name;
+                    int current_index = current_pipe;
+                    Process module = process;
+                    module.Start();
+                    ProcessModule pModule;
+                    ProcessModuleCollection processModuleC;
+                    processModuleC = module.Modules;
+                    System.IO.TextWriter text = new System.IO.StreamWriter(directory + mName + "_output.txt");
+                    // Display the properties of each of the modules.
+                    for (int i = 0; i < processModuleC.Count; i++)
+                    {
+                        pModule = processModuleC[i];
+                        text.WriteLine("Properties of the modules  associated "
+            + "with " + name + " process are:");
+                        text.WriteLine("The moduleName is "
+                            + pModule.ModuleName);
+                        text.WriteLine("The " + pModule.ModuleName + "'s base address is: "
+                            + pModule.BaseAddress);
+                        text.WriteLine("The " + pModule.ModuleName + "'s Entry point address is: "
+                            + pModule.EntryPointAddress);
+                        text.WriteLine("The " + pModule.ModuleName + "'s File name is: "
+                            + pModule.FileName);
+                    }
+                    text.Flush();
+                    text.Close();
+                });
             }
-            pipe_indexes.Add(current_pipe);
-            current_pipe = current_pipe < pipenames.Count ? current_pipe+1:current_pipe;
-            // Display the properties of each of the modules.
+            ThreadPool.GetAvailableThreads(out available_threads, out available_async_threads);
+            if (current_pipe+1 < (available_threads/2)-2 && pipe_threads[current_pipe].Name != name)
+            {
+                pipe_indexes.Add(current_pipe);
+                current_pipe = current_pipe < pipenames.Count ? current_pipe + 1 : current_pipe;
+            }
+            pipe_threads[current_pipe].Name = name;
+            pipe_threads[current_pipe].Start();
         }
-        public static async Task<bool> ReadPipe(int index) 
+        public static async Task<string> ReadPipe(int pipe) 
         {
-            List<string> pipedata = new List<string>();
-            string data = "";
+            List<byte> data_bytes = await PerformReads(pipe);
+            byte[] str_bytes = Encoding.Convert(Encoding.UTF8, Encoding.ASCII, data_bytes.ToArray());
+            string data = BitConverter.ToString(str_bytes);
+            return data;
+        }
+        public static async Task<List<byte>> PerformReads(int current) 
+        {
             List<byte> data_bytes = new List<byte>();
             int data_byte;
-            namedPipeServerStreams[index].WaitForConnection();
-            do
-            {
-                data_byte = namedPipeServerStreams[index].ReadByte();
-                data_bytes.Add((byte)data_byte);
-            } while (data_byte != -1);
-            byte[] str_bytes = Encoding.Convert(Encoding.UTF8, Encoding.ASCII, data_bytes.ToArray());
-            for (int i = 0; i < str_bytes.Length; i++) 
-            {
-                data += str_bytes[i];
-            }
-            return true;
+            bool connected = namedPipeServerStreams[current].IsConnected;
+                if (!namedPipeServerStreams[current].IsConnected) 
+                {
+                namedPipeServerStreams[current].WaitForConnection();
+                }
+                if (connected) 
+                {
+                    do
+                    {
+                    data_byte = namedPipeServerStreams[current_pipe].ReadByte();
+                    data_bytes.Add((byte)data_byte);
+                    } while (!BitConverter.ToString(data_bytes.ToArray()).Contains("<EOF>"));
+                }
+            return data_bytes;
         }
+        public static void Read(int current) 
+        {
+            ReInitializePipe(current);
+        }
+
+        private static void ReInitializePipe(int current)
+        {
+            namedPipeServerStreams[current].Disconnect();
+            namedPipeServerStreams[current].WaitForConnection();
+        }
+
+        public static void ReadPipes_Callback() 
+        {
+            ReadPipes_Call rpipes = ReadPipes;
+            Action<object> action = new Action<object>(rpipes);
+            action?.Invoke(current_pipe);
+        }
+
+        private static void ReadPipes(object pi)
+        {
+            ReadPipe((int)pi).ConfigureAwait(true).GetAwaiter().GetResult();
+            Read((int)pi);
+        }
+
+        internal delegate void ReadPipes_Call(object p);
     }
 }

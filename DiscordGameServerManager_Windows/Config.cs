@@ -26,6 +26,7 @@ namespace DiscordGameServerManager_Windows
                 temp_clust.servers[0].address = "127.0.0.1";
                 temp_clust.servers[0].RCON_pass = "password";
                 temp_clust.servers[0].main_port = 7777;
+                temp_clust.servers[0].use_mods = false;
                 temp_clust.servers[0].raw_port = 7778;
                 temp_clust.servers[0].query_port = 27015;
                 temp_clust.servers[0].RCON_port = 27020;
@@ -62,6 +63,8 @@ namespace DiscordGameServerManager_Windows
     }
     public struct GameServer 
     { 
+        public int max_players { get; set; }
+        public string map { get; set; }
         public string address { get; set; }
         public int main_port { get; set; }
         public bool use_mods { get; set; }
@@ -85,7 +88,7 @@ namespace DiscordGameServerManager_Windows
         public string game_dir { get; set; }
         public string wsapikey { get; set; }
         public string wscollectionid { get; set; }
-        public string game_launch_args { get; set; }
+        public string game_launch_args_script { get; set; }
         public string prefix { get; set; }
         public string backup_dir { get; set; }
         public string game { get; set; }

@@ -21,6 +21,9 @@ namespace DiscordGameServerManager_Windows
             {
                 File.Create(dir + "/" + Config.bot.game + "/" + config).Close();
                 _profile = new profile();
+                _profile.game = Config.bot.game;
+                _profile.user_and_pass = new Dictionary<string,string>();
+                _profile.user_and_pass.Add("anonymous","123");
                 string json = JsonConvert.SerializeObject(_profile, Formatting.Indented);
                 File.WriteAllText(dir + "/" +Config.bot.game+ "/" + config, json);
                 //byte[] json_data = Encoding.ASCII.GetBytes(json);
@@ -36,14 +39,16 @@ namespace DiscordGameServerManager_Windows
     public struct profile
     {
         public bool Is_Steam { get; set; }
+        public string game { get; set; }
         public string file_location { get; set; }
         public string mod_dir { get; set; }
         public string rcon_address { get; set; }
         public int rcon_port { get; set; }
         public string rcon_pass { get; set; }
         public string[] rcon_commands { get; set; }
+        public Dictionary<string, string> user_and_pass { get; set; }
         public long steam_app_id { get; set; }
-        public string steam_game_args { get; set; }
+        public string steam_game_args_script { get; set; }
         public string steam_install_dir { get; set; }
         public string start_command { get; set; }
         /* Not currently implemented, currently thread is just aborted

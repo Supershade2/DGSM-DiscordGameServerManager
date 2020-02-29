@@ -5,7 +5,7 @@ using System.IO;
 using Newtonsoft.Json;
 namespace DiscordGameServerManager_Windows
 {
-    class Details
+    public class Details
     {
         private const string dir = "Resources";
         private const string config = "details.json";
@@ -20,6 +20,7 @@ namespace DiscordGameServerManager_Windows
             if (!File.Exists(dir + "/" + config))
             {
                 d.default_extension = AppStringProducer.GetSystemCompatibleString("", true);
+                d.first_run = true;
                 File.Create(dir + "/" + config).Close();
                 string json = JsonConvert.SerializeObject(d, Formatting.Indented);
                 File.WriteAllText(dir + "/" + config, json);
@@ -51,6 +52,7 @@ namespace DiscordGameServerManager_Windows
     public struct details 
     {
         public int user_count { get; set; }
+        public bool first_run { get; set; }
         public string culture_name { get; set; }
         public string default_extension { get; set; }
     }
