@@ -8,6 +8,9 @@ C# discord bot that can be utilized to manage game servers through discord<br />
   <li>
 	  <a href="https://www.newtonsoft.com/json">NewtonsoftJSON</a>
   </li>
+	<li>
+		<a href="https://loune.net/2017/06/running-shell-bash-commands-in-net-core/">ShellHelper</a>
+	</li>
   <li>
 	  <a href="https://github.com/aiusepsi/SourceRcon">SourceRcon</a>
   </li>
