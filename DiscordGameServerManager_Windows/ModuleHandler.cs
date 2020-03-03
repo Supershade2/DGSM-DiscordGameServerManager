@@ -142,10 +142,11 @@ namespace DiscordGameServerManager_Windows
             if (current_pipe+1 < (available_threads/2)-2 && pipe_threads[current_pipe].Name != name)
             {
                 pipe_indexes.Add(current_pipe);
+                pipe_threads[current_pipe].Name = name;
+                pipe_threads[current_pipe].IsBackground = true;
+                pipe_threads[current_pipe].Start();
                 current_pipe = current_pipe < pipenames.Count ? current_pipe + 1 : current_pipe;
             }
-            pipe_threads[current_pipe].Name = name;
-            pipe_threads[current_pipe].Start();
         }
         public static async Task<string> ReadPipe(int pipe) 
         {

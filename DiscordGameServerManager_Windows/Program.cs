@@ -42,6 +42,7 @@ namespace DiscordGameServerManager_Windows
             Token = Config.bot.token,
             TokenType = TokenType.Bot
         });
+        static LinkedList<int> process_ids = new LinkedList<int>(); 
         static DiscordChannel discordChannel = discord.GetChannelAsync(Config.bot.discord_channel).Result;
         static DiscordChannel message_channel = discord.GetChannelAsync(Config.bot.message_channel).Result;
         static DiscordGuild Guild;
@@ -253,59 +254,59 @@ namespace DiscordGameServerManager_Windows
         }
         public static async void Respond_Message(string Author, string message, DiscordChannel discordChannel, bool[] perm_value, DSharpPlus.EventArgs.MessageCreateEventArgs e)
         {
-            if (perm_value[4])
+            if (perm_value[2]) 
             {
                 if (message.ToLower().Equals(prefix + "_help"))
                 {
                     await message_send("What would you like help with?" + Environment.NewLine + prefix + "_start: starts the server" + Environment.NewLine + prefix + "_stop: stops the server" + Environment.NewLine + prefix + "_restart: restarts the server" + Environment.NewLine + prefix + "_backup: initiates server backup, this will take the server offline", discordChannel);
                 }
-                if (perm_value[0])
+            }
+            if (perm_value[0])
+            {
+                if (message.ToLower().Equals(prefix + "_start"))
                 {
-                    if (message.ToLower().Equals(prefix + "_start"))
+                    await message_send("Server is starting..." + Environment.NewLine + "check server status at the link below", discordChannel);
+                    if (Config.bot.gametracking_url != null)
                     {
-                        await message_send("Server is starting..." + Environment.NewLine + "check server status at the link below", discordChannel);
-                        if (Config.bot.gametracking_url != null)
-                        {
-                            await message_send(Config.bot.gametracking_url, discordChannel);
-                        }
-                        else
-                        {
-                            await message_send("gametracking url not defined", discordChannel);
-                        }
-                        Manage_server(0, discordChannel);
+                      await message_send(Config.bot.gametracking_url, discordChannel);
                     }
-                    if (message.ToLower().Equals(prefix + "_stop"))
+                    else
                     {
-                        await message_send("Server is stopping...", discordChannel);
-                        Manage_server(1, discordChannel);
+                      await message_send("gametracking url not defined", discordChannel);
                     }
-                    if (message.ToLower().Equals(prefix + "_restart"))
-                    {
-                        await message_send("Server is restarting...", discordChannel);
-                        Manage_server(2, discordChannel);
-                    }
-                    if (message.ToLower().Equals(prefix + "_backup"))
-                    {
-                        user = Author;
-                        await message_send("Server backup initiated would you like to start server when finished yes/no?", discordChannel);
-                        backup_requested = true;
-                    }
-                    if (message.ToLower().Equals("yes") && backup_requested == true && Author == user)
-                    {
-                        server_startup = true;
-                        await message_send("Server will be started after backup", discordChannel);
-                        Manage_server(3, discordChannel);
-                        server_startup = false;
-                        backup_requested = false;
-                        user = "";
-                    }
-                    else if (backup_requested == true && Author == user && message.ToLower().Equals("no"))
-                    {
-                        await message_send("Server will remain offline after backup", discordChannel);
-                        Manage_server(3, discordChannel);
-                        backup_requested = false;
-                        user = "";
-                    }
+                    Manage_server(0, discordChannel);
+                }
+                if (message.ToLower().Equals(prefix + "_stop"))
+                {
+                    await message_send("Server is stopping...", discordChannel);
+                    Manage_server(1, discordChannel);
+                }
+                if (message.ToLower().Equals(prefix + "_restart"))
+                {
+                    await message_send("Server is restarting...", discordChannel);
+                    Manage_server(2, discordChannel);
+                }
+                if (message.ToLower().Equals(prefix + "_backup"))
+                {
+                    user = Author;
+                    await message_send("Server backup initiated would you like to start server when finished yes/no?", discordChannel);
+                    backup_requested = true;
+                }
+                if (message.ToLower().Equals("yes") && backup_requested == true && Author == user)
+                {
+                    server_startup = true;
+                    await message_send("Server will be started after backup", discordChannel);
+                    Manage_server(3, discordChannel);
+                    server_startup = false;
+                    backup_requested = false;
+                    user = "";
+                }
+                else if (backup_requested == true && Author == user && message.ToLower().Equals("no"))
+                {
+                    await message_send("Server will remain offline after backup", discordChannel);
+                    Manage_server(3, discordChannel);
+                    backup_requested = false;
+                    user = "";
                 }
             }
             else
@@ -377,12 +378,16 @@ namespace DiscordGameServerManager_Windows
             {
                 psi.Arguments = "+login anonymous +run_script " + Config.bot.game_launch_args_script+" +quit";
             }
+            process_ids.AddLast(process.Id);
             thread = new Thread(() =>
             {
-                process.StartInfo = psi;
-                process.Start();
-                process.WaitForExit();
+                Process p = process;
+                p.StartInfo = psi;
+                p.Start();
+                p.WaitForExit();
+                p.Close();
             });
+            thread.IsBackground = true;
             Console.WriteLine(psi.FileName);
             switch (Config.bot.game)
             {
@@ -402,10 +407,8 @@ namespace DiscordGameServerManager_Windows
                                 thread.Start();
                                 break;
                             case 1:
-                                thread.Abort();
                                 break;
                             case 2:
-                                thread.Abort();
                                 thread.Start();
                                 break;
                             default:
@@ -421,10 +424,16 @@ namespace DiscordGameServerManager_Windows
                                 thread.Start();
                                 break;
                             case 1:
-                                thread.Abort(thread.ThreadState);
+                                foreach (int id in process_ids) 
+                                {
+                                    Process.GetProcessById(id).Kill();
+                                }
                                 break;
                             case 2:
-                                thread.Abort();
+                                foreach (int id in process_ids)
+                                {
+                                    Process.GetProcessById(id).Kill();
+                                }
                                 thread.Start();
                                 break;
                             default:
@@ -447,16 +456,16 @@ namespace DiscordGameServerManager_Windows
                         }
                     Console.WriteLine(process.StartInfo.WorkingDirectory);
                     Console.WriteLine(process.StartInfo.Arguments);
-                    output = process.StandardOutput.ReadToEnd();
+                    //output = process.StandardOutput.ReadToEnd();
                     //error = process.StandardError.ReadToEnd();
-                    try
+                    /*try
                     {
                         message_send(output, discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                    }
+                    }*/
                     break;
                 case 1:
                     try
@@ -612,33 +621,25 @@ namespace DiscordGameServerManager_Windows
             {
                 try
                 {
-                    thread.Abort();
+                    Process[] proc = Process.GetProcessesByName("ShooterGameServer");
+                    /*for (int i = 0; i < proc.Length; i++) 
+                    {
+                        proc[i].Kill();
+                    }*/
+                    proc[0].Kill();
                 }
-                catch (Exception ex)
+                catch (Exception ex_1)
                 {
-                    Console.WriteLine(ex.Message + Environment.NewLine + "Closing Ark server using other methods");
-                    try
-                    {
-                        Process[] proc = Process.GetProcessesByName("ShooterGameServer");
-                        /*for (int i = 0; i < proc.Length; i++) 
-                        {
-                            proc[i].Kill();
-                        }*/
-                        proc[0].Kill();
-                    }
-                    catch (Exception ex_1)
-                    {
-                        Console.WriteLine(ex_1.Message);
-                    }
-                    try
-                    {
-                        Process[] proc = Process.GetProcessesByName("steamcmd");
-                        proc[0].Kill();
-                    }
-                    catch (Exception ex_2)
-                    {
-                        Console.WriteLine(ex_2.Message);
-                    }
+                    Console.WriteLine(ex_1.Message);
+                }
+                try
+                {
+                    Process[] proc = Process.GetProcessesByName("steamcmd");
+                    proc[0].Kill();
+                }
+                catch (Exception ex_2)
+                {
+                    Console.WriteLine(ex_2.Message);
                 }
             }
         }
@@ -691,15 +692,18 @@ namespace DiscordGameServerManager_Windows
         internal class Setup
         {
             private static readonly HttpClient client = new HttpClient();
+            const string steamcmd_windows = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
+            const string steamcmd_linux = "http://media.steampowered.com/installer/steamcmd_linux.tar.gz";
             string ARK_WORKSHOP_DIR = "./steamapps/workshop/content/346110";
             public static void Initialize(Process p, ProcessStartInfo psi) 
             {
                 steamworkshop.download(p, psi);
             }
-            public static void CreateScript() 
+            public static void CreateScript(int server) 
             {
                 const string batch_noecho = @"@echo off";
-                const string setvarbatch = @"SETLOCAL";
+                const string setvarbatch = "SETLOCAL ";
+                string map = Config.bot.cluster.servers[server].map;
                 const string flags = "-nosteamclient -game -server -log";
                 switch (string.IsNullOrEmpty(Config.bot.game))
                 {
