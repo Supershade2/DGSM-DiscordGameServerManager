@@ -37,6 +37,11 @@ namespace DiscordGameServerManager_Windows
             {
                 string json = File.ReadAllText(dir + "/" + config);
                 d = JsonConvert.DeserializeObject<details>(json);
+                if (d.first_run) 
+                {
+                    d.first_run = false;
+                    write();
+                }
             }
             else 
             {

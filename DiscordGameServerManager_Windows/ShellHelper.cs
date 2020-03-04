@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.IO;
-namespace Ark_Server_Manager_Bot
+namespace DiscordGameServerManager_Windows
 {
     public static class ShellHelper
     {

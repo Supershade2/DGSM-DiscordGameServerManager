@@ -18,7 +18,8 @@ namespace DiscordGameServerManager_Windows
         public static int available_async_threads;
         public static Process process = new Process();
         public static ProcessStartInfo startInfo;
-        public static Socket info = new Socket(AddressFamily.Unix,SocketType.Rdm,ProtocolType.IPv4);
+        public static Socket info = new Socket(AddressFamily.Unix,SocketType.Rdm,ProtocolType.Tcp);
+        public static UnixDomainSocketEndPoint unix_socket = new UnixDomainSocketEndPoint("Resources/Modules/Socket/module.sock");
         public static Pipe pipe = new Pipe();
         public static NamedPipeServerStream[] namedPipeServerStreams;
         public static Thread[] pipe_threads;
@@ -33,11 +34,14 @@ namespace DiscordGameServerManager_Windows
         }
         public static void InitializeSocket() 
         {
+            if (!System.IO.Directory.Exists("Resources/Modules/Socket")) 
+            {
+                System.IO.Directory.CreateDirectory("Resources/Modules/Socket");
+                System.IO.File.Create("Resources/Modules/Socket/module.sock");
+            }
             ThreadPool.GetAvailableThreads(out available_threads, out available_async_threads);
-            IPAddress address = IPAddress.Parse("127.0.0.1");
-            IPEndPoint iPEnd = new IPEndPoint(address, 35);
-            info.Bind(iPEnd);
-            info.Listen(available_async_threads);
+            info.Bind(unix_socket);
+            info.Listen(available_threads);
         }
         public static void InitializePipes() 
         {

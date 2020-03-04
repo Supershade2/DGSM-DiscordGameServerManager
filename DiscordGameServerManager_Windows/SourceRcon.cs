@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections;
 using System.Threading.Tasks;
-
 namespace DiscordGameServerManager_Windows
 {
     public class SourceRcon
@@ -315,7 +314,7 @@ namespace DiscordGameServerManager_Windows
         internal void ParseFromBytes(byte[] bytes, SourceRcon parent)
         {
             int BPtr = 0;
-            ArrayList stringcache;
+            List<byte> stringcache;
             UTF8Encoding utf = new UTF8Encoding();
 
             // First 4 bytes are ReqId.
@@ -325,24 +324,24 @@ namespace DiscordGameServerManager_Windows
             ServerDataReceived = (SERVERDATA_rec)BitConverter.ToInt32(bytes, BPtr);
             BPtr += 4;
             // string1 till /0
-            stringcache = new ArrayList();
+            stringcache = new List<byte>();
             while (bytes[BPtr] != 0)
             {
                 stringcache.Add(bytes[BPtr]);
                 BPtr++;
             }
-            String1 = utf.GetString((byte[])stringcache.ToArray(typeof(byte)));
+            String1 = utf.GetString(stringcache.ToArray());
             BPtr++;
 
             // string2 till /0
 
-            stringcache = new ArrayList();
+            stringcache = new List<byte>();
             while (bytes[BPtr] != 0)
             {
                 stringcache.Add(bytes[BPtr]);
                 BPtr++;
             }
-            String2 = utf.GetString((byte[])stringcache.ToArray(typeof(byte)));
+            String2 = utf.GetString(stringcache.ToArray());
             BPtr++;
 
             // Repeat if there's more data?

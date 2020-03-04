@@ -368,7 +368,7 @@ namespace DiscordGameServerManager_Windows
             psi.RedirectStandardOutput = true;
             psi.RedirectStandardError = true;
             psi.CreateNoWindow = true;
-            psi.WorkingDirectory = Config.bot.steamcmd_dir;
+            psi.WorkingDirectory = string.IsNullOrEmpty(Config.bot.steamcmd_dir) == false ? Config.bot.steamcmd_dir:Directory.GetCurrentDirectory()+"/steamcmd";
             psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
             if (Details.d.first_run) 
             {
@@ -692,9 +692,7 @@ namespace DiscordGameServerManager_Windows
         internal class Setup
         {
             private static readonly HttpClient client = new HttpClient();
-            const string steamcmd_windows = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
-            const string steamcmd_linux = "http://media.steampowered.com/installer/steamcmd_linux.tar.gz";
-            string ARK_WORKSHOP_DIR = "./steamapps/workshop/content/346110";
+            string ARK_WORKSHOP_DIR = "./steamcmd/steamapps/workshop/content/346110";
             public static void Initialize(Process p, ProcessStartInfo psi) 
             {
                 steamworkshop.download(p, psi);
@@ -704,7 +702,7 @@ namespace DiscordGameServerManager_Windows
                 const string batch_noecho = @"@echo off";
                 const string setvarbatch = "SETLOCAL ";
                 string map = Config.bot.cluster.servers[server].map;
-                const string flags = "-nosteamclient -game -server -log";
+                const string end_flags = "-nosteamclient -game -server -log";
                 switch (string.IsNullOrEmpty(Config.bot.game))
                 {
                     case false:
@@ -712,6 +710,33 @@ namespace DiscordGameServerManager_Windows
                         break;
                     default:
                         break;
+                }
+            }
+            //Gets steamcmd if steamcmd directory is not specified
+            public static void get_steamcmd() 
+            {
+                const string steamcmd_windows = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
+                const string steamcmd_linux = "http://media.steampowered.com/installer/steamcmd_linux.tar.gz";
+                if (string.IsNullOrEmpty(Config.bot.steamcmd_dir)) 
+                {
+                    switch (Directory.Exists("./steamcmd"))
+                    {
+                        case true:
+                            break;
+                        default:
+                            Directory.CreateDirectory("./steamcmd");
+                            break;
+                    }
+                    if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
+                    {
+                        download(steamcmd_windows, "./steamcmd/steamcmd.zip");
+                        ZipFile.ExtractToDirectory("./steamcmd/steamcmd.zip", "./steamcmd", System.Text.Encoding.ASCII,true);
+                    }
+                    else 
+                    {
+                        download(steamcmd_linux, "./steamcmd/steamcmd_linux.tar.gz");
+                        Tar.ExtractTarGz("./steamcmd/steamcmd_linux.tar.gz","./steamcmd");
+                    }
                 }
             }
             public static void download(string url, string file)
