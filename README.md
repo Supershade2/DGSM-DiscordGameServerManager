@@ -1,10 +1,15 @@
 # DGSM-DiscordGameServerManager
 C# discord bot that can be utilized to manage game servers through discord<br />
+All code used or adapted is listed here, credit goes to producers of the code in question<br />
 <em>Libraries/Sources used</em>
 <ul>
   <li>
 	  <a href="https://github.com/DSharpPlus/DSharpPlus">DSharpplus</a>
   </li>
+	<li>
+		<a href="https://gist.github.com/voxsoftware/590c3c87d5e337106f0bdb80536c0c0c">Vox Software's ExtractTarGZ</a>
+		<a href="https://gist.github.com/ForeverZer0/a2cd292bd2f3b5e114956c00bb6e872b">Original Source</a>
+	</li>
   <li>
 	  <a href="https://www.newtonsoft.com/json">NewtonsoftJSON</a>
   </li>
