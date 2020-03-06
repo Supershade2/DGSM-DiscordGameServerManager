@@ -37,7 +37,7 @@ namespace DiscordGameServerManager_Windows
             }
         });
         public static Thread[] RconThread;
-        static DiscordClient discord = new DiscordClient(new DiscordConfiguration
+        static readonly DiscordClient discord = new DiscordClient(new DiscordConfiguration
         {
             Token = Config.bot.token,
             TokenType = TokenType.Bot
@@ -330,7 +330,8 @@ namespace DiscordGameServerManager_Windows
             if (variable.ToLower() == "user")
             {
                 bool IsParsing = false;
-                char[] username = e.Author.Username.ToCharArray();
+                string user = e.Author.Username+"#"+e.Author.Discriminator;
+                char[] username = user.ToCharArray();
                 string output = "";
                 foreach (var item in input)
                 {

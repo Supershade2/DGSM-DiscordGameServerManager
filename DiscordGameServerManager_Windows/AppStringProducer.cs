@@ -9,7 +9,7 @@ namespace DiscordGameServerManager_Windows
     {
         public static string GetSystemCompatibleString(string app) 
         {
-            if (OS_Info.platform == OSPlatform.Windows)
+            if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
             {
                 return app;
             }
@@ -24,11 +24,11 @@ namespace DiscordGameServerManager_Windows
             switch (needs_extension)
             {
                 case true:
-                    if (OS_Info.platform == OSPlatform.Windows)
+                    if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
                     {
-                        return System.IO.Path.GetFileNameWithoutExtension(app) + ".bat";
+                        return System.IO.Path.GetFileNameWithoutExtension(app) + ".exe";
                     }
-                    else if (OS_Info.platform == OSPlatform.Linux || OS_Info.platform == OSPlatform.OSX) 
+                    else if (OS_Info.GetOSPlatform() == OSPlatform.Linux || OS_Info.GetOSPlatform() == OSPlatform.OSX) 
                     {
                         return System.IO.Path.GetFileNameWithoutExtension(app) + ".deb";
                     }
@@ -49,11 +49,11 @@ namespace DiscordGameServerManager_Windows
                     switch (isScript)
                     {
                         case true:
-                            if (OS_Info.platform == OSPlatform.Windows)
+                            if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
                             {
-                                return System.IO.Path.GetFileNameWithoutExtension(app) + ".cmd";
+                                return System.IO.Path.GetFileNameWithoutExtension(app) + ".bat";
                             }
-                            else if (OS_Info.platform == OSPlatform.Linux || OS_Info.platform == OSPlatform.OSX)
+                            else if (OS_Info.GetOSPlatform() == OSPlatform.Linux || OS_Info.GetOSPlatform() == OSPlatform.OSX)
                             {
                                 return System.IO.Path.GetFileNameWithoutExtension(app) + ".sh";
                             }

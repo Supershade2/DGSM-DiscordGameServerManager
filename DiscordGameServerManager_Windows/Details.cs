@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Newtonsoft.Json;
+using System.IO.IsolatedStorage;
+
 namespace DiscordGameServerManager_Windows
 {
     public class Details
@@ -51,12 +53,18 @@ namespace DiscordGameServerManager_Windows
         public static void write() 
         {
             string json = JsonConvert.SerializeObject(d, Formatting.Indented);
-            File.WriteAllText(dir + "/" + config, json);
+            byte[] json_data = Encoding.ASCII.GetBytes(json);
+            using (var resource = File.Open(dir + "/" + config, FileMode.Truncate, FileAccess.Write, FileShare.Write))
+            {
+                resource.Write(json_data, 0, json_data.Length - 1);
+                resource.Flush();
+                resource.Dispose();
+            }
         }
     }
     public struct details 
     {
-        public int user_count { get; set; }
+        public int user_count { get; set; } 
         public bool first_run { get; set; }
         public string culture_name { get; set; }
         public string default_extension { get; set; }

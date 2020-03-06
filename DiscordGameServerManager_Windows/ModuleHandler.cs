@@ -9,6 +9,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
+
 namespace DiscordGameServerManager_Windows
 {
     class ModuleHandler
@@ -34,10 +36,10 @@ namespace DiscordGameServerManager_Windows
         }
         public static void InitializeSocket() 
         {
-            if (!System.IO.Directory.Exists("Resources/Modules/Socket")) 
+            if (!Directory.Exists("Resources/Modules/Socket")) 
             {
-                System.IO.Directory.CreateDirectory("Resources/Modules/Socket");
-                System.IO.File.Create("Resources/Modules/Socket/module.sock");
+                Directory.CreateDirectory("Resources/Modules/Socket");
+                File.Create("Resources/Modules/Socket/module.sock");
             }
             ThreadPool.GetAvailableThreads(out available_threads, out available_async_threads);
             info.Bind(unix_socket);
@@ -80,7 +82,8 @@ namespace DiscordGameServerManager_Windows
                         }
                     }
                 }
-                namedPipeServerStreams[i] = new NamedPipeServerStream(pipename);
+                namedPipeServerStreams[i] = new NamedPipeServerStream(pipename,PipeDirection.InOut);
+                namedPipeServerStreams[i].ReadMode = PipeTransmissionMode.Message;
                 pipenames.Add(pipename);
                 pipename = "";
             }
@@ -91,7 +94,8 @@ namespace DiscordGameServerManager_Windows
             {
                 for (int i = 0; i < names.Length; i++)
                 {
-                    namedPipeServerStreams[i] = new NamedPipeServerStream(names[i]);
+                    namedPipeServerStreams[i] = new NamedPipeServerStream(names[i],PipeDirection.InOut);
+                    namedPipeServerStreams[i].ReadMode = PipeTransmissionMode.Message;
                     pipenames.Add(names[i]);
                 }
             }
@@ -122,7 +126,7 @@ namespace DiscordGameServerManager_Windows
                     ProcessModule pModule;
                     ProcessModuleCollection processModuleC;
                     processModuleC = module.Modules;
-                    System.IO.TextWriter text = new System.IO.StreamWriter(directory + mName + "_output.txt");
+                    StreamWriter text = new StreamWriter(directory + mName + "_output.txt");
                     // Display the properties of each of the modules.
                     for (int i = 0; i < processModuleC.Count; i++)
                     {
@@ -139,7 +143,7 @@ namespace DiscordGameServerManager_Windows
                             + pModule.FileName);
                     }
                     text.Flush();
-                    text.Close();
+                    text.Dispose();
                 });
             }
             ThreadPool.GetAvailableThreads(out available_threads, out available_async_threads);
@@ -155,27 +159,33 @@ namespace DiscordGameServerManager_Windows
         public static async Task<string> ReadPipe(int pipe) 
         {
             List<byte> data_bytes = await PerformReads(pipe);
-            byte[] str_bytes = Encoding.Convert(Encoding.UTF8, Encoding.ASCII, data_bytes.ToArray());
-            string data = BitConverter.ToString(str_bytes);
+            //byte[] str_bytes = Encoding.Convert(Encoding.UTF8, Encoding.ASCII, data_bytes.ToArray());
+            string data = BitConverter.ToString(data_bytes.ToArray());
             return data;
         }
         public static async Task<List<byte>> PerformReads(int current) 
         {
             List<byte> data_bytes = new List<byte>();
-            int data_byte;
+            byte[] message = new byte[1024];
             bool connected = namedPipeServerStreams[current].IsConnected;
                 if (!namedPipeServerStreams[current].IsConnected) 
                 {
                 namedPipeServerStreams[current].WaitForConnection();
                 }
-                if (connected) 
+            if (connected)
+            {
+                using (var ms = new MemoryStream())
                 {
                     do
                     {
-                    data_byte = namedPipeServerStreams[current_pipe].ReadByte();
-                    data_bytes.Add((byte)data_byte);
-                    } while (!BitConverter.ToString(data_bytes.ToArray()).Contains("<EOF>"));
+                        namedPipeServerStreams[current].Read(message, 0, 1024);
+                        ms.Write(message, 0, message.Length);
+                    } while (!namedPipeServerStreams[current].IsMessageComplete);
+                    data_bytes.AddRange(ms.ToArray());
                 }
+                string reply = "processing";
+                namedPipeServerStreams[current].Write(Encoding.GetEncoding(reply).GetBytes(reply));
+            }
             return data_bytes;
         }
         public static void Read(int current) 
@@ -198,10 +208,23 @@ namespace DiscordGameServerManager_Windows
 
         private static void ReadPipes(object pi)
         {
-            ReadPipe((int)pi).ConfigureAwait(true).GetAwaiter().GetResult();
-            Read((int)pi);
+            while (true) 
+            {
+                if (!File.Exists(dir + "/input.txt"))
+                {
+                    File.CreateText(dir + "/" + (int)pi + "_input.txt");
+                }
+                string output = ReadPipe((int)pi).ConfigureAwait(true).GetAwaiter().GetResult();
+                ProcessData(output);
+            }
         }
-
+        private static void ProcessData(string data) 
+        {
+            if (data.ToLower().Contains("DiscordSendMessage:")) 
+            { 
+                
+            }
+        }
         internal delegate void ReadPipes_Call(object p);
     }
 }

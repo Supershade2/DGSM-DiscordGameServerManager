@@ -51,8 +51,8 @@ namespace DiscordGameServerManager_Windows
         public string steam_game_args_script { get; set; }
         public string steam_install_dir { get; set; }
         public string start_command { get; set; }
-        /* Not currently implemented, currently thread is just aborted
         public string stop_command { get; set; }
+        /* Not currently implemented, currently process is killed and restarted
         public string restart_command { get; set; }
         */
     }

@@ -4,7 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Security;
-
+/*!
+ *  \file steamworkshop.cs
+ *  File that contains the code for steamworkshop actions
+ *  This file contains the source code for how steamcmd and workshop collection api will be utilized
+ */
 namespace DiscordGameServerManager_Windows
 {
     class steamworkshop
