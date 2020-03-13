@@ -26,13 +26,13 @@ namespace DiscordGameServerManager_Windows
                 case true:
                     if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
                     {
-                        return System.IO.Path.GetFileNameWithoutExtension(app) + ".exe";
+                        return System.IO.Path.ChangeExtension(app, ".exe"); //System.IO.Path.GetFileNameWithoutExtension(app) + ".exe";
                     }
                     else if (OS_Info.GetOSPlatform() == OSPlatform.Linux || OS_Info.GetOSPlatform() == OSPlatform.OSX) 
                     {
-                        return System.IO.Path.GetFileNameWithoutExtension(app) + ".deb";
+                        return System.IO.Path.ChangeExtension(app, ".deb");//System.IO.Path.GetFileNameWithoutExtension(app) + ".deb";
                     }
-                    f = System.IO.Path.GetFileNameWithoutExtension(app) + Details.d.default_extension;
+                    f = System.IO.Path.ChangeExtension(app, Details.d.default_extension);//System.IO.Path.GetFileNameWithoutExtension(app) + Details.d.default_extension;
                     break;
                 default:
                     f = GetSystemCompatibleString(app);
@@ -51,11 +51,11 @@ namespace DiscordGameServerManager_Windows
                         case true:
                             if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
                             {
-                                return System.IO.Path.GetFileNameWithoutExtension(app) + ".bat";
+                                return System.IO.Path.ChangeExtension(app, ".bat");//System.IO.Path.GetFileNameWithoutExtension(app) + ".bat";
                             }
                             else if (OS_Info.GetOSPlatform() == OSPlatform.Linux || OS_Info.GetOSPlatform() == OSPlatform.OSX)
                             {
-                                return System.IO.Path.GetFileNameWithoutExtension(app) + ".sh";
+                                return System.IO.Path.ChangeExtension(app, ".sh"); //System.IO.Path.GetFileNameWithoutExtension(app) + ".sh";
                             }
                             break;
                         default:

@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Newtonsoft.Json;
-
+using System.Security.Cryptography;
 namespace DiscordGameServerManager_Windows
 {
     class Game_Profile
     {
         private const string dir = "Resources";
         private const string config = "gameprofile.json";
-
+        private const string key = "";
         public static profile _profile;
         static Game_Profile()
         {
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
-
+            
             if (!File.Exists(dir + "/" + Config.bot.game + "/" + config))
             {
                 File.Create(dir + "/" + Config.bot.game + "/" + config).Close();
@@ -46,6 +46,7 @@ namespace DiscordGameServerManager_Windows
         public int rcon_port { get; set; }
         public string rcon_pass { get; set; }
         public string[] rcon_commands { get; set; }
+        //In the future will be encrypted into the file and then stored in the dictionary
         public Dictionary<string, string> user_and_pass { get; set; }
         public long steam_app_id { get; set; }
         public string steam_game_args_script { get; set; }

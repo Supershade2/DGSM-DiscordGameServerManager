@@ -34,11 +34,11 @@ namespace DiscordGameServerManager_Windows
                 bot.useHeuristics = false;
                 //initializes default messages for specific dates
                 bot._messages = new Messages.message[14];
-                bot._messages[12].Date = DateTime.Parse("12/24/2020");
+                bot._messages[12].Date = DateTime.Parse("12/24/"+DateTime.Now.Year, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name));
                 bot._messages[12].message_head = "Merry Christmas, here's a verse:";
                 bot._messages[12].message_body = "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." + Environment.NewLine + "For God did not send his Son into the world to condemn the world, but to save the world through him." + Environment.NewLine + "Whoever believes in him is not condemned, but whoever does not believe stands condemned already because they have not believed in the name of God’s one and only Son."+Environment.NewLine+"This is the verdict: Light has come into the world, but people loved darkness instead of light because their deeds were evil."+Environment.NewLine+"Everyone who does evil hates the light, and will not come into the light for fear that their deeds will be exposed."+Environment.NewLine+"But whoever lives by the truth comes into the light, so that it may be seen plainly that what they have done has been done in the sight of God.";
                 bot._messages[12].MessageOn = true;
-                bot._messages[11].Date = DateTime.Parse("03/10/2020");
+                bot._messages[11].Date = DateTime.Parse("03/10/"+DateTime.Now.Year,, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name));
                 bot._messages[11].message_head = "It's a march:";
                 bot._messages[11].MessageOn = false;
                 bot._messages[11].message_body = "Wahoo!";

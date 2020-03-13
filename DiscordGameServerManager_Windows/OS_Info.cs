@@ -23,17 +23,17 @@ namespace DiscordGameServerManager_Windows
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     platform = OSPlatform.Windows;
-                    return OSPlatform.Windows;
+                    return platform;
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     platform = OSPlatform.Linux;
-                    return OSPlatform.Linux;
+                    return platform;
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     platform = OSPlatform.OSX;
-                    return OSPlatform.OSX;
+                    return platform;
                 }
                 platform = OSPlatform.Create("Custom");
                 return platform;

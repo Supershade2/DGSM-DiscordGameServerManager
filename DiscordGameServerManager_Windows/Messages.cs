@@ -78,14 +78,15 @@ namespace DiscordGameServerManager_Windows
         }
         public static async Task message_send(message m, DiscordChannel discordChannel, DiscordClient discord)
         {
+            DateTime current_date = DateTime.Now;
             try
             {
-                if (m.Date == DateTime.Now && m.MessageOn && Config.bot.useHeuristics)
+                if (DateTime.Parse(m.Date.Month+"/"+m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month+"/"+current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn && Config.bot.useHeuristics)
                 {
                     DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, Heuristics.produceString(m.message_head + Heuristics.newline + m.message_body), false, null);
                     await discordMessage.AcknowledgeAsync();
                 }
-                else if (m.Date == DateTime.Now && m.MessageOn) 
+                else if (DateTime.Parse(m.Date.Month + "/" + m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month + "/" + current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn) 
                 {
                     DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, m.message_head + Heuristics.newline + m.message_body, false, null);
                     await discordMessage.AcknowledgeAsync();

@@ -217,7 +217,6 @@ namespace DiscordGameServerManager_Windows
                 psi.Arguments = "+login anonymous "+download_workshop + Default_appID + " " + collection[i]+" +quit";
                 p.StartInfo = psi;
                 p.Start();
-                p.WaitForExit(30000);
             }
         }
     }

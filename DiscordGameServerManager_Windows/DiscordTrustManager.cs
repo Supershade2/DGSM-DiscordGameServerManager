@@ -41,20 +41,18 @@ namespace DiscordGameServerManager_Windows
             {
                 List<user> users_c = GetUsers(channelID);
                 user User = GetUser(users_c, id);
-                bool[] perms = new bool[6];
+                bool[] perms = new bool[4];
                 perms[0] = User.perms.manage_game;
-                perms[1] = User.perms.remote_management;
-                perms[2] = User.perms.start;
-                perms[3] = User.perms.stop;
-                perms[4] = User.perms.text;
-                perms[5] = User.perms.voice;
+                perms[1] = User.perms.dm_remote_management;
+                perms[2] = User.perms.stop;
+                perms[3] = User.perms.backup;
                 return perms;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("DiscordTrustManager: Method: checkPermission");
                 Console.WriteLine(ex.Message);
-                bool[] perms = new bool[6];
+                bool[] perms = new bool[4];
                 for (int i = 0; i < perms.Length; i++) 
                 {
                     perms[i] = false;
@@ -158,61 +156,35 @@ namespace DiscordGameServerManager_Windows
         {
             switch (perm_values.Length)
             {
-                case 6:
-                    perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = perm_values[4];
-                    perms.stop = perm_values[5];
-                    perms.text = perm_values[2];
-                    perms.voice = perm_values[3];
-                    break;
-                case 5:
-                    perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = perm_values[4];
-                    perms.stop = default_perm_value;
-                    perms.text = perm_values[2];
-                    perms.voice = perm_values[3];
-                    break;
                 case 4:
                     perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = default_perm_value;
-                    perms.stop = default_perm_value;
-                    perms.text = perm_values[2];
-                    perms.voice = perm_values[3];
+                    perms.dm_remote_management = perm_values[1];
+                    perms.stop = perm_values[2];
+                    perms.backup = perm_values[3];
                     break;
                 case 3:
                     perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = default_perm_value;
-                    perms.stop = default_perm_value;
-                    perms.text = perm_values[2];
-                    perms.voice = default_perm_value;
+                    perms.dm_remote_management = perm_values[1];
+                    perms.stop = perm_values[2];
+                    perms.backup = default_perm_value;
                     break;
                 case 2:
                     perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = default_perm_value;
+                    perms.dm_remote_management = perm_values[1];
                     perms.stop = default_perm_value;
-                    perms.text = default_perm_value;
-                    perms.voice = default_perm_value;
+                    perms.backup = default_perm_value;
                     break;
                 case 1:
                     perms.manage_game = perm_values[0];
-                    perms.remote_management = default_perm_value;
-                    perms.start = default_perm_value;
+                    perms.dm_remote_management = default_perm_value;
                     perms.stop = default_perm_value;
-                    perms.text = default_perm_value;
-                    perms.voice = default_perm_value;
+                    perms.backup = default_perm_value;
                     break;
                 default:
                     perms.manage_game = default_perm_value;
-                    perms.remote_management = default_perm_value;
-                    perms.start = default_perm_value;
+                    perms.dm_remote_management = default_perm_value;
                     perms.stop = default_perm_value;
-                    perms.text = default_perm_value;
-                    perms.voice = default_perm_value;
+                    perms.backup = default_perm_value;
                     break;
             }
             int indx = users.IndexOf(u);
@@ -225,61 +197,35 @@ namespace DiscordGameServerManager_Windows
         {
             switch (perm_values.Length)
             {
-                case 6:
-                    perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = perm_values[4];
-                    perms.stop = perm_values[5];
-                    perms.text = perm_values[2];
-                    perms.voice = perm_values[3];
-                    break;
-                case 5:
-                    perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = perm_values[4];
-                    perms.stop = default_perm_value;
-                    perms.text = perm_values[2];
-                    perms.voice = perm_values[3];
-                    break;
                 case 4:
                     perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = default_perm_value;
-                    perms.stop = default_perm_value;
-                    perms.text = perm_values[2];
-                    perms.voice = perm_values[3];
+                    perms.dm_remote_management = perm_values[1];
+                    perms.stop = perm_values[2];
+                    perms.backup = perm_values[3];
                     break;
                 case 3:
                     perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = default_perm_value;
-                    perms.stop = default_perm_value;
-                    perms.text = perm_values[2];
-                    perms.voice = default_perm_value;
+                    perms.dm_remote_management = perm_values[1];
+                    perms.stop = perm_values[2];
+                    perms.backup = default_perm_value;
                     break;
                 case 2:
                     perms.manage_game = perm_values[0];
-                    perms.remote_management = perm_values[1];
-                    perms.start = default_perm_value;
+                    perms.dm_remote_management = perm_values[1];
                     perms.stop = default_perm_value;
-                    perms.text = default_perm_value;
-                    perms.voice = default_perm_value;
+                    perms.backup = default_perm_value;
                     break;
                 case 1:
                     perms.manage_game = perm_values[0];
-                    perms.remote_management = default_perm_value;
-                    perms.start = default_perm_value;
+                    perms.dm_remote_management = default_perm_value;
                     perms.stop = default_perm_value;
-                    perms.text = default_perm_value;
-                    perms.voice = default_perm_value;
+                    perms.backup = default_perm_value;
                     break;
                 default:
                     perms.manage_game = default_perm_value;
-                    perms.remote_management = default_perm_value;
-                    perms.start = default_perm_value;
+                    perms.dm_remote_management = default_perm_value;
                     perms.stop = default_perm_value;
-                    perms.text = default_perm_value;
-                    perms.voice = default_perm_value;
+                    perms.backup = default_perm_value;
                     break;
             }
             user u;
@@ -391,11 +337,9 @@ namespace DiscordGameServerManager_Windows
     public struct permissions
     {
         public bool manage_game { get; set; }
-        public bool remote_management { get; set; }
-        public bool start { get; set; }
+        public bool dm_remote_management { get; set; }
         public bool stop { get; set; }
-        public bool text { get; set; }
-        public bool voice { get; set; }
+        public bool backup { get; set; }
     }
     public struct channel
     {

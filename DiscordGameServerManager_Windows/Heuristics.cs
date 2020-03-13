@@ -12,7 +12,6 @@ namespace DiscordGameServerManager_Windows
         public static string produceString(string input)
         {
             bool IsCompatible = false;
-            Encoding enc = Encoding.GetEncoding(input);
             if(CultureInfo.CurrentCulture.Name.ToLower() == "en-us") 
             {
                 IsCompatible = true;
