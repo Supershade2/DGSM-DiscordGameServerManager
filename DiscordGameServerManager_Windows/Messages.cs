@@ -84,12 +84,12 @@ namespace DiscordGameServerManager_Windows
                 if (DateTime.Parse(m.Date.Month+"/"+m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month+"/"+current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn && Config.bot.useHeuristics)
                 {
                     DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, Heuristics.produceString(m.message_head + Heuristics.newline + m.message_body), false, null);
-                    await discordMessage.AcknowledgeAsync();
+                    //await discordMessage.AcknowledgeAsync();
                 }
                 else if (DateTime.Parse(m.Date.Month + "/" + m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month + "/" + current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn) 
                 {
                     DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, m.message_head + Heuristics.newline + m.message_body, false, null);
-                    await discordMessage.AcknowledgeAsync();
+                    //await discordMessage.AcknowledgeAsync();
                 }
             }
             catch (Exception e)
