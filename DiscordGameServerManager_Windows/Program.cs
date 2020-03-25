@@ -18,7 +18,7 @@ namespace DiscordGameServerManager_Windows
     class Program
     {
         public static Details _details = new Details();
-        public static DiscordFunctions functions = new DiscordFunctions();
+        //public static DiscordFunctions functions = new DiscordFunctions();
         static void Main(string[] args)
         {
             Setup setup = new Setup();
@@ -27,7 +27,7 @@ namespace DiscordGameServerManager_Windows
             {
                 setup.CreateScript(i);
             }
-            functions.startDiscord();
+            DiscordFunctions.MainDiscord();
         }
         internal class Setup
         {

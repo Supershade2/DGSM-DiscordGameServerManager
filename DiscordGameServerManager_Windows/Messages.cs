@@ -7,96 +7,117 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
+using System.Linq;
+
 namespace DiscordGameServerManager_Windows
 {
     public class Messages
     {
         private const string dir = "Resources";
         private const string config = "DMs.json";
-        public static Dictionary<string, DiscordDmChannel> userDM = new Dictionary<string, DiscordDmChannel>();
-        public static void setMessage(string str, message[] m, int index) 
+        private static Dictionary<ulong, DiscordDmChannel> userDM = new Dictionary<ulong, DiscordDmChannel>();
+        public static void setMessage(string str, Message[] m, int index) 
         {
             if (Config.bot.useHeuristics)
             {
                 str = Heuristics.produceString(str);
-                m[index].message_body = str;
+                m[index].messagebody = str;
             }
             else 
             {
-                m[index].message_body = str;
+                m[index].messagebody = str;
             }
             Config.write();
         }
-        public static void setMessage(string str, message[] m, int index, DateTime date) 
+        public static void AddDM(ulong id, DiscordDmChannel discordDm) 
+        {
+            if (!userDM.ContainsKey(id)) 
+            {
+                userDM.Add(id, discordDm);
+            }
+        }
+        public static int GetUserDMCount() 
+        {
+            return userDM.Count;
+        }
+        public static bool HasID(ulong id) 
+        {
+            return userDM.Keys.ToArray().Contains(id);
+        }
+        public static Dictionary<ulong,DiscordDmChannel>.ValueCollection GetValues() 
+        {
+            return userDM.Values;
+        }
+        public static void setMessage(string str, Message[] m, int index, DateTime date) 
         {
             if (Config.bot.useHeuristics)
             {
                 str = Heuristics.produceString(str);
-                m[index].message_body = str;
+                m[index].messagebody = str;
                 m[index].Date = date;
             }
             else 
             {
-                m[index].message_body = str;
+                m[index].messagebody = str;
                 m[index].Date = date;
             }
             Config.write();
         }
-        public static void setMessage(string head, string body, message[] m, int index) 
+        public static void setMessage(string head, string body, Message[] m, int index) 
         {
             if (Config.bot.useHeuristics) 
             {
                 head = Heuristics.produceString(head);
                 body = Heuristics.produceString(body);
-                m[index].message_head = head;
-                m[index].message_body = body;
+                m[index].messagehead = head;
+                m[index].messagebody = body;
             }
             else
             {
-                m[index].message_head = head;
-                m[index].message_body = body;
+                m[index].messagehead = head;
+                m[index].messagebody = body;
             }
             Config.write();
         }
-        public static void setMessage(string head, string body, message[] m, int index, DateTime date) 
+        public static void setMessage(string head, string body, Message[] m, int index, DateTime date) 
         {
             if (Config.bot.useHeuristics) 
             {
                 head = Heuristics.produceString(head);
                 body = Heuristics.produceString(body);
-                m[index].message_head = head;
-                m[index].message_body = body;
+                m[index].messagehead = head;
+                m[index].messagebody = body;
                 m[index].Date = date;
             }
             else
             {
-                m[index].message_head = head;
-                m[index].message_body = body;
+                m[index].messagehead = head;
+                m[index].messagebody = body;
                 m[index].Date = date;
             }
-            Config.write();
+            Config.write(m, typeof(Message[]));
         }
-        public static async Task message_send(message m, DiscordChannel discordChannel, DiscordClient discord)
+        public static async Task MessageSend(Message m, DiscordChannel discordChannel, DiscordClient discord)
         {
             DateTime current_date = DateTime.Now;
-            try
-            {
-                if (DateTime.Parse(m.Date.Month+"/"+m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month+"/"+current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn && Config.bot.useHeuristics)
+                if (!string.IsNullOrEmpty(m.messagehead)) 
                 {
-                    DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, Heuristics.produceString(m.message_head + Heuristics.newline + m.message_body), false, null);
-                    //await discordMessage.AcknowledgeAsync();
+                    if (DateTime.Parse(m.Date.Month + "/" + m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month + "/" + current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn && Config.bot.useHeuristics)
+                    {
+                        DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, Heuristics.produceString(m.messagehead + Heuristics.newline + m.messagebody), false, null).ConfigureAwait(false);
+                        //await discordMessage.AcknowledgeAsync();
+                    }
+                    else if (DateTime.Parse(m.Date.Month + "/" + m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month + "/" + current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn)
+                    {
+                        DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, m.messagehead + Heuristics.newline + m.messagebody, false, null).ConfigureAwait(false);
+                        //await discordMessage.AcknowledgeAsync();
+                    }
                 }
-                else if (DateTime.Parse(m.Date.Month + "/" + m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month + "/" + current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn) 
-                {
-                    DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, m.message_head + Heuristics.newline + m.message_body, false, null);
-                    //await discordMessage.AcknowledgeAsync();
-                }
-            }
-            catch (Exception e)
+            /*catch (Exception e)
             {
                 Console.WriteLine("Message most likely has null or undefined properties, you can ignore this error for message at index 0");
                 Console.WriteLine(e.Message);
-            }
+            }*/
         }
         public static void write()
         {
@@ -106,14 +127,70 @@ namespace DiscordGameServerManager_Windows
         public static void load()
         {
             string json = File.ReadAllText(dir + "/" + config);
-            userDM = JsonConvert.DeserializeObject<Dictionary<string, DiscordDmChannel>>(json);
+            userDM = JsonConvert.DeserializeObject<Dictionary<ulong, DiscordDmChannel>>(json);
         }
-        public struct message
+        public struct Message : IEquatable<Message>
         {
             public DateTime Date { get; set; }
-            public string message_head { get; set; }
-            public string message_body { get; set; }
+            public string messagehead { get; set; }
+            public string messagebody { get; set; }
             public bool MessageOn { get; set; }
+            public bool Heuristicsused { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    if (this == (Message)obj)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            public override int GetHashCode()
+            {
+                int hash = 0;
+                hash = (hash * 3) + Date.GetHashCode();
+                hash = (hash * 3) + messagehead.GetHashCode(StringComparison.CurrentCulture);
+                hash = (hash * 3) + messagebody.GetHashCode(StringComparison.CurrentCulture);
+                hash = (hash * 3) + MessageOn.GetHashCode();
+                hash = (hash * 3) + Heuristicsused.GetHashCode();
+                return hash;
+            }
+
+            public static bool operator ==(Message left, Message right)
+            {
+                if (ReferenceEquals(left, right))
+                {
+                    return true;
+                }
+
+                // If one is null, but not both, return false.
+                if (((object)left == null) || ((object)right == null))
+                {
+                    return false;
+                }
+                return left.Date == right.Date && left.messagehead == right.messagehead && left.messagebody == right.messagebody && left.MessageOn == right.MessageOn && left.Heuristicsused == right.Heuristicsused;
+            }
+
+            public static bool operator !=(Message left, Message right)
+            {
+                return !(left == right);
+            }
+
+            public bool Equals(Message other)
+            {
+                return this == other;
+            }
         }
     }
 }

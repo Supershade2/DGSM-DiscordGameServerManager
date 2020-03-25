@@ -18,9 +18,9 @@ namespace DiscordGameServerManager_Windows
         public static Modules m = new Modules();
         public Modules()
         {
-            Module sample = new Module();
-            sample.main_cs = "example.cs";
-            sample.module_resources = "/path to module resources";
+            ModuleData sample = new ModuleData();
+            sample.mainCS = "example.cs";
+            sample.moduleResources = "/path to module resources";
             sample.references = new List<string>();
             sample.references.Add("System");
             sample.references.Add("System.Core");
@@ -30,7 +30,7 @@ namespace DiscordGameServerManager_Windows
             sample.properties.Add("TargetFramework", "netcoreapp2.2");
             sample.properties.Add("RootNamespace", "Module_Namespace");
             sample.properties.Add("OutputType", "Exe");
-            List<Module> modulelist = new List<Module>();
+            List<ModuleData> modulelist = new List<ModuleData>();
             modulelist.Add(sample);
             module_Collection = new Modulecollection(modulelist);
             string json;
@@ -53,7 +53,7 @@ namespace DiscordGameServerManager_Windows
         public static void Initialize_Collection()
         {
             string json = File.ReadAllText(dir + "/" + module_list);
-            List<Module> modules = JsonConvert.DeserializeObject<List<Module>>(json);
+            List<ModuleData> modules = JsonConvert.DeserializeObject<List<ModuleData>>(json);
             module_Collection = new Modulecollection(modules);
         }
         public static void BuildModules()
@@ -65,17 +65,57 @@ namespace DiscordGameServerManager_Windows
             }
         }
     }
-    public struct Module
+    public struct ModuleData : IEquatable<ModuleData>
     {
-        public string main_cs { get; set; }
-        public string module_resources { get; set; }
+        public string mainCS { get; set; }
+        public string moduleResources { get; set; }
         public List<string> references { get; set; }
+        public Dictionary<string,string> packageReferences { get; set; }
         public Dictionary<string, string> properties { get; set; }
         public bool prepackaged { get; set; }
+
+        public override bool Equals(object obj) =>
+            obj is ModuleData MD && this == MD;
+        public override int GetHashCode()
+        {
+            int hash = 0;
+            hash = (hash * 3) + mainCS.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + moduleResources.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + references.GetHashCode();
+            hash = (hash * 3) + packageReferences.GetHashCode();
+            hash = (hash * 3) + properties.GetHashCode();
+            hash = (hash * 3) + prepackaged.GetHashCode();
+            return hash;
+        }
+
+        public static bool operator ==(ModuleData left, ModuleData right)
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+            return left.mainCS == right.mainCS && left.moduleResources == right.moduleResources && left.references == right.references && left.packageReferences == right.packageReferences && left.properties == right.properties && left.prepackaged == right.prepackaged;
+        }
+
+        public static bool operator !=(ModuleData left, ModuleData right)
+        {
+            return !(left == right);
+        }
+
+        public bool Equals(ModuleData other)
+        {
+            return this == other;
+        }
     }
     public class Modulecollection
     {
-        public Modulecollection(List<Module> modulelist)
+        public Modulecollection(List<ModuleData> modulelist)
         {
             this.modulelist = modulelist;
         }
@@ -118,15 +158,21 @@ namespace DiscordGameServerManager_Windows
                                 slItemGroup.AddItem("Reference", reference);
                             }
                             pr.InsertAfterChild(sl1ItemGroup, pr.LastChild);
+                            foreach (var package in module.packageReferences.Keys) 
+                            {
+                                string version = "";
+                                module.packageReferences.TryGetValue(package, out version);
+                                sl1ItemGroup.AddItem("PackageReference",package).AddMetadata("Version",version);
+                            }
                             pr.InsertAfterChild(sourceitem, pr.LastChild);
-                            sourceitem.AddItem("Compile", moduledir + module.main_cs);
+                            sourceitem.AddItem("Compile", moduledir + module.mainCS);
                             /** For reference to how to point to a file with a literal string
                              * sourceitem.AddItem("Compile", moduledir + @"\\Template.cs");*/
                             var target = pr.AddTarget("Build");
                             var task = target.AddTask("Csc");
                             task.SetParameter("Sources", "@(Compile)");
                             var namekey = (from string key in property_keys
-                                           where (key.Contains("RootNamespace"))
+                                           where (key.Contains("RootNamespace",StringComparison.CurrentCulture))
                                            select key);
                             string name = "";
                             module.properties.TryGetValue(namekey.Single(), out name);
@@ -141,12 +187,14 @@ namespace DiscordGameServerManager_Windows
             }
             catch (Exception ex)
             {
+                var ex0 = ex.InnerException;
                 Console.WriteLine(ex.Message);
                 exts.SetResult(false);
                 return exts;
+                throw ex0;
             }
         }
-        public List<Module> modulelist { get; set; }
+        public List<ModuleData> modulelist { get; set; }
     }
     public class extensions
     {
@@ -159,6 +207,6 @@ namespace DiscordGameServerManager_Windows
             result.Add(r);
         }
         private List<bool> result;
-		public List<Module> subprograms{get; set;}
+		public List<ModuleData> subprograms{get; set;}
     }
 }

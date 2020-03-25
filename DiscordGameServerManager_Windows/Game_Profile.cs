@@ -43,8 +43,8 @@ namespace DiscordGameServerManager_Windows
         public string file_location { get; set; }
         public string mod_dir { get; set; }
         public string rcon_address { get; set; }
-        public int rcon_port { get; set; }
-        public string rcon_pass { get; set; }
+        public int RCONPort { get; set; }
+        public string RCONPass { get; set; }
         public string[] rcon_commands { get; set; }
         //In the future will be encrypted into the file and then stored in the dictionary
         public Dictionary<string, string> user_and_pass { get; set; }

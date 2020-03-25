@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.IO;
+using System.Globalization;
+
 namespace DiscordGameServerManager_Windows
 {
     public static class ShellHelper
@@ -28,7 +30,7 @@ namespace DiscordGameServerManager_Windows
             using (var stream = new MemoryStream())
             {
                 process.StandardOutput.BaseStream.CopyToAsync(stream).ConfigureAwait(false).GetAwaiter().GetResult();
-                result = stream.Read(stream.ToArray(),0,stream.ToArray().Length-1).ToString();
+                result = stream.Read(stream.ToArray(),0,stream.ToArray().Length-1).ToString(CultureInfo.CurrentCulture);
             }
             process.WaitForExit();
             return result;

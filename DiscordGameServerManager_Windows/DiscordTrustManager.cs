@@ -82,7 +82,7 @@ namespace DiscordGameServerManager_Windows
         }
         public static int getTotalUsers() 
         {
-            usernum = Messages.userDM.Count;
+            usernum = Messages.GetUserDMCount();
             return usernum;
         }
         public static void setTotalUsers(int usercount) 
@@ -95,28 +95,28 @@ namespace DiscordGameServerManager_Windows
         {
             usernum = Details.d.user_count;
         }
-        public static void addChannel(string name,ulong id,DiscordDmChannel dmChannel)
+        public static void AddChannel(string name,ulong id,DiscordDmChannel dmChannel)
         {
             channel.id = dmChannel.Id;
             channel.name = dmChannel.Name;
             channel.category = "Direct Message";
             User.username = name;
             User.userID = id;
-            bool[] perms_array = new bool[0];
+            bool[] perms_array = Array.Empty<bool>();
             setPermissions(perms_array, User);
             users.Add(User);
             channel.users = users;
             channel_dictionary.channels.Add(dmChannel.Id,channel);
             write();
         }
-        public static void addChannel(string name, ulong id, DiscordChannel Dchannel) 
+        public static void AddChannel(string name, ulong id, DiscordChannel Dchannel) 
         {
             channel.id = Dchannel.Id;
             channel.name = Dchannel.Name;
             channel.category = Dchannel.Guild.Name;
             User.username = name;
             User.userID = id;
-            bool[] perms_array = new bool[0];
+            bool[] perms_array = Array.Empty<bool>();
             setPermissions(perms_array,User);
             users.Add(User);
             channel.users = users;
@@ -279,9 +279,17 @@ namespace DiscordGameServerManager_Windows
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch (JsonSerializationException ex)
             {
                 Console.WriteLine("DiscordTrustManager: Method: createJSON");
+                Console.WriteLine(ex.InnerException.Source);
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            catch (IOException ex) 
+            {
+                Console.WriteLine("DiscordTrustManager: Method: createJSON");
+                Console.WriteLine(ex.InnerException.Source);
                 Console.WriteLine(ex.Message);
                 return false;
             }

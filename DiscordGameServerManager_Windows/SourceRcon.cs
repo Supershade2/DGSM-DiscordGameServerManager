@@ -225,11 +225,11 @@ namespace DiscordGameServerManager_Windows
         public event StringOutput Errors;
         public event BoolInfo ConnectionSuccess;
 
-        public static string ConnectionClosed = "Connection closed by remote host";
-        public static string ConnectionSuccessString = "Connection Succeeded!";
-        public static string ConnectionFailedString = "Connection Failed!";
-        public static string UnknownResponseType = "Unknown response";
-        public static string GotJunkPacket = "Had junk packet. This is normal.";
+        public const string ConnectionClosed = "Connection closed by remote host";
+        public const string ConnectionSuccessString = "Connection Succeeded!";
+        public const string ConnectionFailedString = "Connection Failed!";
+        public const string UnknownResponseType = "Unknown response";
+        public const string GotJunkPacket = "Had junk packet. This is normal.";
 
         Socket S;
     }

@@ -8,6 +8,9 @@ using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
+using System.Runtime.InteropServices;
+using System.Globalization;
+
 namespace DiscordGameServerManager_Windows
 {
     class GameManager
@@ -23,36 +26,36 @@ namespace DiscordGameServerManager_Windows
                     RconThread = new Thread[Config.bot.cluster.servers.Length];
                     for (int i = 0; i < Config.bot.cluster.servers.Length; i++)
                     {
-                        if (!string.IsNullOrEmpty(Config.bot.cluster.servers[i].RCON_pass))
+                        if (!string.IsNullOrEmpty(Config.bot.cluster.servers[i].RCONPass))
                         {
                             if (!string.IsNullOrEmpty(Config.bot.cluster.servers[i].address))
                             {
                                 RconThread[i] = new Thread(() =>
                                 {
-                                    Rcon(Config.bot.cluster.servers[i].address, Config.bot.cluster.servers[i].RCON_port, Config.bot.cluster.servers[i].RCON_pass, "cheats saveworld");
-                                    Rcon(Config.bot.cluster.servers[i].address, Config.bot.cluster.servers[i].RCON_port, Config.bot.cluster.servers[i].RCON_pass, "cheats quit");
+                                    Rcon(Config.bot.cluster.servers[i].address, Config.bot.cluster.servers[i].RCONPort, Config.bot.cluster.servers[i].RCONPass, "cheats saveworld");
+                                    Rcon(Config.bot.cluster.servers[i].address, Config.bot.cluster.servers[i].RCONPort, Config.bot.cluster.servers[i].RCONPass, "cheats quit");
                                 });
                             }
                             else
                             {
                                 RconThread[i] = new Thread(() =>
                                 {
-                                    Rcon(Config.bot.cluster.servers[0].address, Config.bot.cluster.servers[0].RCON_port, Config.bot.cluster.servers[0].RCON_pass, "cheats saveworld");
-                                    Rcon(Config.bot.cluster.servers[0].address, Config.bot.cluster.servers[0].RCON_port, Config.bot.cluster.servers[0].RCON_pass, "cheats quit");
+                                    Rcon(Config.bot.cluster.servers[0].address, Config.bot.cluster.servers[0].RCONPort, Config.bot.cluster.servers[0].RCONPass, "cheats saveworld");
+                                    Rcon(Config.bot.cluster.servers[0].address, Config.bot.cluster.servers[0].RCONPort, Config.bot.cluster.servers[0].RCONPass, "cheats quit");
                                 });
                             }
                         }
                     }
                     break;
                 default:
-                    if (Game_Profile._profile.rcon_address != null || Game_Profile._profile.rcon_address != "")
+                    if (!string.IsNullOrEmpty(Game_Profile._profile.rcon_address))
                     {
                         RconThread[0] = new Thread(() =>
                         {
                             string[] args = Game_Profile._profile.rcon_commands;
                             for (int i = 0; i < args.Length; i++)
                             {
-                                Rcon(Game_Profile._profile.rcon_address, Game_Profile._profile.rcon_port, Game_Profile._profile.rcon_pass, args[i]);
+                                Rcon(Game_Profile._profile.rcon_address, Game_Profile._profile.RCONPort, Game_Profile._profile.RCONPass, args[i]);
                             }
                         });
                     }
@@ -89,9 +92,10 @@ namespace DiscordGameServerManager_Windows
             Process process = new Process();
             ProcessStartInfo psi = new ProcessStartInfo();
             Thread thread;
-            psi.UseShellExecute = true;
+            psi.UseShellExecute = false;
             psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
+            psi.RedirectStandardInput = true;
+            psi.RedirectStandardError = false;
             psi.CreateNoWindow = true;
             psi.WorkingDirectory = string.IsNullOrEmpty(Config.bot.steamcmd_dir) == false ? Config.bot.steamcmd_dir : Directory.GetCurrentDirectory() + "/steamcmd";
             psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
@@ -109,22 +113,47 @@ namespace DiscordGameServerManager_Windows
                 Process p = process;
                 p.StartInfo = psi;
                 p.Start();
+                Thread sub = new Thread(() =>
+                {
+                    string line = "";
+                    do
+                    {
+                        line += p.StandardOutput.ReadLine();
+                        line = line.ToLower(CultureInfo.CurrentCulture);
+                    } while (!line.Contains("two-factor code:",StringComparison.CurrentCulture));
+                    Console.Out.WriteAsync(line).ConfigureAwait(true).GetAwaiter().GetResult();
+                    DiscordFunctions.Requeststeamcode();
+                    p.StandardInput.WriteLine(File.ReadAllText("steamcode.txt", Encoding.UTF8));
+                    if (OS_Info.GetOSPlatform() == OSPlatform.Windows) 
+                    {
+                        p.StandardInput.Write((char)13);
+                    }
+                    else 
+                    {
+                        p.StandardInput.Write((char)10);
+                    }
+                    p.StandardInput.Flush();
+                });
                 p.WaitForExit();
                 p.Close();
-            });
-            thread.IsBackground = true;
+            })
+            {
+                IsBackground = true
+            };
             Console.WriteLine(psi.FileName);
             switch (Config.bot.game)
             {
                 case null:
                     break;
                 default:
-                    Console.WriteLine("Game specified creating gameprofile.json if it doesn't already exist");
+                    Console.WriteLine(Properties.Resources.CreatingGameProfile);
                     var temp = Game_Profile._profile.file_location;
                     temp = null;
                     if (Game_Profile._profile.Is_Steam == true)
                     {
                         CreateRcon(false);
+                        var user = Game_Profile._profile.user_and_pass.Keys;
+                        var pass = Game_Profile._profile.user_and_pass.Values;
                         switch (option)
                         {
                             case 0:
@@ -191,10 +220,11 @@ namespace DiscordGameServerManager_Windows
                             RconThread[i].Start();
                         }
                     }
-                    catch (Exception ex)
+                    catch (ThreadStartException ex)
                     {
-                        Console.WriteLine("Failed to start RCON thread");
+                        Console.WriteLine(Properties.Resources.RCONStartFailure);
                         Console.WriteLine(ex.Message);
+                        Console.WriteLine("Exception source:"+ex.InnerException.Source);
                     }
                     break;
                 case 2:
@@ -220,7 +250,7 @@ namespace DiscordGameServerManager_Windows
                     output = process.StandardOutput.ReadToEnd();
                     try
                     {
-                        DiscordFunctions.message_send(output, discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
+                        DiscordFunctions.messageSend(output, discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
                     }
                     catch (Exception ex)
                     {
@@ -232,7 +262,7 @@ namespace DiscordGameServerManager_Windows
                     ZipFile.CreateFromDirectory(Config.bot.game_dir, "backup_" + DateTime.UtcNow.Month + "_" + DateTime.UtcNow.Day + "_" + DateTime.UtcNow.Year + ".zip", CompressionLevel.Optimal, true);
 
                     if (server_startup == true) { Manage_server(0, discordChannel); }
-                    DiscordFunctions.message_send("Backup complete", discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
+                    DiscordFunctions.messageSend("Backup complete", discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
                     break;
             }
         }

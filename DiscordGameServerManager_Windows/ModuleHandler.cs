@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
+using System.Globalization;
 
 namespace DiscordGameServerManager_Windows
 {
@@ -39,7 +40,7 @@ namespace DiscordGameServerManager_Windows
             if (!Directory.Exists("Resources/Modules/Socket")) 
             {
                 Directory.CreateDirectory("Resources/Modules/Socket");
-                File.Create("Resources/Modules/Socket/module.sock");
+                File.Create("Resources/Modules/Socket/module.sock").Dispose();
             }
             ThreadPool.GetAvailableThreads(out available_threads, out available_async_threads);
             info.Bind(unix_socket);
@@ -62,7 +63,7 @@ namespace DiscordGameServerManager_Windows
                 {
                     foreach (string s in pipenames)
                     {
-                        while (s.ToLower() == pipename.ToLower())
+                        while (s.ToLower(CultureInfo.CurrentCulture) == pipename.ToLower(CultureInfo.CurrentCulture))
                         {
                             pipename = "";
                             random = new Random(DateTime.UtcNow.Millisecond);
@@ -158,12 +159,12 @@ namespace DiscordGameServerManager_Windows
         }
         public static async Task<string> ReadPipe(int pipe) 
         {
-            List<byte> data_bytes = await PerformReads(pipe);
+            List<byte> data_bytes = PerformReads(pipe);
             //byte[] str_bytes = Encoding.Convert(Encoding.UTF8, Encoding.ASCII, data_bytes.ToArray());
             string data = BitConverter.ToString(data_bytes.ToArray());
             return data;
         }
-        public static async Task<List<byte>> PerformReads(int current) 
+        public static List<byte> PerformReads(int current) 
         {
             List<byte> data_bytes = new List<byte>();
             byte[] message = new byte[1024];
@@ -212,7 +213,7 @@ namespace DiscordGameServerManager_Windows
             {
                 if (!File.Exists(dir + "/input.txt"))
                 {
-                    File.CreateText(dir + "/" + (int)pi + "_input.txt");
+                    File.CreateText(dir + "/" + (int)pi + "_input.txt").Dispose();
                 }
                 string output = ReadPipe((int)pi).ConfigureAwait(true).GetAwaiter().GetResult();
                 ProcessData(output);
@@ -220,7 +221,7 @@ namespace DiscordGameServerManager_Windows
         }
         private static void ProcessData(string data) 
         {
-            if (data.ToLower().Contains("DiscordSendMessage:")) 
+            if (data.ToLower(CultureInfo.CurrentCulture).Contains("DiscordSendMessage:",StringComparison.CurrentCulture)) 
             { 
                 
             }
