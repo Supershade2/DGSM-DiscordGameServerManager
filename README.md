@@ -20,7 +20,8 @@ All code used or adapted is listed here, credit goes to producers of the code fo
 	  <a href="https://github.com/aiusepsi/SourceRcon">SourceRcon</a>
   </li>
 	<li>
-		<a href="https://www.nuget.org/packages/SSH.NET">SSH.NET</a>
+		<a href="https://www.nuget.org/packages/SSH.NET">SSH.NET</a><br  />
+		<a href="https://github.com/sshnet/SSH.NET">SSH.NET github</a>
 	</li>
 	<li>
 		<a href="https://www.nuget.org/packages/System.IO.Pipelines/">Pipelines</a>
