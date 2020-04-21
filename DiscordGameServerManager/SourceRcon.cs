@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections;
 using System.Threading.Tasks;
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     public class SourceRcon
     {

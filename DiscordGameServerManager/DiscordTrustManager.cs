@@ -5,7 +5,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.IO;
 using DSharpPlus.Entities;
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     class DiscordTrustManager
     {
@@ -48,10 +48,10 @@ namespace DiscordGameServerManager_Windows
                 perms[3] = User.perms.backup;
                 return perms;
             }
-            catch (Exception ex)
+            catch (KeyNotFoundException ex)
             {
-                Console.WriteLine("DiscordTrustManager: Method: checkPermission");
-                Console.WriteLine(ex.Message);
+                Console.Error.WriteLine(Properties.Resources.DiscordTrustManagerFailure);
+                Console.Error.WriteLine(ex.Message);
                 bool[] perms = new bool[4];
                 for (int i = 0; i < perms.Length; i++) 
                 {

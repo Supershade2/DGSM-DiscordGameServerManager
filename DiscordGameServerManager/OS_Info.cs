@@ -4,7 +4,7 @@
  *  File that contains the code for getting the current OS Platform
  *  This file contains the source code for retrieving the current platform the application is running on
  */
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     public class OS_Info
     {

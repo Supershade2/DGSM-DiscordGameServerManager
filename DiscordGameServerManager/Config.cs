@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Globalization;
 using System.Diagnostics.Contracts;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     class Config
     {
@@ -204,16 +204,16 @@ namespace DiscordGameServerManager_Windows
     public struct BotConfig : IEquatable<BotConfig>
     {
         public string token { get; set; }
-        public ulong server_guild_id { get; set; }
-        public ulong discord_channel { get; set; }
-        public ulong message_channel { get; set; }
-        public string steamcmd_dir { get; set; }
-        public string game_dir { get; set; }
+        public ulong ServerGuildId { get; set; }
+        public ulong DiscordChannel { get; set; }
+        public ulong MessageChannel { get; set; }
+        public string steamcmddir { get; set; }
+        public string gamedir { get; set; }
         public string wsapikey { get; set; }
         public string wscollectionid { get; set; }
-        public string game_launch_args_script { get; set; }
+        public string GamelaunchARGSscript { get; set; }
         public string prefix { get; set; }
-        public string backup_dir { get; set; }
+        public string backupdir { get; set; }
         public string game { get; set; }
         public ulong ID { get; set; }
         public string GametrackingURL { get; set; }
@@ -246,16 +246,16 @@ namespace DiscordGameServerManager_Windows
         {
             int hash = 0;
             hash = (hash * 3) + token.GetHashCode(StringComparison.CurrentCulture);
-            hash = (hash * 3) + server_guild_id.GetHashCode();
-            hash = (hash * 3) + discord_channel.GetHashCode();
-            hash = (hash * 3) + message_channel.GetHashCode();
-            hash = (hash * 3) + steamcmd_dir.GetHashCode(StringComparison.CurrentCulture);
-            hash = (hash * 3) + game_dir.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + ServerGuildId.GetHashCode();
+            hash = (hash * 3) + DiscordChannel.GetHashCode();
+            hash = (hash * 3) + MessageChannel.GetHashCode();
+            hash = (hash * 3) + steamcmddir.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + gamedir.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + wsapikey.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + wscollectionid.GetHashCode(StringComparison.CurrentCulture);
-            hash = (hash * 3) + game_launch_args_script.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + GamelaunchARGSscript.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + prefix.GetHashCode(StringComparison.CurrentCulture);
-            hash = (hash * 3) + backup_dir.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + backupdir.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + game.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + ID.GetHashCode();
             hash = (hash * 3) + GametrackingURL.GetHashCode(StringComparison.CurrentCulture);
@@ -263,6 +263,10 @@ namespace DiscordGameServerManager_Windows
             hash = (hash * 3) + registrationkey.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + invite.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + cluster.GetHashCode();
+            /*foreach (var item in botmessages) 
+            {
+                hash = (hash * 3) + item.GetHashCode();
+            }*/
             hash = (hash * 3) + botmessages.GetHashCode();
             return hash;
         }
@@ -281,7 +285,7 @@ namespace DiscordGameServerManager_Windows
             }
 
             // Return true if the fields match:
-            return left.token == right.token && left.server_guild_id == right.server_guild_id && left.discord_channel == right.discord_channel && left.message_channel == right.message_channel && left.steamcmd_dir == right.steamcmd_dir && left.game_dir == right.game_dir && left.wsapikey == right.wsapikey && left.wscollectionid == right.wscollectionid && left.game_launch_args_script == right.game_launch_args_script && left.prefix == right.prefix && left.backup_dir == right.backup_dir && left.game == right.game && left.ID == right.ID && left.GametrackingURL == right.GametrackingURL && left.useHeuristics == right.useHeuristics && left.registrationkey == right.registrationkey && left.invite == right.invite && left.cluster.portGap == right.cluster.portGap && left.cluster.servers == right.cluster.servers && left.botmessages == right.botmessages;
+            return left.token == right.token && left.ServerGuildId == right.ServerGuildId && left.DiscordChannel == right.DiscordChannel && left.MessageChannel == right.MessageChannel && left.steamcmddir == right.steamcmddir && left.gamedir == right.gamedir && left.wsapikey == right.wsapikey && left.wscollectionid == right.wscollectionid && left.GamelaunchARGSscript == right.GamelaunchARGSscript && left.prefix == right.prefix && left.backupdir == right.backupdir && left.game == right.game && left.ID == right.ID && left.GametrackingURL == right.GametrackingURL && left.useHeuristics == right.useHeuristics && left.registrationkey == right.registrationkey && left.invite == right.invite && left.cluster.portGap == right.cluster.portGap && left.cluster.servers == right.cluster.servers && left.botmessages == right.botmessages;
         }
 
         public static bool operator !=(BotConfig left, BotConfig right)

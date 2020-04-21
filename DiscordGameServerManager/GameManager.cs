@@ -11,7 +11,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Globalization;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     class GameManager
     {
@@ -97,15 +97,15 @@ namespace DiscordGameServerManager_Windows
             psi.RedirectStandardInput = true;
             psi.RedirectStandardError = false;
             psi.CreateNoWindow = true;
-            psi.WorkingDirectory = string.IsNullOrEmpty(Config.bot.steamcmd_dir) == false ? Config.bot.steamcmd_dir : Directory.GetCurrentDirectory() + "/steamcmd";
+            psi.WorkingDirectory = string.IsNullOrEmpty(Config.bot.steamcmddir) == false ? Config.bot.steamcmddir : Directory.GetCurrentDirectory() + "/steamcmd";
             psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
             if (Details.d.first_run)
             {
-                psi.Arguments = " +login anonymous +force_install_dir " + Config.bot.game_dir + " +app_update 376030 validate +quit";
+                psi.Arguments = " +login anonymous +force_install_dir " + Config.bot.gamedir + " +app_update 376030 validate +quit";
             }
             else
             {
-                psi.Arguments = "+login anonymous +run_script " + Config.bot.game_launch_args_script + " +quit";
+                psi.Arguments = "+login anonymous +run_script " + Config.bot.GamelaunchARGSscript + " +quit";
             }
             process_ids.AddLast(process.Id);
             thread = new Thread(() =>
@@ -204,7 +204,7 @@ namespace DiscordGameServerManager_Windows
                         {
                             thread.Start();
                         }
-                        catch (Exception ex)
+                        catch (ThreadStartException ex)
                         {
                             Console.WriteLine(ex.Message);
                         }
@@ -237,7 +237,7 @@ namespace DiscordGameServerManager_Windows
                                 RconThread[i].Start();
                             }
                         }
-                        catch (Exception ex)
+                        catch (ThreadStartException ex)
                         {
                             Console.WriteLine(ex.Message);
                         }
@@ -252,14 +252,14 @@ namespace DiscordGameServerManager_Windows
                     {
                         DiscordFunctions.messageSend(output, discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
                     }
-                    catch (Exception ex)
+                    catch (AggregateException ex)
                     {
                         Console.WriteLine(ex.Message);
                     }
                     break;
                 case 3:
                     Manage_server(1, discordChannel);
-                    ZipFile.CreateFromDirectory(Config.bot.game_dir, "backup_" + DateTime.UtcNow.Month + "_" + DateTime.UtcNow.Day + "_" + DateTime.UtcNow.Year + ".zip", CompressionLevel.Optimal, true);
+                    ZipFile.CreateFromDirectory(Config.bot.gamedir, "backup_" + DateTime.UtcNow.Month + "_" + DateTime.UtcNow.Day + "_" + DateTime.UtcNow.Year + ".zip", CompressionLevel.Optimal, true);
 
                     if (server_startup == true) { Manage_server(0, discordChannel); }
                     DiscordFunctions.messageSend("Backup complete", discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();

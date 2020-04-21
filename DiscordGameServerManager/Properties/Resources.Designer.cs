@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DiscordGameServerManager_Windows.Properties {
+namespace DiscordGameServerManager.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace DiscordGameServerManager_Windows.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DiscordGameServerManager_Windows.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DiscordGameServerManager.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -88,6 +88,15 @@ namespace DiscordGameServerManager_Windows.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DiscordTrustManager: Method: checkPermission.
+        /// </summary>
+        internal static string DiscordTrustManagerFailure {
+            get {
+                return ResourceManager.GetString("DiscordTrustManagerFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to load DMs.json.
         /// </summary>
         internal static string FailedLoadDMs {
@@ -106,11 +115,80 @@ namespace DiscordGameServerManager_Windows.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error occured, has the message already been deleted?.
+        /// </summary>
+        internal static string MessageDeletionNotFound {
+            get {
+                return ResourceManager.GetString("MessageDeletionNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Method download(Process p, ProcessStartInfo psi): Error please supply a non null process variable.
+        /// </summary>
+        internal static string NullProcessVariable {
+            get {
+                return ResourceManager.GetString("NullProcessVariable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to start RCON thread.
         /// </summary>
         internal static string RCONStartFailure {
             get {
                 return ResourceManager.GetString("RCONStartFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Renci_SshNet {
+            get {
+                object obj = ResourceManager.GetObject("Renci_SshNet", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Renci_SshNet_deps {
+            get {
+                object obj = ResourceManager.GetObject("Renci_SshNet_deps", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Renci_SshNet1 {
+            get {
+                object obj = ResourceManager.GetObject("Renci_SshNet1", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;doc&gt;
+        ///    &lt;assembly&gt;
+        ///        &lt;name&gt;Renci.SshNet&lt;/name&gt;
+        ///    &lt;/assembly&gt;
+        ///    &lt;members&gt;
+        ///        &lt;member name=&quot;M:Renci.SshNet.Abstractions.CryptoAbstraction.GenerateRandom(System.Int32)&quot;&gt;
+        ///            &lt;summary&gt;
+        ///            Generates a &lt;see cref=&quot;T:System.Byte&quot;/&gt; array of the specified length, and fills it with a
+        ///            cryptographically strong random sequence of values.
+        ///            &lt;/summary&gt;
+        ///            &lt;param name=&quot;length&quot;&gt;The length of the array generate.&lt;/param&gt;
+        ///        [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Renci_SshNet2 {
+            get {
+                return ResourceManager.GetString("Renci_SshNet2", resourceCulture);
             }
         }
     }

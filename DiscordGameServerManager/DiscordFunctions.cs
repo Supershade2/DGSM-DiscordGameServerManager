@@ -11,7 +11,7 @@ using System.Globalization;
 using System.Linq;
 using System.Diagnostics.Contracts;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     public static class DiscordFunctions
     {
@@ -58,7 +58,7 @@ namespace DiscordGameServerManager_Windows
                 {
                     if (discordChannel.Guild == null)
                     {
-                        Guild = discord.GetGuildAsync(Config.bot.server_guild_id).ConfigureAwait(false).GetAwaiter().GetResult();
+                        Guild = discord.GetGuildAsync(Config.bot.ServerGuildId).ConfigureAwait(false).GetAwaiter().GetResult();
                         DiscordTrustManager.setTotalUsers(Guild.MemberCount);
                     }
                     else
@@ -91,8 +91,8 @@ namespace DiscordGameServerManager_Windows
             Token = Config.bot.token,
             TokenType = TokenType.Bot
         });
-        public static readonly DiscordChannel discordChannel = discord.GetChannelAsync(Config.bot.discord_channel).Result;
-        static readonly DiscordChannel message_channel = discord.GetChannelAsync(Config.bot.message_channel).Result;
+        public static readonly DiscordChannel discordChannel = discord.GetChannelAsync(Config.bot.DiscordChannel).Result;
+        static readonly DiscordChannel message_channel = discord.GetChannelAsync(Config.bot.MessageChannel).Result;
 
         public static async Task LogDMs()
         {
@@ -231,8 +231,14 @@ namespace DiscordGameServerManager_Windows
         }
         public static string processString(string input, DSharpPlus.EventArgs.MessageCreateEventArgs e, string variable)
         {
+            bool NullPresent = e == null || string.IsNullOrEmpty(input) || string.IsNullOrEmpty(variable);
+            Contract.Requires(e != null);
             Contract.Requires(!string.IsNullOrEmpty(variable));
             Contract.Requires(!string.IsNullOrEmpty(input));
+            if (NullPresent) 
+            {
+                return "";
+            }
             if (variable.ToLower(CultureInfo.CurrentCulture) == "user")
             {
                 bool IsParsing = false;
@@ -328,11 +334,15 @@ namespace DiscordGameServerManager_Windows
                     string output = processString(Config.bot.botmessages[0].messagebody, e, "user");
                     await e.Message.DeleteAsync(output).ConfigureAwait(false);
                 }
-                catch (Exception ex)
+                catch (DSharpPlus.Exceptions.NotFoundException ex)
                 {
-                    Console.WriteLine(Properties.Resources.Message_Deletion_Failed);
-                    Console.WriteLine(ex.Message);
-                    throw;
+                    Console.Error.WriteLine(Properties.Resources.MessageDeletionNotFound);
+                    Console.Error.WriteLine(ex.Message);
+                }
+                catch (DSharpPlus.Exceptions.UnauthorizedException ex) 
+                {
+                    Console.Error.WriteLine(Properties.Resources.Message_Deletion_Failed);
+                    Console.Error.WriteLine(ex.Message);
                 }
             }
         }

@@ -129,16 +129,41 @@
     <value>Creating permissions.json note that this will count as succeeding if file already exists:</value>
     <comment>DiscordFunctions</comment>
   </data>
+  <data name="DiscordTrustManagerFailure" xml:space="preserve">
+    <value>DiscordTrustManager: Method: checkPermission</value>
+    <comment>DiscordTrustManager</comment>
+  </data>
   <data name="FailedLoadDMs" xml:space="preserve">
     <value>Failed to load DMs.json</value>
+    <comment>DiscordFunctions</comment>
+  </data>
+  <data name="MessageDeletionNotFound" xml:space="preserve">
+    <value>Error occured, has the message already been deleted?</value>
     <comment>DiscordFunctions</comment>
   </data>
   <data name="Message_Deletion_Failed" xml:space="preserve">
     <value>Error occured, is the bot a admin or granted the correct permissions?</value>
     <comment>DiscordFunctions</comment>
   </data>
+  <data name="NullProcessVariable" xml:space="preserve">
+    <value>Method download(Process p, ProcessStartInfo psi): Error please supply a non null process variable</value>
+    <comment>steamworkshop</comment>
+  </data>
   <data name="RCONStartFailure" xml:space="preserve">
     <value>Failed to start RCON thread</value>
     <comment>GameManager</comment>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Renci_SshNet" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\sshnet\netstandard2.0\Renci.SshNet.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Renci_SshNet1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\sshnet\netstandard2.0\Renci.SshNet.pdb;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Renci_SshNet2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\sshnet\netstandard2.0\Renci.SshNet.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="Renci_SshNet_deps" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\sshnet\netstandard2.0\Renci.SshNet.deps.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

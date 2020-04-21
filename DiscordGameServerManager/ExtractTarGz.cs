@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
 
     public class Tar

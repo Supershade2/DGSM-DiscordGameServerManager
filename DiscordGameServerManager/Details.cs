@@ -5,7 +5,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.IO.IsolatedStorage;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     public class Details
     {

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     public class Messages
     {

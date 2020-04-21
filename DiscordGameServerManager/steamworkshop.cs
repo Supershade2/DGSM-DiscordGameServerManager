@@ -9,7 +9,7 @@ using System.Security;
  *  File that contains the code for steamworkshop actions
  *  This file contains the source code for how steamcmd and workshop collection api will be utilized
  */
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     class steamworkshop
     {
@@ -30,8 +30,11 @@ namespace DiscordGameServerManager_Windows
                 { "publishedfileids[0]", Config.bot.wscollectionid}
             };
             var content = new FormUrlEncodedContent(values);
-            var response = await client.PostAsync("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1", content);
-            var response_string = await response.Content.ReadAsStringAsync();
+            var url = new Uri("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1");
+            var response = await client.PostAsync(url, content).ConfigureAwait(false);
+            //var response = await client.PostAsync("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1", content);
+            var response_string = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            content.Dispose();
             return response_string;
         }
         public static async Task<string[]> get_PublishedFileDetails(string[] files) 
@@ -46,8 +49,19 @@ namespace DiscordGameServerManager_Windows
                         { "publishedfileids[0]", files[index]}
                     };
                 var content = new FormUrlEncodedContent(values);
-                var response = await client.PostAsync("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/", content);
-                details[index] = await response.Content.ReadAsStringAsync();
+                var url = new Uri("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/");
+                var response = await client.PostAsync(url, content).ConfigureAwait(false);
+                //var response = await client.PostAsync("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/", content).ConfigureAwait(false);
+                details[index] = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+                content.Dispose();
+            }
+            if (!File.Exists("./Details.txt"))
+            {
+                for (int i = 0; i < details.Length; i++)
+                {
+                    Console.WriteLine(details[i]);
+                    File.AppendAllText("./Details.txt", string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0}. {1}" + Environment.NewLine, i + 1, details[i]));
+                }
             }
             return details;
         }
@@ -63,8 +77,10 @@ namespace DiscordGameServerManager_Windows
                         { "appid", Default_appID}
                     };
                 var content = new FormUrlEncodedContent(values);
-                var response = await client.GetAsync("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/"+content);
-                details[i] = await response.Content.ReadAsStringAsync();
+                var url = new Uri("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/" + content);
+                var response = await client.GetAsync(url).ConfigureAwait(false);
+                details[i] = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                content.Dispose();
             }
             return details;
         }
@@ -80,8 +96,11 @@ namespace DiscordGameServerManager_Windows
                         { "appid", app_id}
                     };
                 var content = new FormUrlEncodedContent(values);
-                var response = await client.GetAsync("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/"+content);
-                details[i] = await response.Content.ReadAsStringAsync();
+                var url = new Uri("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/" + content);
+                var response = await client.GetAsync(url).ConfigureAwait(false);
+                //var response = await client.GetAsync("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/"+content).ConfigureAwait(false);
+                details[i] = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                content.Dispose();
             }
             return details;
         }
@@ -105,7 +124,7 @@ namespace DiscordGameServerManager_Windows
                             case true:
                                 break;
                             default:
-                                keyfound = item.ToLower() == trigger.ToLower() ? true : false;
+                                keyfound = item.ToLower(System.Globalization.CultureInfo.CurrentCulture) == trigger.ToLower(System.Globalization.CultureInfo.CurrentCulture) ? true : false;
                                 item = "";
                                 break;
                         }
@@ -151,7 +170,7 @@ namespace DiscordGameServerManager_Windows
                             case true:
                                 break;
                             default:
-                                keyfound = item.ToLower() == trigger.ToLower() ? true : false;
+                                keyfound = item.ToLower(System.Globalization.CultureInfo.CurrentCulture) == trigger.ToLower(System.Globalization.CultureInfo.CurrentCulture) ? true : false;
                                 item = "";
                                 break;
                         }
@@ -163,7 +182,7 @@ namespace DiscordGameServerManager_Windows
                             case true:
                                 break;
                             default:
-                                if (item.ToLower().Contains(".zip"))
+                                if (item.ToLower(System.Globalization.CultureInfo.CurrentCulture).Contains(".zip",StringComparison.CurrentCulture))
                                 {
                                     items.Add(item);
                                 }
@@ -185,8 +204,8 @@ namespace DiscordGameServerManager_Windows
             //client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             try
             {
-                string[] collection = parse_Details(await get_CollectionDetailsAsync());
-                string[] file_details = await get_PublishedFileDetails(collection);
+                string[] collection = parse_Details(await get_CollectionDetailsAsync().ConfigureAwait(false));
+                string[] file_details = await get_PublishedFileDetails(collection).ConfigureAwait(false);
                 string combined = "";
                 for (int i = 0; i < file_details.Length; i++)
                 {
@@ -203,20 +222,86 @@ namespace DiscordGameServerManager_Windows
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch (AggregateException ex)
             {
-                await Console.Out.WriteLineAsync("Method: GetFiles"+Environment.NewLine+ex.Message);
+                await Console.Out.WriteLineAsync("Method: GetFiles"+Environment.NewLine+ex.Message).ConfigureAwait(false);
                 return false;
             }
         }
-        public static async void download(System.Diagnostics.Process p, System.Diagnostics.ProcessStartInfo psi)
+        public static async void Download(System.Diagnostics.Process p, System.Diagnostics.ProcessStartInfo psi)
         {
-            string[] collection = parse_Details(await get_CollectionDetailsAsync());
-            for (int i = 0; i < collection.Length; i++) 
+            string[] collection = parse_Details(await get_CollectionDetailsAsync().ConfigureAwait(false));
+            if (p == null) 
             {
-                psi.Arguments = "+login anonymous "+download_workshop + Default_appID + " " + collection[i]+" +quit";
+                await Console.Out.WriteLineAsync(Properties.Resources.NullProcessVariable).ConfigureAwait(false);
+            }
+            else 
+            {
+                if (string.IsNullOrEmpty(psi.Arguments))
+                {
+                    for (int i = 0; i < collection.Length; i++)
+                    {
+                        psi.Arguments = "+login anonymous " + download_workshop + Default_appID + " " + collection[i] + " +quit";
+                        p.StartInfo = psi;
+                        p.Start();
+                    }
+                }
+                else
+                {
+                    p.StartInfo = psi;
+                    p.Start();
+                }
+            }
+        }
+        public static async void Download(System.Diagnostics.Process p) 
+        {
+            string[] collection = parse_Details(await get_CollectionDetailsAsync().ConfigureAwait(false));
+            for (int i = 0; i < collection.Length; i++)
+            {
+                System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("+login anonymous " + download_workshop + Default_appID + " " + collection[i] + " +quit");
                 p.StartInfo = psi;
                 p.Start();
+            }
+        }
+        public static void Dsownload() 
+        {
+            if (string.IsNullOrEmpty(Config.bot.steamcmddir))
+            {
+                System.Diagnostics.Process p = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo info = new System.Diagnostics.ProcessStartInfo();
+                p.StartInfo = info;
+                p.Start();
+                p.Dispose();
+            }
+        }
+        public static void SetSteamCMDProcessFilename(out System.Diagnostics.ProcessStartInfo psi, string collectionitem) 
+        {
+            psi = new System.Diagnostics.ProcessStartInfo("+login anonymous " + download_workshop + Default_appID + " " + collectionitem + " +quit");
+            psi.UseShellExecute = false;
+            if (string.IsNullOrEmpty(Config.bot.steamcmddir))
+            {
+                if (OS_Info.GetOSPlatform() == System.Runtime.InteropServices.OSPlatform.Windows)
+                {
+                    psi.WorkingDirectory = Directory.GetCurrentDirectory() + "/steamcmd";
+                    psi.FileName = "steamcmd.exe";
+                }
+                else
+                {
+                    psi.WorkingDirectory = Directory.GetCurrentDirectory() + "/steamcmd";
+                    psi.FileName = "steamcmd";
+                }
+            }
+            else 
+            {
+                psi.WorkingDirectory = Config.bot.steamcmddir;
+                if (OS_Info.GetOSPlatform() == System.Runtime.InteropServices.OSPlatform.Windows)
+                {
+                    psi.FileName = "steamcmd.exe";
+                }
+                else 
+                {
+                    psi.FileName = "steamcmd";
+                }
             }
         }
     }

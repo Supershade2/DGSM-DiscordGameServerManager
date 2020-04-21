@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     //To be Implemented
     class User

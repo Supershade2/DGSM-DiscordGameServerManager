@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     class Game_Profile
     {

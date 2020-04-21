@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     class ModuleHandler
     {

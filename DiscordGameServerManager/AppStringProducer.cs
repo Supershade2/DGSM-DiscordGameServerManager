@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     class AppStringProducer
     {

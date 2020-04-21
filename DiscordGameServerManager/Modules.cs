@@ -7,7 +7,7 @@ using Microsoft.Build.Evaluation;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
 
     class Modules

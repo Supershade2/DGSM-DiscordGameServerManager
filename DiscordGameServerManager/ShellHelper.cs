@@ -5,14 +5,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Globalization;
 
-namespace DiscordGameServerManager_Windows
+namespace DiscordGameServerManager
 {
     public static class ShellHelper
     {
         public static string Bash(this string cmd)
         {
+            System.Diagnostics.Contracts.Contract.Requires(!string.IsNullOrEmpty(cmd));
             string result;
-            var escapedArgs = cmd.Replace("\"", "\\\"");
+            var escapedArgs = cmd.Replace("\"", "\\\"",StringComparison.CurrentCulture);
 
             var process = new Process()
             {
@@ -27,6 +28,7 @@ namespace DiscordGameServerManager_Windows
                 }
             };
             process.Start();
+            process.Dispose();
             using (var stream = new MemoryStream())
             {
                 process.StandardOutput.BaseStream.CopyToAsync(stream).ConfigureAwait(false).GetAwaiter().GetResult();
