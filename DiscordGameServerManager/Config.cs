@@ -172,7 +172,11 @@ namespace DiscordGameServerManager
         {
             int hash = 0;
             hash = (hash * 3) + portGap.GetHashCode();
-            hash = (hash * 3) + servers.GetHashCode();
+            foreach (var item in servers) 
+            {
+                hash = (hash * 3) + item.GetHashCode();
+            }
+            //hash = (hash * 3) + servers.GetHashCode();
             return hash;
         }
 
@@ -263,11 +267,11 @@ namespace DiscordGameServerManager
             hash = (hash * 3) + registrationkey.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + invite.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + cluster.GetHashCode();
-            /*foreach (var item in botmessages) 
+            foreach (var item in botmessages) 
             {
                 hash = (hash * 3) + item.GetHashCode();
-            }*/
-            hash = (hash * 3) + botmessages.GetHashCode();
+            }
+            //hash = (hash * 3) + botmessages.GetHashCode();
             return hash;
         }
 

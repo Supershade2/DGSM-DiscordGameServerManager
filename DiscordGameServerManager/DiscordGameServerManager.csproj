@@ -8,6 +8,12 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <AssemblyName>DiscordGameServerManager</AssemblyName>
     <RootNamespace>DiscordGameServerManager</RootNamespace>
+    <RepositoryUrl>https://github.com/Supershade2/DGSM-DiscordGameServerManager</RepositoryUrl>
+    <RepositoryType>github</RepositoryType>
+    <PackageProjectUrl>https://supershade2.github.io/DGSM-DiscordGameServerManager/</PackageProjectUrl>
+    <PackageIcon>DGSM_CLOUD_LOGO_2.png</PackageIcon>
+    <PackageTags>discord,discord-bot,manager,csharp,windows,linux,gameserver</PackageTags>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -51,6 +57,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\..\Videos\Captures\DGSM_CLOUD_LOGO_2.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
