@@ -8,6 +8,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.IO;
+using Microsoft.Build.Logging;
 
 namespace DiscordGameServerManager
 {
@@ -16,22 +18,62 @@ namespace DiscordGameServerManager
         public static SSHInfo info = new SSHInfo();
         public static SshClient client;
         private static readonly SHA256 encrypt = SHA256.Create();
-        private static PrivateKeyFile privateKey;
-        private static PrivateKeyFile[] keyFiles = new[] { privateKey };
         private static bool initialized = false;
-        public static void Initialize(string address, string username, string pass, string path) 
+        public static void Initialize(string address, string username, string pass, string path)
+        {
+            SetAddress(address);
+            if (!string.IsNullOrWhiteSpace(pass))
+            {
+                SetPass(pass);
+                client = new SshClient(address,username,pass);
+            }
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                SetKeypath(path);
+                PrivateKeyFile privateKey = new PrivateKeyFile(path);
+                PrivateKeyFile[] keyFiles = new[] { privateKey };
+                client = new SshClient(address, username, keyFiles);
+            }
+            initialized = true;
+        }
+        public static void Initialize(string address, int port, string username, string pass, string path) 
         {
             SetAddress(address);
             if (!string.IsNullOrWhiteSpace(pass)) 
             {
                 SetPass(pass);
-                client = new SshClient(address,pass);
+                client = new SshClient(address,port,username,pass);
             }
             if (!string.IsNullOrWhiteSpace(path))
             {
                 SetKeypath(path);
-                privateKey = new PrivateKeyFile(path);
-                client = new SshClient(address, username, keyFiles);
+                PrivateKeyFile privateKey = new PrivateKeyFile(path);
+                PrivateKeyFile[] keyFiles = new[] { privateKey };
+                client = new SshClient(address, port, username, keyFiles);
+            }
+            initialized = true;
+        }
+        public static void Initialize(string address, int port, string username, string pass, string path, string challenge)
+        {
+            SetAddress(address);
+            if (!string.IsNullOrWhiteSpace(pass))
+            {
+                SetPass(pass);
+                client = new SshClient(address, port, username, pass);
+            }
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                SetKeypath(path);
+                PrivateKeyFile privateKey = new PrivateKeyFile(path);
+                PrivateKeyFile[] keyFiles = new[] { privateKey };
+                if (string.IsNullOrWhiteSpace(challenge))
+                {
+                    client = new SshClient(address, port, username, keyFiles);
+                }
+                else 
+                { 
+                    //TODO
+                }
             }
             initialized = true;
         }
@@ -72,10 +114,6 @@ namespace DiscordGameServerManager
                     }
                 }
             }
-        }
-        public static void Initialize(string address, string username, string pass, string path, string challenge) 
-        { 
-            
         }
         private static void SetAddress(string address) 
         {

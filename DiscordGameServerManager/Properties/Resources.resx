@@ -133,6 +133,10 @@
     <value>DiscordTrustManager: Method: checkPermission</value>
     <comment>DiscordTrustManager</comment>
   </data>
+  <data name="DiscordTrustManagerWriteFailure" xml:space="preserve">
+    <value>DiscordTrustManager: Method: load</value>
+    <comment>DiscordTrustManager</comment>
+  </data>
   <data name="FailedLoadDMs" xml:space="preserve">
     <value>Failed to load DMs.json</value>
     <comment>DiscordFunctions</comment>

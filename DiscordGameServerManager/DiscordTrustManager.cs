@@ -303,9 +303,9 @@ namespace DiscordGameServerManager
                 File.WriteAllText(dir + "/" + config, json);
                 return true;
             }
-            catch (Exception ex)
+            catch (JsonSerializationException ex)
             {
-                Console.WriteLine("DiscordTrustManager: Method: write");
+                Console.WriteLine(Properties.Resources.DiscordTrustManagerWriteFailure);
                 Console.WriteLine(ex.Message);
                 return false;
             }

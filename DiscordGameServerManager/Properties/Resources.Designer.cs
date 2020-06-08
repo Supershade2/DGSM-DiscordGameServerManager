@@ -97,6 +97,15 @@ namespace DiscordGameServerManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DiscordTrustManager: Method: load.
+        /// </summary>
+        internal static string DiscordTrustManagerWriteFailure {
+            get {
+                return ResourceManager.GetString("DiscordTrustManagerWriteFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to load DMs.json.
         /// </summary>
         internal static string FailedLoadDMs {
