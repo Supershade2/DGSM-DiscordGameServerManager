@@ -200,5 +200,14 @@ namespace DiscordGameServerManager.Properties {
                 return ResourceManager.GetString("Renci_SshNet2", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resources.
+        /// </summary>
+        internal static string ResourcesDir {
+            get {
+                return ResourceManager.GetString("ResourcesDir", resourceCulture);
+            }
+        }
     }
 }

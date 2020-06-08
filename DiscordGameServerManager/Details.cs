@@ -9,23 +9,22 @@ namespace DiscordGameServerManager
 {
     public class Details
     {
-        private const string dir = "Resources";
         private const string config = "details.json";
         public static details d = new details();
         private static System.Globalization.CultureInfo cinfo = System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name);
         static Details()
         { 
             d.culture_name = cinfo.Name;
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
+            if (!Directory.Exists(Properties.Resources.ResourcesDir))
+                Directory.CreateDirectory(Properties.Resources.ResourcesDir);
 
-            if (!File.Exists(dir + "/" + config))
+            if (!File.Exists(Properties.Resources.ResourcesDir + "/" + config))
             {
                 d.default_extension = AppStringProducer.GetSystemCompatibleString("", true);
                 d.first_run = true;
-                File.Create(dir + "/" + config).Close();
+                File.Create(Properties.Resources.ResourcesDir + "/" + config).Close();
                 string json = JsonConvert.SerializeObject(d, Formatting.Indented);
-                File.WriteAllText(dir + "/" + config, json);
+                File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
             }
             else
             {
@@ -34,10 +33,10 @@ namespace DiscordGameServerManager
         }
         public static void load()
         {
-            FileInfo f_info = new FileInfo(dir + "/" + config);
+            FileInfo f_info = new FileInfo(Properties.Resources.ResourcesDir + "/" + config);
             if (f_info.Length > 0) 
             {
-                string json = File.ReadAllText(dir + "/" + config);
+                string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + config);
                 d = JsonConvert.DeserializeObject<details>(json);
                 if (d.first_run) 
                 {
@@ -54,7 +53,7 @@ namespace DiscordGameServerManager
         {
             string json = JsonConvert.SerializeObject(d, Formatting.Indented);
             byte[] json_data = Encoding.ASCII.GetBytes(json);
-            using (var resource = File.Open(dir + "/" + config, FileMode.Truncate, FileAccess.Write, FileShare.Write))
+            using (var resource = File.Open(Properties.Resources.ResourcesDir + "/" + config, FileMode.Truncate, FileAccess.Write, FileShare.Write))
             {
                 resource.Write(json_data, 0, json_data.Length - 1);
                 resource.Flush();

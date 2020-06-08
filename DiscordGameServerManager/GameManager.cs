@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Globalization;
-
 namespace DiscordGameServerManager
 {
     class GameManager
@@ -88,148 +87,133 @@ namespace DiscordGameServerManager
         }
         public static void Manage_server(int option, DiscordChannel discordChannel)
         {
-            string output;
-            Process process = new Process();
-            ProcessStartInfo psi = new ProcessStartInfo();
-            Thread thread;
-            psi.UseShellExecute = false;
-            psi.RedirectStandardOutput = true;
-            psi.RedirectStandardInput = true;
-            psi.RedirectStandardError = false;
-            psi.CreateNoWindow = true;
-            psi.WorkingDirectory = string.IsNullOrEmpty(Config.bot.steamcmddir) == false ? Config.bot.steamcmddir : Directory.GetCurrentDirectory() + "/steamcmd";
-            psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
-            if (Details.d.first_run)
+            if (!Config.bot.useSSH) 
             {
-                psi.Arguments = " +login anonymous +force_install_dir " + Config.bot.gamedir + " +app_update 376030 validate +quit";
-            }
-            else
-            {
-                psi.Arguments = "+login anonymous +run_script " + Config.bot.GamelaunchARGSscript + " +quit";
-            }
-            process_ids.AddLast(process.Id);
-            thread = new Thread(() =>
-            {
-                Process p = process;
-                p.StartInfo = psi;
-                p.Start();
-                Thread sub = new Thread(() =>
+                string output;
+                Process process = new Process();
+                ProcessStartInfo psi = new ProcessStartInfo();
+                Thread thread;
+                psi.UseShellExecute = false;
+                psi.RedirectStandardOutput = true;
+                psi.RedirectStandardInput = true;
+                psi.RedirectStandardError = false;
+                psi.CreateNoWindow = true;
+                psi.WorkingDirectory = string.IsNullOrEmpty(Config.bot.steamcmddir) == false ? Config.bot.steamcmddir : Directory.GetCurrentDirectory() + "/steamcmd";
+                psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
+                if (Details.d.first_run)
                 {
-                    string line = "";
-                    do
+                    psi.Arguments = " +login anonymous +force_install_dir " + Config.bot.gamedir + " +app_update 376030 validate +quit";
+                }
+                else
+                {
+                    psi.Arguments = "+login anonymous +run_script " + Config.bot.GamelaunchARGSscript + " +quit";
+                }
+                process_ids.AddLast(process.Id);
+                thread = new Thread(() =>
+                {
+                    Process p = process;
+                    p.StartInfo = psi;
+                    p.Start();
+                    Thread sub = new Thread(() =>
                     {
-                        line += p.StandardOutput.ReadLine();
-                        line = line.ToLower(CultureInfo.CurrentCulture);
-                    } while (!line.Contains("two-factor code:",StringComparison.CurrentCulture));
-                    Console.Out.WriteAsync(line).ConfigureAwait(true).GetAwaiter().GetResult();
-                    DiscordFunctions.Requeststeamcode();
-                    p.StandardInput.WriteLine(File.ReadAllText("steamcode.txt", Encoding.UTF8));
-                    if (OS_Info.GetOSPlatform() == OSPlatform.Windows) 
-                    {
-                        p.StandardInput.Write((char)13);
-                    }
-                    else 
-                    {
-                        p.StandardInput.Write((char)10);
-                    }
-                    p.StandardInput.Flush();
-                });
-                p.WaitForExit();
-                p.Close();
-            })
-            {
-                IsBackground = true
-            };
-            Console.WriteLine(psi.FileName);
-            switch (Config.bot.game)
-            {
-                case null:
-                    break;
-                default:
-                    Console.WriteLine(Properties.Resources.CreatingGameProfile);
-                    var temp = Game_Profile._profile.file_location;
-                    temp = null;
-                    if (Game_Profile._profile.Is_Steam == true)
-                    {
-                        CreateRcon(false);
-                        var user = Game_Profile._profile.user_and_pass.Keys;
-                        var pass = Game_Profile._profile.user_and_pass.Values;
-                        switch (option)
+                        string line = "";
+                        do
                         {
-                            case 0:
-                                psi.Arguments = "+login " + Game_Profile._profile.steam_game_args_script;
+                            line += p.StandardOutput.ReadLine();
+                            line = line.ToLower(CultureInfo.CurrentCulture);
+                        } while (!line.Contains("two-factor code:", StringComparison.CurrentCulture));
+                        Console.Out.WriteAsync(line).ConfigureAwait(true).GetAwaiter().GetResult();
+                        DiscordFunctions.Requeststeamcode();
+                        p.StandardInput.WriteLine(File.ReadAllText("steamcode.txt", Encoding.UTF8));
+                        if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
+                        {
+                            p.StandardInput.Write((char)13);
+                        }
+                        else
+                        {
+                            p.StandardInput.Write((char)10);
+                        }
+                        p.StandardInput.Flush();
+                    });
+                    p.WaitForExit();
+                    p.Close();
+                })
+                {
+                    IsBackground = true
+                };
+                Console.WriteLine(psi.FileName);
+                switch (Config.bot.game)
+                {
+                    case null:
+                        break;
+                    default:
+                        Console.WriteLine(Properties.Resources.CreatingGameProfile);
+                        var temp = Game_Profile._profile.file_location;
+                        temp = null;
+                        if (Game_Profile._profile.Is_Steam == true)
+                        {
+                            CreateRcon(false);
+                            var user = Game_Profile._profile.user_and_pass.Keys;
+                            var pass = Game_Profile._profile.user_and_pass.Values;
+                            switch (option)
+                            {
+                                case 0:
+                                    psi.Arguments = "+login " + Game_Profile._profile.steam_game_args_script;
+                                    thread.Start();
+                                    break;
+                                case 1:
+                                    break;
+                                case 2:
+                                    thread.Start();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            switch (option)
+                            {
+                                case 0:
+                                    psi.Arguments = Game_Profile._profile.start_command;
+                                    thread.Start();
+                                    break;
+                                case 1:
+                                    foreach (int id in process_ids)
+                                    {
+                                        Process.GetProcessById(id).Kill();
+                                    }
+                                    break;
+                                case 2:
+                                    foreach (int id in process_ids)
+                                    {
+                                        Process.GetProcessById(id).Kill();
+                                    }
+                                    thread.Start();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+                }
+                switch (option)
+                {
+                    case 0:
+                        if (!thread.IsAlive)
+                            try
+                            {
                                 thread.Start();
-                                break;
-                            case 1:
-                                break;
-                            case 2:
-                                thread.Start();
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        switch (option)
-                        {
-                            case 0:
-                                psi.Arguments = Game_Profile._profile.start_command;
-                                thread.Start();
-                                break;
-                            case 1:
-                                foreach (int id in process_ids)
-                                {
-                                    Process.GetProcessById(id).Kill();
-                                }
-                                break;
-                            case 2:
-                                foreach (int id in process_ids)
-                                {
-                                    Process.GetProcessById(id).Kill();
-                                }
-                                thread.Start();
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-            }
-            switch (option)
-            {
-                case 0:
-                    if (!thread.IsAlive)
-                        try
-                        {
-                            thread.Start();
-                        }
-                        catch (ThreadStartException ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
-                    Console.WriteLine(process.StartInfo.WorkingDirectory);
-                    Console.WriteLine(process.StartInfo.Arguments);
-                    var input = process.StandardInput;
-                    break;
-                case 1:
-                    try
-                    {
-                        for (int i = 0; i < RconThread.Length; i++)
-                        {
-                            RconThread[i].Start();
-                        }
-                    }
-                    catch (ThreadStartException ex)
-                    {
-                        Console.WriteLine(Properties.Resources.RCONStartFailure);
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine("Exception source:"+ex.InnerException.Source);
-                    }
-                    break;
-                case 2:
-                    if (thread.IsAlive)
-                    {
+                            }
+                            catch (ThreadStartException ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                            }
+                        Console.WriteLine(process.StartInfo.WorkingDirectory);
+                        Console.WriteLine(process.StartInfo.Arguments);
+                        var input = process.StandardInput;
+                        break;
+                    case 1:
                         try
                         {
                             for (int i = 0; i < RconThread.Length; i++)
@@ -239,31 +223,53 @@ namespace DiscordGameServerManager
                         }
                         catch (ThreadStartException ex)
                         {
+                            Console.WriteLine(Properties.Resources.RCONStartFailure);
+                            Console.WriteLine(ex.Message);
+                            Console.WriteLine("Exception source:" + ex.InnerException.Source);
+                        }
+                        break;
+                    case 2:
+                        if (thread.IsAlive)
+                        {
+                            try
+                            {
+                                for (int i = 0; i < RconThread.Length; i++)
+                                {
+                                    RconThread[i].Start();
+                                }
+                            }
+                            catch (ThreadStartException ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                            }
+                        }
+                        force_shutdown_ARK(thread);
+                        thread.Start();
+                        Console.WriteLine(process.StartInfo.WorkingDirectory);
+                        Console.WriteLine(process.StartInfo.Arguments);
+                        process.Start();
+                        output = process.StandardOutput.ReadToEnd();
+                        try
+                        {
+                            DiscordFunctions.messageSend(output, discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
+                        }
+                        catch (AggregateException ex)
+                        {
                             Console.WriteLine(ex.Message);
                         }
-                    }
-                    force_shutdown_ARK(thread);
-                    thread.Start();
-                    Console.WriteLine(process.StartInfo.WorkingDirectory);
-                    Console.WriteLine(process.StartInfo.Arguments);
-                    process.Start();
-                    output = process.StandardOutput.ReadToEnd();
-                    try
-                    {
-                        DiscordFunctions.messageSend(output, discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
-                    }
-                    catch (AggregateException ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                    break;
-                case 3:
-                    Manage_server(1, discordChannel);
-                    ZipFile.CreateFromDirectory(Config.bot.gamedir, "backup_" + DateTime.UtcNow.Month + "_" + DateTime.UtcNow.Day + "_" + DateTime.UtcNow.Year + ".zip", CompressionLevel.Optimal, true);
+                        break;
+                    case 3:
+                        Manage_server(1, discordChannel);
+                        ZipFile.CreateFromDirectory(Config.bot.gamedir, "backup_" + DateTime.UtcNow.Month + "_" + DateTime.UtcNow.Day + "_" + DateTime.UtcNow.Year + ".zip", CompressionLevel.Optimal, true);
 
-                    if (server_startup == true) { Manage_server(0, discordChannel); }
-                    DiscordFunctions.messageSend("Backup complete", discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
-                    break;
+                        if (server_startup == true) { Manage_server(0, discordChannel); }
+                        DiscordFunctions.messageSend("Backup complete", discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
+                        break;
+                }
+            }
+            else 
+            { 
+                
             }
         }
         public static void Rcon(string ipaddress, int port, string password, string command)

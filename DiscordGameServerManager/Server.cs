@@ -10,15 +10,30 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.IO;
 using Microsoft.Build.Logging;
-
+using Newtonsoft.Json;
 namespace DiscordGameServerManager
 {
     class Server
     {
+        private const string config = "ssh.json";
         public static SSHInfo info = new SSHInfo();
         public static SshClient client;
         private static readonly SHA256 encrypt = SHA256.Create();
         private static bool initialized = false;
+        public static void Initialize() 
+        {
+            if(!File.Exists(Properties.Resources.ResourcesDir + "/" + config))
+            {
+                info.Address = "127.0.0.1";
+                info.Pass = "password";
+                info.Port = 22;
+                info.fingerprint = new[] { 0x00,0x01,0x02 };
+                info.Keypath = info.Keypath;
+                info.Challenge = "Challenge type";
+                string json = JsonConvert.SerializeObject(info, Formatting.Indented);
+                File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
+            }
+        }
         public static void Initialize(string address, string username, string pass, string path)
         {
             SetAddress(address);
@@ -146,9 +161,10 @@ namespace DiscordGameServerManager
     struct SSHInfo 
     { 
         public string Address { get; set; }
+        public string Username { get; set; }
         public string Pass { get; set; }
         public int Port { get; set; }
-        public byte[] fingerprint { get; set; }
+        public int[] fingerprint { get; set; }
         public string Keypath
         {
             get 

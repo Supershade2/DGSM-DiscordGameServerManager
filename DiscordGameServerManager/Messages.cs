@@ -13,7 +13,6 @@ namespace DiscordGameServerManager
 {
     public class Messages
     {
-        private const string dir = "Resources";
         private const string config = "DMs.json";
         private static Dictionary<ulong, DiscordDmChannel> userDM = new Dictionary<ulong, DiscordDmChannel>();
         public static void setMessage(string str, Message[] m, int index) 
@@ -122,11 +121,11 @@ namespace DiscordGameServerManager
         public static void write()
         {
             string json = JsonConvert.SerializeObject(userDM, Formatting.Indented);
-            File.WriteAllText(dir + "/" + config, json);
+            File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
         }
         public static void load()
         {
-            string json = File.ReadAllText(dir + "/" + config);
+            string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + config);
             userDM = JsonConvert.DeserializeObject<Dictionary<ulong, DiscordDmChannel>>(json);
         }
         public struct Message : IEquatable<Message>

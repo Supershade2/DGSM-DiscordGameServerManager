@@ -8,30 +8,27 @@ namespace DiscordGameServerManager
 {
     class Game_Profile
     {
-        private const string dir = "Resources";
         private const string config = "gameprofile.json";
         private const string key = "";
         public static profile _profile;
         static Game_Profile()
         {
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
             
-            if (!File.Exists(dir + "/" + Config.bot.game + "/" + config))
+            if (!File.Exists(Properties.Resources.ResourcesDir + "/" + Config.bot.game + "/" + config))
             {
-                File.Create(dir + "/" + Config.bot.game + "/" + config).Close();
+                File.Create(Properties.Resources.ResourcesDir + "/" + Config.bot.game + "/" + config).Close();
                 _profile = new profile();
                 _profile.game = Config.bot.game;
                 _profile.user_and_pass = new Dictionary<string,string>();
                 _profile.user_and_pass.Add("anonymous","123");
                 string json = JsonConvert.SerializeObject(_profile, Formatting.Indented);
-                File.WriteAllText(dir + "/" +Config.bot.game+ "/" + config, json);
+                File.WriteAllText(Properties.Resources.ResourcesDir + "/" +Config.bot.game+ "/" + config, json);
                 //byte[] json_data = Encoding.ASCII.GetBytes(json);
-                //File.Open(dir + "/" + config, FileMode.Open, FileAccess.Write, FileShare.Write).Write(json_data,0,json_data.Length-1);
+                //File.Open(Properties.Resources.ResourcesDir + "/" + config, FileMode.Open, FileAccess.Write, FileShare.Write).Write(json_data,0,json_data.Length-1);
             }
             else
             {
-                string json = File.ReadAllText(dir + "/" + Config.bot.game + "/" + config);
+                string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + Config.bot.game + "/" + config);
                 _profile = JsonConvert.DeserializeObject<profile>(json);
             }
         }
@@ -39,6 +36,7 @@ namespace DiscordGameServerManager
     public struct profile
     {
         public bool Is_Steam { get; set; }
+        public bool useSSH { get; set; }
         public string game { get; set; }
         public string file_location { get; set; }
         public string mod_dir { get; set; }

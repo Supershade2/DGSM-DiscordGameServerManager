@@ -170,4 +170,8 @@
   <data name="Renci_SshNet_deps" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\sshnet\netstandard2.0\Renci.SshNet.deps.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="ResourcesDir" xml:space="preserve">
+    <value>Resources</value>
+    <comment>Directory for configs</comment>
+  </data>
 </root>

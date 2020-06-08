@@ -11,17 +11,16 @@ namespace DiscordGameServerManager
 {
     class Config
     {
-        private const string dir = "Resources";
         private const string config = "config.json";
         public static BotConfig bot;
         Config()
         {
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
+            if (!Directory.Exists(Properties.Resources.ResourcesDir))
+                Directory.CreateDirectory(Properties.Resources.ResourcesDir);
 
-            if (!File.Exists(dir + "/" + config))
+            if (!File.Exists(Properties.Resources.ResourcesDir + "/" + config))
             {
-                File.Create(dir + "/" + config).Close();
+                File.Create(Properties.Resources.ResourcesDir + "/" + config).Close();
                 bot = new BotConfig();
                 Cluster temp_clust = new Cluster();
                 temp_clust.servers = new GameServer[1];
@@ -46,7 +45,7 @@ namespace DiscordGameServerManager
                 bot.botmessages[11].messagebody = "Wahoo!";
                 bot.botmessages[0].messagebody = "%user% you are not permitted to post here, please contact a admin or mod for info";
                 string json = JsonConvert.SerializeObject(bot, Formatting.Indented);
-                File.WriteAllText(dir + "/" + config, json);
+                File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
                 //byte[] json_data = Encoding.ASCII.GetBytes(json);
                 //File.Open(dir + "/" + config, FileMode.Open, FileAccess.Write, FileShare.Write).Write(json_data,0,json_data.Length-1);
             }
@@ -55,7 +54,7 @@ namespace DiscordGameServerManager
         public static void write() 
         {
             string json = JsonConvert.SerializeObject(bot, Formatting.Indented);
-            File.WriteAllText(dir + "/" + config, json);
+            File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
         }
         public static void write(object obj, Type type) 
         {
@@ -65,11 +64,11 @@ namespace DiscordGameServerManager
                 bot.botmessages = (Messages.Message[])obj;
             }
             string json = JsonConvert.SerializeObject(bot, Formatting.Indented);
-            File.WriteAllText(dir + "/" + config, json);
+            File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
         }
         public static void load()
         {
-            string json = File.ReadAllText(dir + "/" + config);
+            string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + config);
             bot = JsonConvert.DeserializeObject<BotConfig>(json);
         }
     }
@@ -208,6 +207,7 @@ namespace DiscordGameServerManager
     public struct BotConfig : IEquatable<BotConfig>
     {
         public string token { get; set; }
+        public bool useSSH { get; set; }
         public ulong ServerGuildId { get; set; }
         public ulong DiscordChannel { get; set; }
         public ulong MessageChannel { get; set; }
