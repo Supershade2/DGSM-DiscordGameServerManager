@@ -158,7 +158,7 @@ namespace DiscordGameServerManager
                             switch (option)
                             {
                                 case 0:
-                                    psi.Arguments = "+login " + Game_Profile._profile.steam_game_args_script;
+                                    psi.Arguments = "+login " + Game_Profile._profile.steam_game_args_script_data;
                                     thread.Start();
                                     break;
                                 case 1:
