@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System.Security;
 /*!
 *  \file steamworkshop.cs
 *  File that contains the code for steamworkshop actions
@@ -261,8 +260,9 @@ namespace DiscordGameServerManager
             string[] collection = parse_Details(await get_CollectionDetailsAsync().ConfigureAwait(false));
             for (int i = 0; i < collection.Length; i++)
             {
-                System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("+login anonymous " + download_workshop + Default_appID + " " + collection[i] + " +quit");
-                SetSteamCMDProcessFilename(out psi, psi);
+                System.Diagnostics.ProcessStartInfo psi;
+                FillSteamCMDArgs(out psi, collection[i]);
+                psi.WorkingDirectory = Directory.GetCurrentDirectory() + "/steamcmd";
                 p.StartInfo = psi;
                 p.Start();
             }
@@ -274,6 +274,7 @@ namespace DiscordGameServerManager
                 System.Diagnostics.Process p = new System.Diagnostics.Process();
                 System.Diagnostics.ProcessStartInfo info = new System.Diagnostics.ProcessStartInfo();
                 SetSteamCMDProcessFilename(out info, info);
+                info.WorkingDirectory = Directory.GetCurrentDirectory() + "/steamcmd";
                 p.StartInfo = info;
                 p.Start();
                 p.Dispose();
@@ -284,19 +285,17 @@ namespace DiscordGameServerManager
             psi = psinfo;
             psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd");
         }
-        public static void SetSteamCMDProcessFilename(out System.Diagnostics.ProcessStartInfo psi, string collectionitem) 
+        public static void FillSteamCMDArgs(out System.Diagnostics.ProcessStartInfo psi, string collectionitem) 
         {
-            psi = new System.Diagnostics.ProcessStartInfo("+login anonymous " + download_workshop + Default_appID + " " + collectionitem + " +quit");
+            psi = new System.Diagnostics.ProcessStartInfo(AppStringProducer.GetSystemCompatibleString("steamcmd.exe"),"+login anonymous " + download_workshop + Default_appID + " " + collectionitem + " +quit");
             psi.UseShellExecute = false;
             if (string.IsNullOrEmpty(Config.bot.steamcmddir))
             {
                     psi.WorkingDirectory = Directory.GetCurrentDirectory() + "/steamcmd";
-                    psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
             }
             else 
             {
                 psi.WorkingDirectory = Config.bot.steamcmddir;
-                psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
             }
         }
     }
