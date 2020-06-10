@@ -9,30 +9,53 @@ using System.Net;
 using System.Threading;
 using System.IO.Compression;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using System.Net.Http;
 using System.IO;
+using Microsoft.EntityFrameworkCore.Internal;
+using System.Text.RegularExpressions;
 
 namespace DiscordGameServerManager
 {
     class Program
     {
         public static Details _details = new Details();
+        public static bool log = false;
+        public static string logoutput = "";
+        public static bool verboseoutput = false;
         //public static DiscordFunctions functions = new DiscordFunctions();
         static void Main(string[] args)
         {
             if (args.Length > 0) 
-            { 
+            {
+                for (int i = 0; i < args.Length; i++) 
+                {
+                    args[i] = args[i].ToLower(CultureInfo.CurrentCulture);
+                }
+                log = args.Contains("--log");
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                int logindex = args.IndexOf("--log");
+                string pattern = @"[/]\w+";
+                if(args.Length < logindex + 1) 
+                {
+                    Match m = Regex.Match(args[logindex + 1], pattern);
+                    logoutput = m.Success == true ? args[logindex + 1] : "";
+                }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                verboseoutput = args.Contains("--verbose") || args.Contains("--v");
                 //Todo Logic
             }
             Setup setup = new Setup();
-            setup.get_steamcmd();
             for (int i = 0; i < Config.bot.cluster.servers.Length; i++) 
             {
                 setup.CreateScript(i);
             }
             setup.Dispose();
+            DiscordFunctions.Connect();
             DiscordFunctions.MainDiscord();
+            Console.CancelKeyPress += (sender, e) => 
+            {
+                DiscordFunctions.Disconnect();
+            };
         }
         internal class Setup : IDisposable
         {
@@ -40,7 +63,16 @@ namespace DiscordGameServerManager
             const string ARK_WORKSHOP_DIR = "./steamcmd/steamapps/workshop/content/346110";
             public void Initialize(Process p, ProcessStartInfo psi) 
             {
-                steamworkshop.Download(p, psi);
+                if (!Config.bot.useSSH) 
+                {
+                    get_steamcmd();
+                    steamworkshop.Download(p, psi);
+                }
+                else 
+                {
+                    Server.Initialize();
+                    Server.SendCommand("wget http://media.steampowered.com/installer/steamcmd_linux.tar.gz");
+                }
             }
             public void CreateScript(int server) 
             {
@@ -48,16 +80,16 @@ namespace DiscordGameServerManager
                 const string setvarbatch = "SETLOCAL ";
                 string map = Config.bot.cluster.servers[server].map;
                 const string end_flags = "-nosteamclient -game -server -log";
-                switch (string.IsNullOrEmpty(Config.bot.game))
+                switch (string.IsNullOrWhiteSpace(Config.bot.game))
                 {
                     case false:
-                        switch (OS_Info.GetOSPlatform() == OSPlatform.Windows) 
-                        {
-                            case true:
-                                break;
-                            default:
-                                break;
-                        }
+                                if (!File.Exists(Properties.Resources.ResourcesDir + "/" + Config.bot.game + "/" + AppStringProducer.GetSystemCompatibleString("LaunchScript.bat",true,true))) 
+                                {
+                                    using (var stream = File.CreateText(Properties.Resources.ResourcesDir + "/" + Config.bot.game + "/" + AppStringProducer.GetSystemCompatibleString("LaunchScript.bat",true,true))) 
+                                    {
+                                        stream.Write(Game_Profile._profile.steam_game_args_script_data);
+                                    }
+                                }
                         break;
                     default:
                         break;
@@ -78,7 +110,7 @@ namespace DiscordGameServerManager
                             Directory.CreateDirectory("./steamcmd");
                             break;
                     }
-                    if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
+                    if (OS_Info.GetOSPlatform() == System.Runtime.InteropServices.OSPlatform.Windows)
                     {
                         download(steamcmd_windows, Directory.GetCurrentDirectory()+"/steamcmd/steamcmd.zip");
                         ZipFile.ExtractToDirectory(Directory.GetCurrentDirectory() + "/steamcmd/steamcmd.zip", Directory.GetCurrentDirectory() + "/steamcmd", System.Text.Encoding.UTF8,true);

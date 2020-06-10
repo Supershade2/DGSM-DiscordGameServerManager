@@ -121,12 +121,12 @@ namespace DiscordGameServerManager
                     client.RunCommand(commandtext.CommandText);
                     var result = commandtext.Result;
                     Console.Out.WriteLineAsync(result).ConfigureAwait(false);
-                    current += 1;
                     if(current == max) 
                     {
                         Console.Out.FlushAsync();
                         client.Disconnect();
                     }
+                    current += 1;
                 }
             }
         }

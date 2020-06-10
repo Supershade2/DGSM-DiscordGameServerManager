@@ -106,11 +106,29 @@ namespace DiscordGameServerManager.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Too many module names specified for the given number of modules.
+        /// </summary>
+        internal static string ExcessModuleNames {
+            get {
+                return ResourceManager.GetString("ExcessModuleNames", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to load DMs.json.
         /// </summary>
         internal static string FailedLoadDMs {
             get {
                 return ResourceManager.GetString("FailedLoadDMs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too few module name specified for the given number of modules.
+        /// </summary>
+        internal static string InsufficientModuleNames {
+            get {
+                return ResourceManager.GetString("InsufficientModuleNames", resourceCulture);
             }
         }
         

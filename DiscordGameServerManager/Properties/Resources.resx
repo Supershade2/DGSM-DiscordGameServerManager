@@ -137,9 +137,17 @@
     <value>DiscordTrustManager: Method: load</value>
     <comment>DiscordTrustManager</comment>
   </data>
+  <data name="ExcessModuleNames" xml:space="preserve">
+    <value>Too many module names specified for the given number of modules</value>
+    <comment>ModuleHandler</comment>
+  </data>
   <data name="FailedLoadDMs" xml:space="preserve">
     <value>Failed to load DMs.json</value>
     <comment>DiscordFunctions</comment>
+  </data>
+  <data name="InsufficientModuleNames" xml:space="preserve">
+    <value>Too few module name specified for the given number of modules</value>
+    <comment>ModuleHandler</comment>
   </data>
   <data name="MessageDeletionNotFound" xml:space="preserve">
     <value>Error occured, has the message already been deleted?</value>

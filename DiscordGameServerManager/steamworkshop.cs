@@ -5,10 +5,10 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Security;
 /*!
- *  \file steamworkshop.cs
- *  File that contains the code for steamworkshop actions
- *  This file contains the source code for how steamcmd and workshop collection api will be utilized
- */
+*  \file steamworkshop.cs
+*  File that contains the code for steamworkshop actions
+*  This file contains the source code for how steamcmd and workshop collection api will be utilized
+*/
 namespace DiscordGameServerManager
 {
     class steamworkshop
@@ -230,26 +230,29 @@ namespace DiscordGameServerManager
         }
         public static async void Download(System.Diagnostics.Process p, System.Diagnostics.ProcessStartInfo psi)
         {
-            string[] collection = parse_Details(await get_CollectionDetailsAsync().ConfigureAwait(false));
-            if (p == null) 
+            if (!Config.bot.useSSH) 
             {
-                await Console.Out.WriteLineAsync(Properties.Resources.NullProcessVariable).ConfigureAwait(false);
-            }
-            else 
-            {
-                if (string.IsNullOrEmpty(psi.Arguments))
+                string[] collection = parse_Details(await get_CollectionDetailsAsync().ConfigureAwait(false));
+                if (p == null)
                 {
-                    for (int i = 0; i < collection.Length; i++)
-                    {
-                        psi.Arguments = "+login anonymous " + download_workshop + Default_appID + " " + collection[i] + " +quit";
-                        p.StartInfo = psi;
-                        p.Start();
-                    }
+                    await Console.Out.WriteLineAsync(Properties.Resources.NullProcessVariable).ConfigureAwait(false);
                 }
                 else
                 {
-                    p.StartInfo = psi;
-                    p.Start();
+                    if (string.IsNullOrEmpty(psi.Arguments))
+                    {
+                        for (int i = 0; i < collection.Length; i++)
+                        {
+                            psi.Arguments = "+login anonymous " + download_workshop + Default_appID + " " + collection[i] + " +quit";
+                            p.StartInfo = psi;
+                            p.Start();
+                        }
+                    }
+                    else
+                    {
+                        p.StartInfo = psi;
+                        p.Start();
+                    }
                 }
             }
         }
@@ -259,20 +262,27 @@ namespace DiscordGameServerManager
             for (int i = 0; i < collection.Length; i++)
             {
                 System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("+login anonymous " + download_workshop + Default_appID + " " + collection[i] + " +quit");
+                SetSteamCMDProcessFilename(out psi, psi);
                 p.StartInfo = psi;
                 p.Start();
             }
         }
-        public static void Dsownload() 
+        public static void Download() 
         {
             if (string.IsNullOrEmpty(Config.bot.steamcmddir))
             {
                 System.Diagnostics.Process p = new System.Diagnostics.Process();
                 System.Diagnostics.ProcessStartInfo info = new System.Diagnostics.ProcessStartInfo();
+                SetSteamCMDProcessFilename(out info, info);
                 p.StartInfo = info;
                 p.Start();
                 p.Dispose();
             }
+        }
+        public static void SetSteamCMDProcessFilename(out System.Diagnostics.ProcessStartInfo psi, System.Diagnostics.ProcessStartInfo psinfo) 
+        {
+            psi = psinfo;
+            psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd");
         }
         public static void SetSteamCMDProcessFilename(out System.Diagnostics.ProcessStartInfo psi, string collectionitem) 
         {
@@ -280,28 +290,13 @@ namespace DiscordGameServerManager
             psi.UseShellExecute = false;
             if (string.IsNullOrEmpty(Config.bot.steamcmddir))
             {
-                if (OS_Info.GetOSPlatform() == System.Runtime.InteropServices.OSPlatform.Windows)
-                {
                     psi.WorkingDirectory = Directory.GetCurrentDirectory() + "/steamcmd";
-                    psi.FileName = "steamcmd.exe";
-                }
-                else
-                {
-                    psi.WorkingDirectory = Directory.GetCurrentDirectory() + "/steamcmd";
-                    psi.FileName = "steamcmd";
-                }
+                    psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
             }
             else 
             {
                 psi.WorkingDirectory = Config.bot.steamcmddir;
-                if (OS_Info.GetOSPlatform() == System.Runtime.InteropServices.OSPlatform.Windows)
-                {
-                    psi.FileName = "steamcmd.exe";
-                }
-                else 
-                {
-                    psi.FileName = "steamcmd";
-                }
+                psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
             }
         }
     }

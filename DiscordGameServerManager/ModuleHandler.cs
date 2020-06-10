@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
+using System.Linq;
 
 namespace DiscordGameServerManager
 {
@@ -102,11 +103,11 @@ namespace DiscordGameServerManager
             }
             else if (names.Length > Modules.module_Collection.modulelist.Count)
             {
-                Console.WriteLine("Too many names given for number of modules");
+                Console.WriteLine(Properties.Resources.ExcessModuleNames);
             }
             else 
             {
-                Console.WriteLine("Too few names given for number of modules");
+                Console.WriteLine(Properties.Resources.InsufficientModuleNames);
             }
         }
         public static void StartProcessModule(string name) 
@@ -169,10 +170,11 @@ namespace DiscordGameServerManager
             List<byte> data_bytes = new List<byte>();
             byte[] message = new byte[1024];
             bool connected = namedPipeServerStreams[current].IsConnected;
-                if (!namedPipeServerStreams[current].IsConnected) 
+                if (!namedPipeServerStreams[current].IsConnected)
                 {
                 namedPipeServerStreams[current].WaitForConnection();
                 }
+            connected = namedPipeServerStreams[current].IsConnected;
             if (connected)
             {
                 using (var ms = new MemoryStream())
@@ -193,7 +195,11 @@ namespace DiscordGameServerManager
         {
             ReInitializePipe(current);
         }
-
+        private static void ExitRequested(int pipe) 
+        {
+            namedPipeServerStreams[pipe].Disconnect();
+            namedPipeServerStreams[pipe].Dispose();
+        }
         private static void ReInitializePipe(int current)
         {
             namedPipeServerStreams[current].Disconnect();
@@ -216,14 +222,23 @@ namespace DiscordGameServerManager
                     File.CreateText(dir + "/" + (int)pi + "_input.txt").Dispose();
                 }
                 string output = ReadPipe((int)pi).ConfigureAwait(true).GetAwaiter().GetResult();
-                ProcessData(output);
+                ProcessData(output,(int)pi);
             }
         }
-        private static void ProcessData(string data) 
+        private static void ProcessData(string data,int pipe_index) 
         {
-            if (data.ToLower(CultureInfo.CurrentCulture).Contains("DiscordSendMessage:",StringComparison.CurrentCulture)) 
+            if (data.ToLower(CultureInfo.CurrentCulture).Contains("discordsendmessage:",StringComparison.CurrentCulture)) 
             { 
                 
+            }
+            if (data.ToLower(CultureInfo.CurrentCulture).Contains("discord:", StringComparison.CurrentCulture)) 
+            { 
+            
+            }
+            if (data.ToLower(CultureInfo.CurrentCulture).Equals("exit",StringComparison.CurrentCulture)) 
+            {
+                ExitRequested(pipe_index);
+                pipe_indexes.Remove(pipe_index);
             }
         }
         internal delegate void ReadPipes_Call(object p);

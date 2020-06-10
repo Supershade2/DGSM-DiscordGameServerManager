@@ -49,6 +49,14 @@ namespace DiscordGameServerManager
             bool[] perms = DiscordTrustManager.checkPermission(e.Channel.Id, e.Author.Id);
             RespondMessage(e.Author.Username + e.Author.Discriminator, e.Message.Content, e.Channel, perms, e);
         }
+        public static void Connect() 
+        {
+            discord.ConnectAsync().ConfigureAwait(true);    
+        }
+        public static void Disconnect() 
+        {
+            discord.DisconnectAsync().ConfigureAwait(true);
+        }
         public static void MainDiscord()
         {
             while (true) 
@@ -66,6 +74,10 @@ namespace DiscordGameServerManager
                         DiscordTrustManager.setTotalUsers(discordChannel.Guild.MemberCount);
                     }
                 }
+                discord.GuildAvailable += async e => 
+                { 
+                
+                };
                 //This will execute if a user dm's the bot, the bot then will add the dm as a list of logged dm's
                 discord.DmChannelCreated += async e =>
                 {

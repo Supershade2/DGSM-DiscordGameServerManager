@@ -11,7 +11,15 @@ namespace DiscordGameServerManager
         {
             if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
             {
-                return app;
+                if (app.Contains(".exe",StringComparison.CurrentCultureIgnoreCase)) 
+                {
+                    return app;
+                }
+                else 
+                {
+                    app += ".exe";
+                    return app;
+                }
             }
             else
             {

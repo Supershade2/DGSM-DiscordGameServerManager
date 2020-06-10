@@ -47,7 +47,7 @@ namespace DiscordGameServerManager
         //In the future will be encrypted into the file and then stored in the dictionary
         public Dictionary<string, string> user_and_pass { get; set; }
         public long steam_app_id { get; set; }
-        public string steam_game_args_script { get; set; }
+        public string steam_game_args_script_data { get; set; }
         public string steam_install_dir { get; set; }
         public string start_command { get; set; }
         public string stop_command { get; set; }
