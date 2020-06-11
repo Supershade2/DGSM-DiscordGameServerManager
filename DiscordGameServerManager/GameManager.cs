@@ -125,7 +125,7 @@ namespace DiscordGameServerManager
                         Console.Out.WriteAsync(line).ConfigureAwait(true).GetAwaiter().GetResult();
                         DiscordFunctions.Requeststeamcode();
                         p.StandardInput.WriteLine(File.ReadAllText("steamcode.txt", Encoding.UTF8));
-                        if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
+                        if (OSInfo.GetOSPlatform() == OSPlatform.Windows)
                         {
                             p.StandardInput.Write((char)13);
                         }

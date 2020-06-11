@@ -110,7 +110,7 @@ namespace DiscordGameServerManager
                             Directory.CreateDirectory("./steamcmd");
                             break;
                     }
-                    if (OS_Info.GetOSPlatform() == System.Runtime.InteropServices.OSPlatform.Windows)
+                    if (OSInfo.GetOSPlatform() == System.Runtime.InteropServices.OSPlatform.Windows)
                     {
                         download(steamcmd_windows, Directory.GetCurrentDirectory()+"/steamcmd/steamcmd.zip");
                         ZipFile.ExtractToDirectory(Directory.GetCurrentDirectory() + "/steamcmd/steamcmd.zip", Directory.GetCurrentDirectory() + "/steamcmd", System.Text.Encoding.UTF8,true);

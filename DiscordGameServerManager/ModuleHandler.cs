@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace DiscordGameServerManager
 {
-    class ModuleHandler
+    public class ModuleHandler
     {
         public static List<int> pipe_indexes = new List<int>();
         public static int available_threads;

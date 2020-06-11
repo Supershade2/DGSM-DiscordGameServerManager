@@ -33,7 +33,7 @@ namespace DiscordGameServerManager
             }
         }
     }
-    public struct profile
+    public struct profile : IEquatable<profile>
     {
         public bool Is_Steam { get; set; }
         public bool useSSH { get; set; }
@@ -51,8 +51,83 @@ namespace DiscordGameServerManager
         public string steam_install_dir { get; set; }
         public string start_command { get; set; }
         public string stop_command { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (this == (profile)obj)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 0;
+            hash = (hash * 3) + Is_Steam.GetHashCode();
+            hash = (hash * 3) + useSSH.GetHashCode();
+            hash = (hash * 3) + game.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + file_location.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + mod_dir.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + rcon_address.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + RCONPort.GetHashCode();
+            hash = (hash * 3) + RCONPass.GetHashCode(StringComparison.CurrentCulture);
+            foreach (var item in rcon_commands)
+            {
+                hash = (hash * 3) + item.GetHashCode(StringComparison.CurrentCulture);
+            }
+            foreach (var item in user_and_pass.Keys)
+            {
+                hash = (hash * 3) + item.GetHashCode(StringComparison.CurrentCulture);
+            }
+            foreach (var item in user_and_pass.Values)
+            {
+                hash = (hash * 3) + item.GetHashCode(StringComparison.CurrentCulture);
+            }
+            hash = (hash * 3) + steam_app_id.GetHashCode();
+            hash = (hash * 3) + steam_game_args_script_data.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + steam_install_dir.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + start_command.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + stop_command.GetHashCode(StringComparison.CurrentCulture);
+            return hash;
+        }
+
+        public static bool operator ==(profile left, profile right)
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+            return left.Is_Steam == right.Is_Steam && left.useSSH == right.useSSH && left.game == right.game && left.file_location == right.file_location && left.mod_dir == right.mod_dir && left.rcon_address == right.rcon_address && left.RCONPort == right.RCONPort && left.RCONPass == right.RCONPass &&  left.rcon_commands == right.rcon_commands && left.user_and_pass == right.user_and_pass && left.steam_app_id == right.steam_app_id && left.steam_game_args_script_data == right.steam_game_args_script_data && left.steam_install_dir == right.steam_install_dir && left.start_command == right.start_command && left.stop_command == right.stop_command;
+        }
+
+        public static bool operator !=(profile left, profile right)
+        {
+            return !(left == right);
+        }
+
+        public bool Equals(profile other)
+        {
+            return this == other;
+        }
         /* Not currently implemented, currently process is killed and restarted
-        public string restart_command { get; set; }
-        */
+public string restart_command { get; set; }
+*/
     }
 }

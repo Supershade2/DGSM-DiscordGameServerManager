@@ -4,10 +4,13 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using System.IO.IsolatedStorage;
+using System.Runtime.InteropServices;
 
 namespace DiscordGameServerManager
 {
+#pragma warning disable CA1052 // Static holder types should be Static or NotInheritable
     public class Details
+#pragma warning restore CA1052 // Static holder types should be Static or NotInheritable
     {
         private const string config = "details.json";
         public static details d = new details();
@@ -22,6 +25,7 @@ namespace DiscordGameServerManager
             {
                 d.default_extension = AppStringProducer.GetSystemCompatibleString("", true);
                 d.first_run = true;
+                d.platform = OSInfo.GetOSPlatform();
                 File.Create(Properties.Resources.ResourcesDir + "/" + config).Close();
                 string json = JsonConvert.SerializeObject(d, Formatting.Indented);
                 File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
@@ -63,8 +67,9 @@ namespace DiscordGameServerManager
     }
     public struct details 
     {
-        public int user_count { get; set; } 
+        public int user_count { get; set; }
         public bool first_run { get; set; }
+        public OSPlatform platform { get; set; }
         public string culture_name { get; set; }
         public string default_extension { get; set; }
     }

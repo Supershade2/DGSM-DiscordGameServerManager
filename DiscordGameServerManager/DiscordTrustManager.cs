@@ -9,7 +9,9 @@ namespace DiscordGameServerManager
 {
     class DiscordTrustManager
     {
-        public static channelinfo channel_dictionary = new channelinfo();
+        public static List<Guild> guildinfo = new List<Guild>();
+        private static Guild guild = new Guild();
+        private static channelinfo channel_dictionary = new channelinfo();
         private static permissions perms = new permissions();
         private static channel channel = new channel();
         public static int usernum = Details.d.user_count;
@@ -17,14 +19,14 @@ namespace DiscordGameServerManager
         public static user User = new user();
         //private static int user_index = usernum - 1 >=0 ? usernum-1:0;
         //private static int user_index_global = usernum - 1 >= 0 ? usernum - 1 : 0;
-        private const string dir = "Resources";
         private const string config = "permissions.json";
         private static bool default_perm_value = false;
         static DiscordTrustManager()
         {
-            if (channel_dictionary.channels == null) 
+            if (guild.chinfo.channels == null) 
             {
                 channel_dictionary.channels = new Dictionary<ulong, channel>();
+                guild.chinfo = channel_dictionary;
             }
             switch (load()) 
             {
@@ -33,6 +35,25 @@ namespace DiscordGameServerManager
                     break;
                 default:
                     break;
+            }
+        }
+        public static void AddGuild(ulong id) 
+        {
+            guild.Uid = id;
+            guildinfo.Add(guild);
+        }
+        public static void SetGuildID(ulong id) 
+        {
+            guild.Uid = id;
+        }
+        public static void UpdateGuild(ulong id) 
+        {
+            for (int i = 0; i < guildinfo.Count; i++)
+            {
+                if (guildinfo[i].Uid == id) 
+                {
+                    guildinfo[i] = guild;
+                }
             }
         }
         public static bool[] checkPermission(ulong channelID, ulong id) 
@@ -107,6 +128,8 @@ namespace DiscordGameServerManager
             users.Add(User);
             channel.users = users;
             channel_dictionary.channels.Add(dmChannel.Id,channel);
+            guild.chinfo = channel_dictionary;
+            UpdateGuild(guild.Uid);
             write();
         }
         public static void AddChannel(string name, ulong id, DiscordChannel Dchannel) 
@@ -121,6 +144,8 @@ namespace DiscordGameServerManager
             users.Add(User);
             channel.users = users;
             channel_dictionary.channels.Add(Dchannel.Id, channel);
+            guild.chinfo = channel_dictionary;
+            UpdateGuild(guild.Uid);
             write();
         }
         public static void updateChannel(string name, ulong id, DiscordChannel Dchannel) 
@@ -130,6 +155,8 @@ namespace DiscordGameServerManager
             User.userID = id;
             channel.users = users;
             channel_dictionary.channels.Add(Dchannel.Id, channel);
+            guild.chinfo = channel_dictionary;
+            UpdateGuild(guild.Uid);
             write();
         }
         public static void updateChannel(ulong id, DiscordDmChannel dmChannel) 
@@ -138,17 +165,19 @@ namespace DiscordGameServerManager
             User.userID = id;
             channel.users = users;
             channel_dictionary.channels.Add(dmChannel.Id, channel);
+            guild.chinfo = channel_dictionary;
+            UpdateGuild(guild.Uid);
             write();
         }
-        public static void setChannelID(ulong id, int index)
+        public static void setChannelID(ulong id)
         {
             channel.id = id;
         }
-        public static void setChannelCategory(string category, int index)
+        public static void setChannelCategory(string category)
         {
             channel.category = category;
         }
-        public static void setChannelName(string name, int index)
+        public static void setChannelName(string name)
         {
             channel.name = name;
         }
@@ -247,6 +276,7 @@ namespace DiscordGameServerManager
                     ch.users[index] = u;
                     channel_dictionary.channels.Remove(dmChannel.Id);
                     channel_dictionary.channels.Add(dmChannel.Id,ch);
+                    guild.chinfo = channel_dictionary;
                 }
             }
         }
@@ -265,6 +295,7 @@ namespace DiscordGameServerManager
                     ch.users[index] = u;
                     channel_dictionary.channels.Remove(channel_id);
                     channel_dictionary.channels.Add(channel_id, ch);
+                    guild.chinfo = channel_dictionary;
                 }
             }
         }
@@ -272,10 +303,10 @@ namespace DiscordGameServerManager
         {
             try
             {
-                if (!File.Exists(dir + "/" + config))
+                if (!File.Exists(Properties.Resources.ResourcesDir + "/" + config))
                 {
-                    string json = JsonConvert.SerializeObject(channel_dictionary, Formatting.Indented);
-                    File.WriteAllText(dir + "/" + config, json);
+                    string json = JsonConvert.SerializeObject(guildinfo, Formatting.Indented);
+                    File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
                 }
                 return true;
             }
@@ -299,14 +330,14 @@ namespace DiscordGameServerManager
         {
             try
             {
-                string json = JsonConvert.SerializeObject(channel_dictionary, Formatting.Indented);
-                File.WriteAllText(dir + "/" + config, json);
+                string json = JsonConvert.SerializeObject(guildinfo, Formatting.Indented);
+                File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
                 return true;
             }
             catch (JsonSerializationException ex)
             {
-                Console.WriteLine(Properties.Resources.DiscordTrustManagerWriteFailure);
-                Console.WriteLine(ex.Message);
+                Console.Error.WriteLine(Properties.Resources.DiscordTrustManagerWriteFailure);
+                Console.Error.WriteLine(ex.Message);
                 return false;
             }
         }
@@ -314,18 +345,23 @@ namespace DiscordGameServerManager
         {
             try
             {
-                string json = File.ReadAllText(dir + "/" + config);
-                channel_dictionary = JsonConvert.DeserializeObject<channelinfo>(json);
-                default_perm_value = channel_dictionary.default_perm_value;
+                string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + config);
+                guildinfo = JsonConvert.DeserializeObject<List<Guild>>(json);
+                default_perm_value = guild.chinfo.default_perm_value;
                 return true;
             }
-            catch (Exception ex)
+            catch (FileNotFoundException ex)
             {
-                Console.WriteLine("DiscordTrustManager: Method: load");
-                Console.WriteLine(ex.Message);
+                Console.Error.WriteLine(Properties.Resources.DiscordTrustManagerWriteFailure);
+                Console.Error.WriteLine(ex.Message);
                 return false;
             }
         }
+    }
+    public struct Guild
+    {
+        public ulong Uid { get; set; }
+        public channelinfo chinfo { get; set; }
     }
     public struct channelinfo
     {

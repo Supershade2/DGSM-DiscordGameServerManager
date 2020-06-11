@@ -9,7 +9,7 @@ namespace DiscordGameServerManager
     {
         public static string GetSystemCompatibleString(string app) 
         {
-            if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
+            if (OSInfo.GetOSPlatform() == OSPlatform.Windows)
             {
                 if (app.Contains(".exe",StringComparison.CurrentCultureIgnoreCase)) 
                 {
@@ -32,11 +32,11 @@ namespace DiscordGameServerManager
             switch (needs_extension)
             {
                 case true:
-                    if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
+                    if (OSInfo.GetOSPlatform() == OSPlatform.Windows)
                     {
                         return System.IO.Path.ChangeExtension(app, ".exe"); //System.IO.Path.GetFileNameWithoutExtension(app) + ".exe";
                     }
-                    else if (OS_Info.GetOSPlatform() == OSPlatform.Linux || OS_Info.GetOSPlatform() == OSPlatform.OSX) 
+                    else if (OSInfo.GetOSPlatform() == OSPlatform.Linux || OSInfo.GetOSPlatform() == OSPlatform.OSX) 
                     {
                         return System.IO.Path.ChangeExtension(app, ".deb");//System.IO.Path.GetFileNameWithoutExtension(app) + ".deb";
                     }
@@ -57,11 +57,11 @@ namespace DiscordGameServerManager
                     switch (isScript)
                     {
                         case true:
-                            if (OS_Info.GetOSPlatform() == OSPlatform.Windows)
+                            if (OSInfo.GetOSPlatform() == OSPlatform.Windows)
                             {
                                 return System.IO.Path.ChangeExtension(app, ".bat");//System.IO.Path.GetFileNameWithoutExtension(app) + ".bat";
                             }
-                            else if (OS_Info.GetOSPlatform() == OSPlatform.Linux || OS_Info.GetOSPlatform() == OSPlatform.OSX)
+                            else if (OSInfo.GetOSPlatform() == OSPlatform.Linux || OSInfo.GetOSPlatform() == OSPlatform.OSX)
                             {
                                 return System.IO.Path.ChangeExtension(app, ".sh"); //System.IO.Path.GetFileNameWithoutExtension(app) + ".sh";
                             }

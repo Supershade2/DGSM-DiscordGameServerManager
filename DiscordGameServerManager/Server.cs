@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Renci.SshNet;
-using System.Security;
 using System.Linq;
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.IO;
@@ -18,7 +16,6 @@ namespace DiscordGameServerManager
         private const string config = "ssh.json";
         public static SSHInfo info = new SSHInfo();
         public static SshClient client;
-        private static readonly SHA256 encrypt = SHA256.Create();
         private static bool initialized = false;
         public static void Initialize() 
         {
@@ -143,7 +140,7 @@ namespace DiscordGameServerManager
         }
         private static void SetPass(string pass) 
         {
-            info.Pass = encrypt.ComputeHash(Encoding.UTF8.GetBytes(pass.ToCharArray())).ToString();
+            info.Pass = SecurityManager.GetHash(info.Pass);
         }
         private static void SetKeypath(string path) 
         {
@@ -175,7 +172,7 @@ namespace DiscordGameServerManager
                 }
                 else 
                 {
-                    if (System.Runtime.InteropServices.OSPlatform.Linux == OS_Info.GetOSPlatform()) 
+                    if (System.Runtime.InteropServices.OSPlatform.Linux == OSInfo.GetOSPlatform()) 
                     {
                         return "/home/" + Environment.UserName + "/.ssh";
                     }

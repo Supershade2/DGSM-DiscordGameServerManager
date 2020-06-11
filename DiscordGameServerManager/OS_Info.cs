@@ -6,18 +6,21 @@
  */
 namespace DiscordGameServerManager
 {
-    public class OS_Info
+    public static class OSInfo
     {
-        //! OSPlatform info gets set by 
+        //! private platform variable updated by first use of GetOSPlatform 
         private static OSPlatform platform;
         //@{
-        /*! Returns current platform application is running on and sets platform to it */
+        /*! Returns current platform application is running on and sets platform to it*/
         public static OSPlatform GetOSPlatform() 
         {
+            //@{
+            //! return platform if it's value is not null
             if (platform != null)
             {
                 return platform;
             }
+            //@}
             else 
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

@@ -4,11 +4,11 @@ using System.Text;
 
 namespace DiscordGameServerManager
 {
-    //To be Implemented
+    //To be Implemented logic for user methods will be migrated to here
     class User
     {
     }
-    /*public struct user
+    public struct userdata
     {
         public string username { get; set; }
         public ulong userID { get; set; }
@@ -17,5 +17,5 @@ namespace DiscordGameServerManager
         public int trust_level { get; set; }
         public bool registered { get; set; }
         public permissions perms { get; set; }
-    }*/
+    }
 }

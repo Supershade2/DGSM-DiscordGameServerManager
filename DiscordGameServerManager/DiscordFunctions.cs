@@ -10,6 +10,7 @@ using System.Net;
 using System.Globalization;
 using System.Linq;
 using System.Diagnostics.Contracts;
+using System.Security.Cryptography;
 
 namespace DiscordGameServerManager
 {
@@ -74,9 +75,23 @@ namespace DiscordGameServerManager
                         DiscordTrustManager.setTotalUsers(discordChannel.Guild.MemberCount);
                     }
                 }
+                discord.GuildCreated += async e => 
+                {
+                    DiscordTrustManager.AddGuild(e.Guild.Id);
+                };
                 discord.GuildAvailable += async e => 
-                { 
-                
+                {
+                    for (int i = 0; i < DiscordTrustManager.guildinfo.Count; i++) 
+                    {
+                        if (DiscordTrustManager.guildinfo[i].Uid == e.Guild.Id)
+                        {
+
+                        }
+                        else 
+                        {
+                            DiscordTrustManager.AddGuild(e.Guild.Id);
+                        }
+                    }
                 };
                 //This will execute if a user dm's the bot, the bot then will add the dm as a list of logged dm's
                 discord.DmChannelCreated += async e =>
@@ -130,22 +145,29 @@ namespace DiscordGameServerManager
             switch (isBot)
             {
                 case false:
-                    if (DiscordTrustManager.channel_dictionary.channels.Count == 0)
+                    Guild guild = (from item in DiscordTrustManager.guildinfo where (item.Uid == e.Guild.Id) select item).Single();
+                    if (guild.chinfo.channels.Count == 0)
                     {
+                        DiscordTrustManager.SetGuildID(guild.Uid);
                         DiscordTrustManager.AddChannel(e.Author.Username + e.Author.Discriminator, e.Author.Id, e.Channel);
+                        DiscordTrustManager.UpdateGuild(guild.Uid);
                     }
-                    if (!DiscordTrustManager.channel_dictionary.channels.ContainsKey(e.Channel.Id))
+                    if (!guild.chinfo.channels.ContainsKey(e.Channel.Id))
                     {
+                        DiscordTrustManager.SetGuildID(guild.Uid);
                         DiscordTrustManager.AddChannel(e.Author.Username + e.Author.Discriminator, e.Author.Id, e.Channel);
+                        DiscordTrustManager.UpdateGuild(guild.Uid);
                     }
-                    foreach (var chnl in DiscordTrustManager.channel_dictionary.channels)
+                    foreach (var chnl in guild.chinfo.channels)
                     {
                         if (chnl.Key != e.Channel.Id)
                         {
                         }
                         else
                         {
+                            DiscordTrustManager.SetGuildID(guild.Uid);
                             DiscordTrustManager.updateChannel(e.Author.Username + e.Author.Discriminator, e.Author.Id, e.Channel);
+                            DiscordTrustManager.UpdateGuild(guild.Uid);
                         }
                     }
                     if (e.Channel == discordChannel)
