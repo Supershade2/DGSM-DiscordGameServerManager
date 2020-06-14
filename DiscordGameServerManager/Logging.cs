@@ -6,5 +6,9 @@ namespace DiscordGameServerManager
 {
     class Logging
     {
+        public static void Log(string content) 
+        { 
+            
+        }
     }
 }

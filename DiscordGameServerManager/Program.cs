@@ -22,6 +22,7 @@ namespace DiscordGameServerManager
         public static bool log = false;
         public static string logoutput = "";
         public static bool verboseoutput = false;
+        public static bool MemoryStorage = false;
         //public static DiscordFunctions functions = new DiscordFunctions();
         static void Main(string[] args)
         {
@@ -30,19 +31,30 @@ namespace DiscordGameServerManager
                 for (int i = 0; i < args.Length; i++) 
                 {
                     args[i] = args[i].ToLower(CultureInfo.CurrentCulture);
+                    switch (args[i]) 
+                    {
+                        case "--log":
+                            log = true;
+                            string pattern = @"[/]\w+";
+                            if (i + 1 < args.Length - 1)
+                            {
+                                Match m = Regex.Match(args[i + 1], pattern);
+                                logoutput = m.Success == true ? args[i + 1] : "";
+                            }
+                            break;
+                        case "--verbose":
+                            verboseoutput = true;
+                            break;
+                        case "-v":
+                            verboseoutput = true;
+                            break;
+                        case "--memory":
+                            MemoryStorage = true;
+                            break;
+                    }
+
                 }
-                log = args.Contains("--log");
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                int logindex = args.IndexOf("--log");
-                string pattern = @"[/]\w+";
-                if(args.Length < logindex + 1) 
-                {
-                    Match m = Regex.Match(args[logindex + 1], pattern);
-                    logoutput = m.Success == true ? args[logindex + 1] : "";
-                }
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                verboseoutput = args.Contains("--verbose") || args.Contains("--v");
-                //Todo Logic
+                verboseoutput = args.Contains("--verbose") || args.Contains("-v");
             }
             Setup setup = new Setup();
             for (int i = 0; i < Config.bot.cluster.servers.Length; i++) 

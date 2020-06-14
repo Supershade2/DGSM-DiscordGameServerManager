@@ -328,18 +328,18 @@ namespace DiscordGameServerManager
         }
         public static bool write() 
         {
-            try
-            {
-                string json = JsonConvert.SerializeObject(guildinfo, Formatting.Indented);
-                File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
-                return true;
-            }
-            catch (JsonSerializationException ex)
-            {
-                Console.Error.WriteLine(Properties.Resources.DiscordTrustManagerWriteFailure);
-                Console.Error.WriteLine(ex.Message);
-                return false;
-            }
+                try
+                {
+                    string json = JsonConvert.SerializeObject(guildinfo, Formatting.Indented);
+                    File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
+                    return true;
+                }
+                catch (JsonSerializationException ex)
+                {
+                    Console.Error.WriteLine(Properties.Resources.DiscordTrustManagerWriteFailure);
+                    Console.Error.WriteLine(ex.Message);
+                    return false;
+                }
         }
         public static bool load() 
         {
@@ -355,6 +355,64 @@ namespace DiscordGameServerManager
                 Console.Error.WriteLine(Properties.Resources.DiscordTrustManagerWriteFailure);
                 Console.Error.WriteLine(ex.Message);
                 return false;
+            }
+        }
+        public static string[] ReadConfig(ulong id) 
+        {
+            List<string> items = new List<string>();
+            using (StreamReader reader = new StreamReader(File.OpenRead(Properties.Resources.ResourcesDir + "/" + config))) 
+            {
+                char[] ca = reader.ReadLine().ToCharArray();
+                bool Is_open = false;
+                bool value = false;
+                bool keyfound = false;
+                string trigger = "Uid";
+                string item = "";
+                for (int i = 0; i < ca.Length; i++)
+                {
+                    if(ca[i] == ',') 
+                    {
+                        value = false;
+                    }
+                    if (ca[i] == '"')
+                    {
+                        Is_open = Is_open == true ? false : true;
+                        if (!keyfound)
+                        {
+                            switch (Is_open)
+                            {
+                                case true:
+                                    break;
+                                default:
+                                    keyfound = item.ToLower(System.Globalization.CultureInfo.CurrentCulture) == trigger.ToLower(System.Globalization.CultureInfo.CurrentCulture) ? true : false;
+                                    item = "";
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            switch (Is_open)
+                            {
+                                case true:
+                                    break;
+                                default:
+                                    items.Add(item);
+                                    item = "";
+                                    keyfound = false;
+                                    break;
+                            }
+                        }
+                    }
+                    else if (value)
+                    {
+                        item += ca[i];
+                    }
+                    if (ca[i] == ':')
+                    {
+                        value = true;
+                    }
+                }
+                return items.ToArray();
             }
         }
     }

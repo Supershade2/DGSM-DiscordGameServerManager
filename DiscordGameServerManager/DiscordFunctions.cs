@@ -372,11 +372,13 @@ namespace DiscordGameServerManager
                 {
                     Console.Error.WriteLine(Properties.Resources.MessageDeletionNotFound);
                     Console.Error.WriteLine(ex.Message);
+                    Logging.Log("Error: " + Properties.Resources.MessageDeletionNotFound + Environment.NewLine + ex.Message);
                 }
                 catch (DSharpPlus.Exceptions.UnauthorizedException ex) 
                 {
                     Console.Error.WriteLine(Properties.Resources.Message_Deletion_Failed);
                     Console.Error.WriteLine(ex.Message);
+                    Logging.Log("Error: " + Properties.Resources.Message_Deletion_Failed + Environment.NewLine + ex.Message);
                 }
             }
         }
