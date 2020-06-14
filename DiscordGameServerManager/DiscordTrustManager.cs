@@ -5,6 +5,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.IO;
 using DSharpPlus.Entities;
+using System.Globalization;
+
 namespace DiscordGameServerManager
 {
     class DiscordTrustManager
@@ -347,7 +349,7 @@ namespace DiscordGameServerManager
             {
                 string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + config);
                 guildinfo = JsonConvert.DeserializeObject<List<Guild>>(json);
-                default_perm_value = guild.chinfo.default_perm_value;
+                default_perm_value = guild.default_perm_value;
                 return true;
             }
             catch (FileNotFoundException ex)
@@ -360,71 +362,83 @@ namespace DiscordGameServerManager
         public static string[] ReadConfig(ulong id) 
         {
             List<string> items = new List<string>();
-            using (StreamReader reader = new StreamReader(File.OpenRead(Properties.Resources.ResourcesDir + "/" + config))) 
+            using (StreamReader reader = new StreamReader(File.OpenRead(Properties.Resources.ResourcesDir + "/" + config)))
             {
                 char[] ca = reader.ReadLine().ToCharArray();
-                bool Is_open = false;
-                bool value = false;
-                bool keyfound = false;
-                string trigger = "Uid";
-                string item = "";
-                for (int i = 0; i < ca.Length; i++)
+                do
                 {
-                    if(ca[i] == ',') 
+                    bool Is_open = false;
+                    bool value = false;
+                    bool Idfound = false;
+                    bool keyfound = false;
+                    string trigger = "Uid";
+                    string item = "";
+                    for (int i = 0; i < ca.Length; i++)
                     {
-                        value = false;
-                    }
-                    if (ca[i] == '"')
-                    {
-                        Is_open = Is_open == true ? false : true;
-                        if (!keyfound)
+                        if (ca[i] == ',' || ca[i] == '}' || ca[i] == ']' || ca[i] == '{' || ca[i] == '[')
                         {
-                            switch (Is_open)
+                            value = false;
+                            if (item.Contains(id.ToString(CultureInfo.CurrentCulture),StringComparison.CurrentCulture)) 
                             {
-                                case true:
-                                    break;
-                                default:
-                                    keyfound = item.ToLower(System.Globalization.CultureInfo.CurrentCulture) == trigger.ToLower(System.Globalization.CultureInfo.CurrentCulture) ? true : false;
-                                    item = "";
-                                    break;
+                                Idfound = true;
                             }
                         }
-                        else
+                        if (ca[i] == '"')
                         {
-                            switch (Is_open)
+                            Is_open = Is_open == true ? false : true;
+                            if (!keyfound)
                             {
-                                case true:
-                                    break;
-                                default:
-                                    items.Add(item);
-                                    item = "";
-                                    keyfound = false;
-                                    break;
+                                switch (Is_open)
+                                {
+                                    case true:
+                                        break;
+                                    default:
+                                        keyfound = item.ToLower(System.Globalization.CultureInfo.CurrentCulture) == trigger.ToLower(System.Globalization.CultureInfo.CurrentCulture) ? true : false;
+                                        item = "";
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                switch (Is_open)
+                                {
+                                    case true:
+                                        break;
+                                    default:
+                                        if (Idfound) 
+                                        {
+                                            items.Add(item);
+                                            item = "";
+                                            keyfound = false;
+                                        }
+                                        break;
+                                }
                             }
                         }
+                        else if (value)
+                        {
+                            item += ca[i];
+                        }
+                        if (ca[i] == ':')
+                        {
+                            value = true;
+                        }
                     }
-                    else if (value)
-                    {
-                        item += ca[i];
-                    }
-                    if (ca[i] == ':')
-                    {
-                        value = true;
-                    }
-                }
-                return items.ToArray();
+                    ca = reader.ReadLine().ToCharArray();
+                } while (ca != null);
             }
+                return items.ToArray();
         }
     }
     public struct Guild
     {
         public ulong Uid { get; set; }
+        public bool default_perm_value { get; set; }
         public channelinfo chinfo { get; set; }
     }
     public struct channelinfo
     {
         public Dictionary<ulong, channel> channels{get; set;}
-        public bool default_perm_value { get; set; }
     }
     public struct user
     {

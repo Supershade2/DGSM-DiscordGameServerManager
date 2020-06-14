@@ -33,7 +33,7 @@ namespace DiscordGameServerManager
             }
         }
     }
-    public struct profile : IEquatable<profile>
+    public struct profile
     {
         public bool Is_Steam { get; set; }
         public bool useSSH { get; set; }
@@ -52,24 +52,6 @@ namespace DiscordGameServerManager
         public string start_command { get; set; }
         public string stop_command { get; set; }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-            else
-            {
-                if (this == (profile)obj)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         public override int GetHashCode()
         {

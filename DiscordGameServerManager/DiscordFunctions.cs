@@ -81,16 +81,17 @@ namespace DiscordGameServerManager
                 };
                 discord.GuildAvailable += async e => 
                 {
+                    bool matchfound = false;
                     for (int i = 0; i < DiscordTrustManager.guildinfo.Count; i++) 
                     {
                         if (DiscordTrustManager.guildinfo[i].Uid == e.Guild.Id)
                         {
-
+                            matchfound = true;
                         }
-                        else 
-                        {
-                            DiscordTrustManager.AddGuild(e.Guild.Id);
-                        }
+                    }
+                    if (!matchfound) 
+                    {
+                        DiscordTrustManager.AddGuild(e.Guild.Id);
                     }
                 };
                 //This will execute if a user dm's the bot, the bot then will add the dm as a list of logged dm's

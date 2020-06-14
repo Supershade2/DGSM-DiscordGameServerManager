@@ -26,6 +26,8 @@ namespace DiscordGameServerManager
         //public static DiscordFunctions functions = new DiscordFunctions();
         static void Main(string[] args)
         {
+            Config c = new Config();
+            c = null;
             if (args.Length > 0) 
             {
                 for (int i = 0; i < args.Length; i++) 

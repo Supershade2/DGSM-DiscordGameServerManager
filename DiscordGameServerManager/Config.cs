@@ -6,14 +6,15 @@ using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using System.Globalization;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace DiscordGameServerManager
 {
-    class Config
+    public class Config
     {
         private const string config = "config.json";
         public static BotConfig bot;
-        Config()
+        public Config()
         {
             if (!Directory.Exists(Properties.Resources.ResourcesDir))
                 Directory.CreateDirectory(Properties.Resources.ResourcesDir);
@@ -72,7 +73,7 @@ namespace DiscordGameServerManager
             bot = JsonConvert.DeserializeObject<BotConfig>(json);
         }
     }
-    public struct GameServer : IEquatable<GameServer>
+    public struct GameServer
     { 
         public int maxPlayers { get; set; }
         public string map { get; set; }
@@ -83,25 +84,6 @@ namespace DiscordGameServerManager
         public int queryPort { get; set; }
         public int RCONPort { get; set; }
         public string RCONPass { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-            else
-            {
-                if (this == (GameServer)obj)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         public override int GetHashCode()
         {
@@ -143,29 +125,10 @@ namespace DiscordGameServerManager
             return this == other;
         }
     }
-    public struct Cluster : IEquatable<Cluster>
+    public struct Cluster
     { 
         public int portGap { get; set; }
         public GameServer[] servers { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-            else
-            {
-                if (this == (Cluster)obj)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         public override int GetHashCode()
         {
@@ -204,7 +167,7 @@ namespace DiscordGameServerManager
             return this == other;
         }
     }
-    public struct BotConfig : IEquatable<BotConfig>
+    public struct BotConfig
     {
         public string token { get; set; }
         public bool useSSH { get; set; }
@@ -226,25 +189,6 @@ namespace DiscordGameServerManager
         public string invite { get; set; }
         public Cluster cluster { get; set; }
         public Messages.Message[] botmessages { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null) 
-            {
-                return false;
-            }
-            else 
-            {
-                if (this == (BotConfig)obj) 
-                {
-                    return true;
-                }
-                else 
-                {
-                    return false;
-                }
-            }
-        }
 
         public override int GetHashCode()
         {

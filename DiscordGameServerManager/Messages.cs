@@ -128,32 +128,13 @@ namespace DiscordGameServerManager
             string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + config);
             userDM = JsonConvert.DeserializeObject<Dictionary<ulong, DiscordDmChannel>>(json);
         }
-        public struct Message : IEquatable<Message>
+        public struct Message
         {
             public DateTime Date { get; set; }
             public string messagehead { get; set; }
             public string messagebody { get; set; }
             public bool MessageOn { get; set; }
             public bool Heuristicsused { get; set; }
-
-            public override bool Equals(object obj)
-            {
-                if (obj == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    if (this == (Message)obj)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
 
             public override int GetHashCode()
             {
