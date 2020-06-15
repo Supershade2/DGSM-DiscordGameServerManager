@@ -8,12 +8,35 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
+using System.Globalization;
 
 namespace DiscordGameServerManager
 {
     public class Messages
     {
-        private const string config = "DMs.json";
+        private const string DM = "DMs.json";
+        public const string config = "messages.json";
+        public static List<Message[]> botmessages { get; set; }
+        public static Message[] servermessages { get; set; }
+        //initializes default messages for specific dates
+        public static void Initialize(ulong id) 
+        {
+            servermessages = new Message[14];
+            servermessages[12].Date = DateTime.Parse("12/25/" + DateTime.Now.Year, CultureInfo.GetCultureInfo(CultureInfo.CurrentCulture.Name));
+            servermessages[12].messagehead = "Merry Christmas, here's a verse:";
+            servermessages[12].messagebody = "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." + Environment.NewLine + "For God did not send his Son into the world to condemn the world, but to save the world through him." + Environment.NewLine + "Whoever believes in him is not condemned, but whoever does not believe stands condemned already because they have not believed in the name of God’s one and only Son." + Environment.NewLine + "This is the verdict: Light has come into the world, but people loved darkness instead of light because their deeds were evil." + Environment.NewLine + "Everyone who does evil hates the light, and will not come into the light for fear that their deeds will be exposed." + Environment.NewLine + "But whoever lives by the truth comes into the light, so that it may be seen plainly that what they have done has been done in the sight of God.";
+            servermessages[12].MessageOn = true;
+            servermessages[11].Date = DateTime.Parse("03/10/" + DateTime.Now.Year, CultureInfo.GetCultureInfo(CultureInfo.CurrentCulture.Name));
+            servermessages[11].messagehead = "It's a march:";
+            servermessages[11].MessageOn = false;
+            servermessages[11].messagebody = "Wahoo!";
+            servermessages[0].messagebody = "%user% you are not permitted to post here, please contact a admin or mod for info";
+            if (Program.MemoryStorage) 
+            {
+                botmessages.Add(servermessages);
+            }
+            Config.write(id, servermessages, typeof(Message[]));
+        }
         private static Dictionary<ulong, DiscordDmChannel> userDM = new Dictionary<ulong, DiscordDmChannel>();
         public static void setMessage(string str, Message[] m, int index) 
         {
@@ -43,6 +66,10 @@ namespace DiscordGameServerManager
         {
             return userDM.Keys.ToArray().Contains(id);
         }
+        public static Dictionary<ulong, DiscordDmChannel> GetUserDMs() 
+        {
+            return userDM;
+        }
         public static Dictionary<ulong,DiscordDmChannel>.ValueCollection GetValues() 
         {
             return userDM.Values;
@@ -62,6 +89,12 @@ namespace DiscordGameServerManager
             }
             Config.write();
         }
+        public static Message[] GetMessage(ulong id) 
+        { 
+           string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + id.ToString(CultureInfo.CurrentCulture) + "/" + config);
+            Message[] m = JsonConvert.DeserializeObject<Message[]>(json);
+            return m;
+        }
         public static void setMessage(string head, string body, Message[] m, int index) 
         {
             if (Config.bot.useHeuristics) 
@@ -78,7 +111,7 @@ namespace DiscordGameServerManager
             }
             Config.write();
         }
-        public static void setMessage(string head, string body, Message[] m, int index, DateTime date) 
+        public static void setMessage(ulong ID, string head, string body, Message[] m, int index, DateTime date) 
         {
             if (Config.bot.useHeuristics) 
             {
@@ -94,23 +127,37 @@ namespace DiscordGameServerManager
                 m[index].messagebody = body;
                 m[index].Date = date;
             }
-            Config.write(m, typeof(Message[]));
+            Config.write(ID,m, typeof(Message[]));
         }
         public static async Task MessageSend(Message m, DiscordChannel discordChannel, DiscordClient discord)
         {
             DateTime current_date = DateTime.Now;
                 if (!string.IsNullOrEmpty(m.messagehead)) 
                 {
-                    if (DateTime.Parse(m.Date.Month + "/" + m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month + "/" + current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn && Config.bot.useHeuristics)
+                    if (DateTime.Parse(m.Date.Month + "/" + m.Date.Day, CultureInfo.GetCultureInfo(CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month + "/" + current_date.Day, CultureInfo.GetCultureInfo(CultureInfo.CurrentCulture.Name)) && m.MessageOn && Config.bot.useHeuristics)
                     {
+                        try
+                        {
+#pragma warning disable CA1062 // Validate arguments of public methods
                         DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, Heuristics.produceString(m.messagehead + Heuristics.newline + m.messagebody), false, null).ConfigureAwait(false);
+#pragma warning restore CA1062 // Validate arguments of public methods
+                    }
+                        catch (ArgumentNullException ex)
+                        {
+                            if (Program.verboseoutput) 
+                            {
+                                Console.Error.WriteLine("MessageSend: Argument Null");
+                                Console.Error.WriteLine(ex.Message);
+                            }
+                        Console.Error.WriteLine("MessageSend: Argument Null");
+                        }
                         //await discordMessage.AcknowledgeAsync();
                     }
-                    else if (DateTime.Parse(m.Date.Month + "/" + m.Date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month + "/" + current_date.Day, System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name)) && m.MessageOn)
+                    else if (DateTime.Parse(m.Date.Month + "/" + m.Date.Day, CultureInfo.GetCultureInfo(CultureInfo.CurrentCulture.Name)) == DateTime.Parse(current_date.Month + "/" + current_date.Day, CultureInfo.GetCultureInfo(CultureInfo.CurrentCulture.Name)) && m.MessageOn)
                     {
-                        DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, m.messagehead + Heuristics.newline + m.messagebody, false, null).ConfigureAwait(false);
-                        //await discordMessage.AcknowledgeAsync();
-                    }
+                    _ = await discord.SendMessageAsync(discordChannel, m.messagehead + Heuristics.newline + m.messagebody, false, null).ConfigureAwait(false);
+                    //await discordMessage.AcknowledgeAsync();
+                }
                 }
             /*catch (Exception e)
             {
@@ -121,11 +168,11 @@ namespace DiscordGameServerManager
         public static void write()
         {
             string json = JsonConvert.SerializeObject(userDM, Formatting.Indented);
-            File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
+            File.WriteAllText(Properties.Resources.ResourcesDir + "/" + DM, json);
         }
         public static void load()
         {
-            string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + config);
+            string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + DM);
             userDM = JsonConvert.DeserializeObject<Dictionary<ulong, DiscordDmChannel>>(json);
         }
         public struct Message

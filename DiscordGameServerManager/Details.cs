@@ -5,6 +5,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.IO.IsolatedStorage;
 using System.Runtime.InteropServices;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace DiscordGameServerManager
 {
@@ -26,6 +27,7 @@ namespace DiscordGameServerManager
                 d.default_extension = AppStringProducer.GetSystemCompatibleString("", true);
                 d.first_run = true;
                 d.platform = OSInfo.GetOSPlatform();
+                d.GuildInfo = new ginfo();
                 File.Create(Properties.Resources.ResourcesDir + "/" + config).Close();
                 string json = JsonConvert.SerializeObject(d, Formatting.Indented);
                 File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
@@ -67,10 +69,15 @@ namespace DiscordGameServerManager
     }
     public struct details 
     {
-        public int user_count { get; set; }
+        public ginfo GuildInfo { get; set; }
         public bool first_run { get; set; }
         public OSPlatform platform { get; set; }
         public string culture_name { get; set; }
         public string default_extension { get; set; }
+    }
+    public struct ginfo 
+    { 
+        public ulong id { get; set; }
+        public int usercount { get; set; }
     }
 }

@@ -16,7 +16,7 @@ namespace DiscordGameServerManager
         private static channelinfo channel_dictionary = new channelinfo();
         private static permissions perms = new permissions();
         private static channel channel = new channel();
-        public static int usernum = Details.d.user_count;
+        public static int usernum = Details.d.GuildInfo.usercount;
         public static List<user> users = new List<user>();
         public static user User = new user();
         //private static int user_index = usernum - 1 >=0 ? usernum-1:0;
@@ -108,15 +108,17 @@ namespace DiscordGameServerManager
             usernum = Messages.GetUserDMCount();
             return usernum;
         }
-        public static void setTotalUsers(int usercount) 
+        public static void setTotalUsers(ulong id, int usercount) 
         {
             usernum = usercount;
-            Details.d.user_count = usercount;
+            ginfo g = Details.d.GuildInfo;
+            g.usercount = usercount;
+            Details.d.GuildInfo = g;
             Details.write();
         }
         public static void getTotalUsers(BotConfig bot) 
         {
-            usernum = Details.d.user_count;
+            usernum = Details.d.GuildInfo.usercount;
         }
         public static void AddChannel(string name,ulong id,DiscordDmChannel dmChannel)
         {
@@ -435,6 +437,7 @@ namespace DiscordGameServerManager
         public ulong Uid { get; set; }
         public bool default_perm_value { get; set; }
         public channelinfo chinfo { get; set; }
+        public ulong DiscordChannel { get; set; }
     }
     public struct channelinfo
     {

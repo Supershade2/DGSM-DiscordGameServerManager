@@ -140,7 +140,7 @@ namespace DiscordGameServerManager
         }
         private static void SetPass(string pass) 
         {
-            info.Pass = SecurityManager.GetHash(info.Pass);
+            info.Pass = SecurityManager.GetHash(pass);
         }
         private static void SetKeypath(string path) 
         {
