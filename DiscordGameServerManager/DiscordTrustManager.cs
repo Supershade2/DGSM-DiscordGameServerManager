@@ -125,6 +125,7 @@ namespace DiscordGameServerManager
             channel.id = dmChannel.Id;
             channel.name = dmChannel.Name;
             channel.category = "Direct Message";
+			channel.PromptSent = true;
             User.username = name;
             User.userID = id;
             bool[] perms_array = Array.Empty<bool>();
@@ -466,5 +467,6 @@ namespace DiscordGameServerManager
         public ulong id { get; set; }
         public string category { get; set; }
         public string name { get; set; }
+		public bool PromptSent{get; set;}
     }
 }

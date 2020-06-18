@@ -15,15 +15,26 @@ namespace DiscordGameServerManager
         public static Globalvars gvars = new Globalvars();
         public static void Initialize(ulong id) 
         {
-            if (Program.MemoryStorage) 
-            {
-                Globalvars g = new Globalvars();
-                g.id = id;
-                globalvars.Add(g);
+            if(!File.Exists(Properties.Resources.ResourcesDir + "/" + id.ToString(System.Globalization.CultureInfo.CurrentCulture) + "/" + vars)) 
+            { 
+                if(!Directory.Exists(Properties.Resources.ResourcesDir + "/" + id.ToString(System.Globalization.CultureInfo.CurrentCulture)))
+                { 
+                    Directory.CreateDirectory(Properties.Resources.ResourcesDir + "/" + id.ToString(System.Globalization.CultureInfo.CurrentCulture));
+                }
+                if (Program.MemoryStorage)
+                {
+                    Globalvars g = new Globalvars();
+                    g.id = id;
+                    globalvars.Add(g);
+                }
+                else
+                {
+                    gvars.id = id;
+                }
             }
             else 
             {
-                gvars.id = id;
+                load(id);
             }
         }
         public static void SetID(ulong id) 
@@ -53,6 +64,11 @@ namespace DiscordGameServerManager
                     globalvars.Add(g);
                     break;
             }
+        }
+        public static void write(ulong id) 
+        {
+            object obj = gvars;
+            Config.write(id, obj, typeof(Globalvars));
         }
         public static void load(ulong id) 
         {

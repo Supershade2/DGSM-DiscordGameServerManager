@@ -16,7 +16,6 @@ namespace DiscordGameServerManager
 {
     public static class DiscordFunctions
     {
-        static bool matched = false;
         static bool steamcode_requested = false;
         static bool backup_requested = false;
         static readonly string prefix = Config.bot.prefix.ToLower(CultureInfo.CurrentCulture);
@@ -26,6 +25,7 @@ namespace DiscordGameServerManager
         private static ulong userID;
         private static ulong GID = 0;
         private static DiscordDmChannel discordDm = null;
+        private static DiscordChannel discordChannel;
         static bool IsValid = false;
         static readonly ulong botID = Config.bot.ID;
         public static readonly Thread TimerThread = new Thread(async () =>
@@ -178,13 +178,15 @@ namespace DiscordGameServerManager
         }
         public static async Task messageSend(string str, DiscordChannel discordChannel)
         {
-            DiscordMessage discordMessage = await discord.SendMessageAsync(discordChannel, str, false, null).ConfigureAwait(false);
+            _ = await discord.SendMessageAsync(discordChannel, str, false, null).ConfigureAwait(false);
             //await discordMessage.RespondAsync();
         }
         public static async Task ProcessMessage(DSharpPlus.EventArgs.MessageCreateEventArgs e)
         {
-            GID = e.Guild.Id;
             Contract.Requires(e != null);
+            GlobalServerConfig.load(e.Guild.Id);
+            discordChannel = await discord.GetChannelAsync(GlobalServerConfig.gvars.DiscordChannel).ConfigureAwait(true);
+            GID = e.Guild.Id;
             DiscordDmChannel discordDm = null;
             IsValid = false;
             bool isBot = e.Author.Id == botID;
@@ -216,59 +218,8 @@ namespace DiscordGameServerManager
                             DiscordTrustManager.UpdateGuild(guild.Uid);
                         }
                     }
-                    foreach (var ch in discordChannels)
+                    if(e.Channel == discordChannel) 
                     {
-                        if (e.Channel.Id == ch.Id)
-                        {
-                            matched = true;
-                            if (e.Message.Content.ToLower(CultureInfo.CurrentCulture).Contains(prefix.ToLower(CultureInfo.CurrentCulture) + "_register", StringComparison.CurrentCulture))
-                            {
-                                string[] strarray = e.Message.Content.Split(' ');
-                                foreach (var s in strarray)
-                                {
-                                    switch (s == Config.bot.registrationkey)
-                                    {
-                                        case true:
-                                            ulong author_id = e.Author.Id;
-                                            await messageSend(Config.bot.invite, e.Channel).ConfigureAwait(false);
-                                            DiscordTrustManager.register(author_id, ch);
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
-                            else 
-                            {
-                                DoCheck(e);
-                                if (e.Message.Author.IsCurrent == false && backup_requested == false)
-                                {
-                                    if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_help") { IsValid = true; }
-                                    if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_start") { IsValid = true; }
-                                    if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_stop") { IsValid = true; }
-                                    if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_restart") { IsValid = true; }
-                                    if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_backup") { IsValid = true; }
-                                    if (steamcode_requested) { System.IO.File.WriteAllText("steamcode.txt", e.Message.Content, Encoding.UTF8); steamcode_requested = false; }
-                                    else if (IsValid == false) { await e.Message.RespondAsync("I'm not programmed to do anything with that if you want a list of commands type " + prefix + "_help").ConfigureAwait(false); }
-                                }
-                                else
-                                {
-                                    if (e.Message.Author.Username != user && string.IsNullOrEmpty(user))
-                                    {
-                                        if (e.Message.Author.Id != botID)
-                                        {
-                                            await e.Message.RespondAsync("I'm not programmed to do anything with that if you want a list of commands type " + prefix + "_help" + Environment.NewLine + "awaiting response from user: " + user + " for backup prompt.").ConfigureAwait(false);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (!matched)
-                    {
-                        GlobalServerConfig.load(e.Guild.Id);
-                        if(e.Channel.Id == GlobalServerConfig.gvars.DiscordChannel) 
-                        {
                             DoCheck(e);
                             if (e.Message.Author.IsCurrent == false && backup_requested == false)
                             {
@@ -290,8 +241,65 @@ namespace DiscordGameServerManager
                                     }
                                 }
                             }
+                    }
+                    else 
+                    {
+                        foreach (var ch in discordChannels)
+                        {
+                            if (e.Channel.Id == ch.Id)
+                            {
+                                if (!Messages.HasID(e.Author.Id))
+                                {
+                                    Messages.AddDM(e.Author.Id, discordDm);
+                                    DiscordTrustManager.AddChannel(e.Author.Username + e.Author.Discriminator, e.Author.Id, discordDm);
+                                }
+                                string user = e.Author.Username + e.Author.Discriminator;
+                                await messageSend("" + Heuristics.newline + "Current Direct Message features are " + prefix + "_register and for others type " + prefix + "_help", e.Channel).ConfigureAwait(false);
+                                if (e.Message.Content.ToLower(CultureInfo.CurrentCulture).Contains(prefix.ToLower(CultureInfo.CurrentCulture) + "_register", StringComparison.CurrentCulture))
+                                {
+                                    string[] strarray = e.Message.Content.Split(' ');
+                                    foreach (var s in strarray)
+                                    {
+                                        switch (s == Config.bot.registrationkey)
+                                        {
+                                            case true:
+                                                ulong author_id = e.Author.Id;
+                                                await messageSend(Config.bot.invite, e.Channel).ConfigureAwait(false);
+                                                DiscordTrustManager.register(author_id, ch);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    DoCheck(e);
+                                    if (e.Message.Author.IsCurrent == false && backup_requested == false)
+                                    {
+                                        if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_help") { IsValid = true; }
+                                        if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_start") { IsValid = true; }
+                                        if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_stop") { IsValid = true; }
+                                        if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_restart") { IsValid = true; }
+                                        if (e.Message.Content.ToLower(CultureInfo.CurrentCulture) == prefix + "_backup") { IsValid = true; }
+                                        if (steamcode_requested) { System.IO.File.WriteAllText("steamcode.txt", e.Message.Content, Encoding.UTF8); steamcode_requested = false; }
+                                        else if (IsValid == false) { await e.Message.RespondAsync("I'm not programmed to do anything with that if you want a list of commands type " + prefix + "_help").ConfigureAwait(false); }
+                                    }
+                                    else
+                                    {
+                                        if (e.Message.Author.Username != user && string.IsNullOrEmpty(user))
+                                        {
+                                            if (e.Message.Author.Id != botID)
+                                            {
+                                                await e.Message.RespondAsync("I'm not programmed to do anything with that if you want a list of commands type " + prefix + "_help" + Environment.NewLine + "awaiting response from user: " + user + " for backup prompt.").ConfigureAwait(false);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
+                    
                     if (dmchannel == true)
                     {
                         foreach(var dm in Messages.GetValues()) 
