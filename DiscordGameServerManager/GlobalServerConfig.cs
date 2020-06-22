@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -15,11 +16,11 @@ namespace DiscordGameServerManager
         public static Globalvars gvars = new Globalvars();
         public static void Initialize(ulong id) 
         {
-            if(!File.Exists(Properties.Resources.ResourcesDir + "/" + id.ToString(System.Globalization.CultureInfo.CurrentCulture) + "/" + vars)) 
+            if(!File.Exists(Properties.Resources.ResourcesDir + "/" + id.ToString(CultureInfo.CurrentCulture) + "/" + vars)) 
             { 
-                if(!Directory.Exists(Properties.Resources.ResourcesDir + "/" + id.ToString(System.Globalization.CultureInfo.CurrentCulture)))
+                if(!Directory.Exists(Properties.Resources.ResourcesDir + "/" + id.ToString(CultureInfo.CurrentCulture)))
                 { 
-                    Directory.CreateDirectory(Properties.Resources.ResourcesDir + "/" + id.ToString(System.Globalization.CultureInfo.CurrentCulture));
+                    Directory.CreateDirectory(Properties.Resources.ResourcesDir + "/" + id.ToString(CultureInfo.CurrentCulture));
                 }
                 if (Program.MemoryStorage)
                 {
@@ -72,7 +73,7 @@ namespace DiscordGameServerManager
         }
         public static void load(ulong id) 
         {
-            string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + id.ToString(System.Globalization.CultureInfo.CurrentCulture) + "/" + vars);
+            string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + id.ToString(CultureInfo.CurrentCulture) + "/" + vars);
             gvars = JsonConvert.DeserializeObject<Globalvars>(json);
         }
     }
@@ -81,6 +82,8 @@ namespace DiscordGameServerManager
         public ulong id { get; set; }
         public ulong DiscordChannel { get; set; }
         public ulong MessageChannel { get; set; }
+        public string registrationkey { get; set; }
+        public string invite { get; set; }
 
         public override bool Equals(object obj) =>
             obj is Globalvars gv && this == gv;
@@ -91,6 +94,8 @@ namespace DiscordGameServerManager
             hash = (hash * 3) + id.GetHashCode();
             hash = (hash * 3) + DiscordChannel.GetHashCode();
             hash = (hash * 3) + MessageChannel.GetHashCode();
+            hash = (hash * 3) + registrationkey.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + invite.GetHashCode(StringComparison.CurrentCulture);
             return hash;
         }
 
@@ -105,7 +110,7 @@ namespace DiscordGameServerManager
             {
                 return false;
             }
-            return left.id == right.id && left.DiscordChannel == right.DiscordChannel && left.MessageChannel == right.MessageChannel;
+            return left.id == right.id && left.DiscordChannel == right.DiscordChannel && left.MessageChannel == right.MessageChannel && left.registrationkey == right.registrationkey && left.invite == right.invite;
         }
 
         public static bool operator !=(Globalvars left, Globalvars right)

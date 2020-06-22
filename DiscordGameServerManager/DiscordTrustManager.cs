@@ -86,7 +86,7 @@ namespace DiscordGameServerManager
         //Gets users by channel id
         public static List<user> GetUsers(ulong id) 
         {
-            channel c = new channel();
+            channel c;
             channel_dictionary.channels.TryGetValue(id, out c);
             return c.users;
         }
@@ -113,6 +113,7 @@ namespace DiscordGameServerManager
             usernum = usercount;
             ginfo g = Details.d.GuildInfo;
             g.usercount = usercount;
+            g.id = id;
             Details.d.GuildInfo = g;
             Details.write();
         }
@@ -125,7 +126,6 @@ namespace DiscordGameServerManager
             channel.id = dmChannel.Id;
             channel.name = dmChannel.Name;
             channel.category = "Direct Message";
-			channel.PromptSent = true;
             User.username = name;
             User.userID = id;
             bool[] perms_array = Array.Empty<bool>();
@@ -285,17 +285,40 @@ namespace DiscordGameServerManager
                 }
             }
         }
+        public static void RemoveUser(ulong id,ulong userID) 
+        {
+            channel temp;
+            for(int i=0; i<guildinfo.Count; i++) 
+            { 
+                if(guildinfo[i].Uid == id) 
+                {
+                    foreach (var ch in guildinfo[i].chinfo.channels)
+                    {
+                        foreach (var usr in ch.Value.users)
+                        {
+                            if (usr.userID == userID) 
+                            {
+                                temp = ch.Value;
+                                temp.users.Remove(usr);
+                                guildinfo[i].chinfo.channels.Remove(ch.Key);
+                                guildinfo[i].chinfo.channels.Add(ch.Key,temp);
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        }
         public static void updateUserPerms(ulong channel_id,user _user)
         {
-            channel ch = new channel();
+            channel ch;
             channel_dictionary.channels.TryGetValue(channel_id, out ch);
-            user u = new user();
             foreach (var usr in ch.users)
             {
                 if (usr.userID == _user.userID) 
                 {
                     int index = ch.users.IndexOf(usr);
-                    u = ch.users.ElementAt(index);
+                    user u = ch.users.ElementAt(index);
                     u.perms = perms;
                     ch.users[index] = u;
                     channel_dictionary.channels.Remove(channel_id);
@@ -375,6 +398,7 @@ namespace DiscordGameServerManager
                     bool Idfound = false;
                     bool keyfound = false;
                     string trigger = "Uid";
+                    string EndBlockTrigger = "DiscordChannel";
                     string item = "";
                     for (int i = 0; i < ca.Length; i++)
                     {
@@ -385,25 +409,51 @@ namespace DiscordGameServerManager
                             {
                                 Idfound = true;
                             }
+                            else 
+                            {
+                                item = "";
+                            }
+                            if (item.Contains(EndBlockTrigger, StringComparison.CurrentCulture)) 
+                            { 
+                                
+                            }
                         }
                         if (ca[i] == '"')
                         {
                             Is_open = Is_open == true ? false : true;
-                            if (!keyfound)
-                            {
+                            //if (!keyfound)
+                            //{
                                 switch (Is_open)
                                 {
                                     case true:
+										item += ca[i];
                                         break;
                                     default:
-                                        keyfound = item.ToLower(System.Globalization.CultureInfo.CurrentCulture) == trigger.ToLower(System.Globalization.CultureInfo.CurrentCulture) ? true : false;
-                                        item = "";
+                                        if (!keyfound) 
+                                        {
+                                            keyfound = item.ToLower(CultureInfo.CurrentCulture).Contains(trigger.ToLower(CultureInfo.CurrentCulture), StringComparison.CurrentCulture);
+                                        }
+                                        else 
+                                        {
+                                            if (Idfound)
+                                            {
+                                                if (value)
+                                                {
+                                                item += ca[i];
+                                                }
+                                                else 
+                                                {
+                                                items.Add(item);
+                                                item = "";
+                                                keyfound = false;
+                                            }
+                                            }
+
+                                        }
                                         break;
                                 }
-                            }
-                            else
-                            {
-                                switch (Is_open)
+                            //}
+                                /*switch (Is_open)
                                 {
                                     case true:
                                         break;
@@ -415,13 +465,8 @@ namespace DiscordGameServerManager
                                             keyfound = false;
                                         }
                                         break;
-                                }
+                                }*/
                             }
-                        }
-                        else if (value)
-                        {
-                            item += ca[i];
-                        }
                         if (ca[i] == ':')
                         {
                             value = true;
@@ -467,6 +512,5 @@ namespace DiscordGameServerManager
         public ulong id { get; set; }
         public string category { get; set; }
         public string name { get; set; }
-		public bool PromptSent{get; set;}
     }
 }

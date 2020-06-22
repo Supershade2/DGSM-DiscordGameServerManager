@@ -179,8 +179,6 @@ namespace DiscordGameServerManager
         public ulong ID { get; set; }
         public string GametrackingURL { get; set; }
         public bool useHeuristics { get; set; }
-        public string registrationkey { get; set; }
-        public string invite { get; set; }
         public Cluster cluster { get; set; }
 
         public override int GetHashCode()
@@ -198,8 +196,6 @@ namespace DiscordGameServerManager
             hash = (hash * 3) + ID.GetHashCode();
             hash = (hash * 3) + GametrackingURL.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + useHeuristics.GetHashCode();
-            hash = (hash * 3) + registrationkey.GetHashCode(StringComparison.CurrentCulture);
-            hash = (hash * 3) + invite.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + cluster.GetHashCode();
             //hash = (hash * 3) + botmessages.GetHashCode();
             return hash;
@@ -219,7 +215,7 @@ namespace DiscordGameServerManager
             }
 
             // Return true if the fields match:
-            return left.token == right.token && left.steamcmddir == right.steamcmddir && left.gamedir == right.gamedir && left.wsapikey == right.wsapikey && left.wscollectionid == right.wscollectionid && left.GamelaunchARGSscript == right.GamelaunchARGSscript && left.prefix == right.prefix && left.backupdir == right.backupdir && left.game == right.game && left.ID == right.ID && left.GametrackingURL == right.GametrackingURL && left.useHeuristics == right.useHeuristics && left.registrationkey == right.registrationkey && left.invite == right.invite && left.cluster.portGap == right.cluster.portGap && left.cluster.servers == right.cluster.servers;
+            return left.token == right.token && left.steamcmddir == right.steamcmddir && left.gamedir == right.gamedir && left.wsapikey == right.wsapikey && left.wscollectionid == right.wscollectionid && left.GamelaunchARGSscript == right.GamelaunchARGSscript && left.prefix == right.prefix && left.backupdir == right.backupdir && left.game == right.game && left.ID == right.ID && left.GametrackingURL == right.GametrackingURL && left.useHeuristics == right.useHeuristics && left.cluster.portGap == right.cluster.portGap && left.cluster.servers == right.cluster.servers;
         }
 
         public static bool operator !=(BotConfig left, BotConfig right)

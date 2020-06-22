@@ -21,7 +21,7 @@ namespace DiscordGameServerManager
         static readonly string prefix = Config.bot.prefix.ToLower(CultureInfo.CurrentCulture);
         static string user = "";
         static DiscordGuild Guild;
-        static bool dmchannel = false;
+        //static bool dmchannel = false;
         private static ulong userID;
         private static ulong GID = 0;
         private static DiscordDmChannel discordDm = null;
@@ -130,11 +130,20 @@ namespace DiscordGameServerManager
                 //This will execute if a user dm's the bot, the bot then will add the dm as a list of logged dm's
                 discord.DmChannelCreated += async e =>
                 {
-                    dmchannel = true;
+                    //e.Client.CurrentUser.Presence.Guild
                     discordDm = e.Channel;
                     userID = e.Client.CurrentUser.Id;
+                    await messageSend("" + Heuristics.newline + "Current Direct Message features are " + prefix + "_register and for others type " + prefix + "_help", e.Channel).ConfigureAwait(false);
                     //Logs Direct messages in memory
                     await LogDMs().ConfigureAwait(false);
+                };
+                discord.GuildMemberAdded += async e =>
+                { 
+                    
+                };
+                discord.GuildMemberRemoved += async e =>
+                { 
+                    
                 };
                 discord.MessageCreated += async e =>
                 {
@@ -253,18 +262,17 @@ namespace DiscordGameServerManager
                                     Messages.AddDM(e.Author.Id, discordDm);
                                     DiscordTrustManager.AddChannel(e.Author.Username + e.Author.Discriminator, e.Author.Id, discordDm);
                                 }
-                                string user = e.Author.Username + e.Author.Discriminator;
-                                await messageSend("" + Heuristics.newline + "Current Direct Message features are " + prefix + "_register and for others type " + prefix + "_help", e.Channel).ConfigureAwait(false);
+                                //string user = e.Author.Username + e.Author.Discriminator;
                                 if (e.Message.Content.ToLower(CultureInfo.CurrentCulture).Contains(prefix.ToLower(CultureInfo.CurrentCulture) + "_register", StringComparison.CurrentCulture))
                                 {
                                     string[] strarray = e.Message.Content.Split(' ');
                                     foreach (var s in strarray)
                                     {
-                                        switch (s == Config.bot.registrationkey)
+                                        switch (s == GlobalServerConfig.gvars.registrationkey)
                                         {
                                             case true:
                                                 ulong author_id = e.Author.Id;
-                                                await messageSend(Config.bot.invite, e.Channel).ConfigureAwait(false);
+                                                await messageSend(GlobalServerConfig.gvars.invite, e.Channel).ConfigureAwait(false);
                                                 DiscordTrustManager.register(author_id, ch);
                                                 break;
                                             default:
@@ -293,41 +301,6 @@ namespace DiscordGameServerManager
                                             {
                                                 await e.Message.RespondAsync("I'm not programmed to do anything with that if you want a list of commands type " + prefix + "_help" + Environment.NewLine + "awaiting response from user: " + user + " for backup prompt.").ConfigureAwait(false);
                                             }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    if (dmchannel == true)
-                    {
-                        foreach(var dm in Messages.GetValues()) 
-                        { 
-                            if (e.Channel == dm)
-                            {
-                                if (!Messages.HasID(e.Author.Id))
-                                {
-                                 Messages.AddDM(e.Author.Id, discordDm);
-                                 DiscordTrustManager.AddChannel(e.Author.Username + e.Author.Discriminator, e.Author.Id, discordDm);
-                                }
-                            string user = e.Author.Username + e.Author.Discriminator;
-                            await messageSend("Direct Messaging features are a WIP, some planned features are remote connection management directly to the game from here" + Heuristics.newline + "Current features are " + prefix + "_register and for others type " + prefix + "_help", e.Channel).ConfigureAwait(false);
-                            dmchannel = false;
-                                if (e.Message.Content.ToLower(CultureInfo.CurrentCulture).Contains(prefix.ToLower(CultureInfo.CurrentCulture) + "_register", StringComparison.CurrentCulture))
-                                {
-                                 string[] strarray = e.Message.Content.Split(' ');
-                                    foreach (var s in strarray)
-                                    {
-                                        switch (s == Config.bot.registrationkey)
-                                        {
-                                        case true:
-                                            ulong author_id = e.Author.Id;
-                                            await messageSend(Config.bot.invite, e.Channel).ConfigureAwait(false);
-                                            DiscordTrustManager.register(author_id, discordDm);
-                                            break;
-                                        default:
-                                            break;
                                         }
                                     }
                                 }
