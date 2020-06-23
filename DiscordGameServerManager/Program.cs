@@ -23,6 +23,7 @@ namespace DiscordGameServerManager
         public static string logoutput = "";
         public static bool verboseoutput = false;
         public static bool MemoryStorage = false;
+        public static bool DisableTrustManagement = false;
         //public static DiscordFunctions functions = new DiscordFunctions();
         static void Main(string[] args)
         {
@@ -53,6 +54,10 @@ namespace DiscordGameServerManager
                         case "--memory":
                             MemoryStorage = true;
                             break;
+                        case "--notrust":
+                            DisableTrustManagement = true;
+                            break;
+
                     }
 
                 }

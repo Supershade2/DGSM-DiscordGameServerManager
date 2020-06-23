@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.IO;
 using DSharpPlus.Entities;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace DiscordGameServerManager
 {
@@ -50,12 +51,25 @@ namespace DiscordGameServerManager
         }
         public static void UpdateGuild(ulong id) 
         {
+            bool updated = false;
             for (int i = 0; i < guildinfo.Count; i++)
             {
-                if (guildinfo[i].Uid == id) 
+                if (guildinfo[i].Uid == id && guild.Uid == id) 
                 {
                     guildinfo[i] = guild;
+                    updated = true;
+                    break;
                 }
+            }
+            if (!updated) 
+            {
+                var jsonData = ReadConfig(id);
+                string json = "";
+                foreach (var item in jsonData)
+                {
+                    json += item;
+                }
+                guild = JsonConvert.DeserializeObject<Guild>(json);
             }
         }
         public static bool[] checkPermission(ulong channelID, ulong id) 
@@ -285,7 +299,7 @@ namespace DiscordGameServerManager
                 }
             }
         }
-        public static void RemoveUser(ulong id,ulong userID) 
+        public static async Task<bool> RemoveUser(ulong id,ulong userID) 
         {
             channel temp;
             for(int i=0; i<guildinfo.Count; i++) 
@@ -308,6 +322,7 @@ namespace DiscordGameServerManager
                     }
                 }
             }
+            return true;
         }
         public static void updateUserPerms(ulong channel_id,user _user)
         {
@@ -399,6 +414,7 @@ namespace DiscordGameServerManager
                     bool keyfound = false;
                     string trigger = "Uid";
                     string EndBlockTrigger = "DiscordChannel";
+                    bool EndTriggered = false;
                     string item = "";
                     for (int i = 0; i < ca.Length; i++)
                     {
@@ -414,8 +430,12 @@ namespace DiscordGameServerManager
                                 item = "";
                             }
                             if (item.Contains(EndBlockTrigger, StringComparison.CurrentCulture)) 
-                            { 
-                                
+                            {
+                                EndTriggered = true;
+                            }
+                            if (EndTriggered) 
+                            {
+                                break;
                             }
                         }
                         if (ca[i] == '"')
