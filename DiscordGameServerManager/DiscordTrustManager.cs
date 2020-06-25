@@ -403,7 +403,7 @@ namespace DiscordGameServerManager
         public static string[] ReadConfig(ulong id) 
         {
             List<string> items = new List<string>();
-            using (StreamReader reader = new StreamReader(File.OpenRead(Properties.Resources.ResourcesDir + "/" + config)))
+            using (StreamReader reader = new StreamReader(File.Open(Properties.Resources.ResourcesDir + "/" + config,FileMode.Open,FileAccess.Read,FileShare.Read)))
             {
                 char[] ca = reader.ReadLine().ToCharArray();
                 do

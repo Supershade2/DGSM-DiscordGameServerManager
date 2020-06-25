@@ -17,6 +17,8 @@ namespace DiscordGameServerManager
 {
     public class ModuleHandler
     {
+        private static EventWaitHandle clearCount =
+        new EventWaitHandle(false, EventResetMode.AutoReset);
         public static List<int> pipe_indexes = new List<int>();
         public static int available_threads;
         public static int available_async_threads;

@@ -95,7 +95,10 @@ namespace DiscordGameServerManager
             }
             public void CreateScript(int server) 
             {
-                const string batch_noecho = @"@echo off";
+                string[] steamcmdscriptdata = { "app_update","quit" };
+                const string batchnoecho = @"@echo off";
+                const string batchstart = "start";
+                const string batchwait = " /w ";
                 const string setvarbatch = "SETLOCAL ";
                 string map = Config.bot.cluster.servers[server].map;
                 const string end_flags = "-nosteamclient -game -server -log";
@@ -111,6 +114,7 @@ namespace DiscordGameServerManager
                                 }
                         break;
                     default:
+
                         break;
                 }
             }
