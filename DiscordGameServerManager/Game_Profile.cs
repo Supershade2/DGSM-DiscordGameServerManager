@@ -14,21 +14,21 @@ namespace DiscordGameServerManager
         static Game_Profile()
         {
             
-            if (!File.Exists(Properties.Resources.ResourcesDir + "/" + Config.bot.game + "/" + config))
+            if (!File.Exists(Properties.Resources.ResourcesDir + "/" + GlobalServerConfig.gvars.game + "/" + config))
             {
-                File.Create(Properties.Resources.ResourcesDir + "/" + Config.bot.game + "/" + config).Close();
+                File.Create(Properties.Resources.ResourcesDir + "/" + GlobalServerConfig.gvars.game + "/" + config).Close();
                 _profile = new profile();
-                _profile.game = Config.bot.game;
+                _profile.game = GlobalServerConfig.gvars.game;
                 _profile.user_and_pass = new Dictionary<string,string>();
                 _profile.user_and_pass.Add("anonymous","123");
                 string json = JsonConvert.SerializeObject(_profile, Formatting.Indented);
-                File.WriteAllText(Properties.Resources.ResourcesDir + "/" +Config.bot.game+ "/" + config, json);
+                File.WriteAllText(Properties.Resources.ResourcesDir + "/" + GlobalServerConfig.gvars.game+ "/" + config, json);
                 //byte[] json_data = Encoding.ASCII.GetBytes(json);
                 //File.Open(Properties.Resources.ResourcesDir + "/" + config, FileMode.Open, FileAccess.Write, FileShare.Write).Write(json_data,0,json_data.Length-1);
             }
             else
             {
-                string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + Config.bot.game + "/" + config);
+                string json = File.ReadAllText(Properties.Resources.ResourcesDir + "/" + GlobalServerConfig.gvars.game + "/" + config);
                 _profile = JsonConvert.DeserializeObject<profile>(json);
             }
         }
@@ -45,6 +45,7 @@ namespace DiscordGameServerManager
         public string RCONPass { get; set; }
         public string[] rcon_commands { get; set; }
         //In the future will be encrypted into the file and then stored in the dictionary
+        //Steam user and pass for games which require a subscription to the game on an account
         public Dictionary<string, string> user_and_pass { get; set; }
         public long steam_app_id { get; set; }
         public string steam_game_args_script_data { get; set; }

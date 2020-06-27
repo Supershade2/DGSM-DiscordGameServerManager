@@ -26,11 +26,31 @@ namespace DiscordGameServerManager
                 {
                     Globalvars g = new Globalvars();
                     g.id = id;
+                    Cluster temp_clust = new Cluster();
+                    temp_clust.servers = new GameServer[1];
+                    temp_clust.servers[0].address = "127.0.0.1";
+                    temp_clust.servers[0].RCONPass = "password";
+                    temp_clust.servers[0].mainPort = 7777;
+                    temp_clust.servers[0].useMods = false;
+                    temp_clust.servers[0].rawPort = 7778;
+                    temp_clust.servers[0].queryPort = 27015;
+                    temp_clust.servers[0].RCONPort = 27020;
+                    g.cluster = temp_clust;
                     globalvars.Add(g);
                 }
                 else
                 {
                     gvars.id = id;
+                    Cluster temp_clust = new Cluster();
+                    temp_clust.servers = new GameServer[1];
+                    temp_clust.servers[0].address = "127.0.0.1";
+                    temp_clust.servers[0].RCONPass = "password";
+                    temp_clust.servers[0].mainPort = 7777;
+                    temp_clust.servers[0].useMods = false;
+                    temp_clust.servers[0].rawPort = 7778;
+                    temp_clust.servers[0].queryPort = 27015;
+                    temp_clust.servers[0].RCONPort = 27020;
+                    gvars.cluster = temp_clust;
                 }
             }
             else 
@@ -77,7 +97,7 @@ namespace DiscordGameServerManager
             gvars = JsonConvert.DeserializeObject<Globalvars>(json);
         }
     }
-    /*public struct GameServer
+    public struct GameServer
     {
         public int maxPlayers { get; set; }
         public string map { get; set; }
@@ -170,7 +190,7 @@ namespace DiscordGameServerManager
         {
             return this == other;
         }
-    }*/
+    }
     public struct Globalvars : IEquatable<Globalvars>
     {
         public ulong id { get; set; }
@@ -178,13 +198,15 @@ namespace DiscordGameServerManager
         public ulong MessageChannel { get; set; }
         public string registrationkey { get; set; }
         public string invite { get; set; }
-        /*public string gamedir { get; set; }
+        public string game { get; set; }
+        public string gamedir { get; set; }
+        public string backupdir { get; set; }
         public string wsapikey { get; set; }
         public string wscollectionid { get; set; }
         public string GamelaunchARGSscript { get; set; }
-        public string game { get; set; }
         public string GametrackingURL { get; set; }
-         */
+        public Cluster cluster { get; set; }
+
 
         public override bool Equals(object obj) =>
             obj is Globalvars gv && this == gv;
@@ -197,6 +219,12 @@ namespace DiscordGameServerManager
             hash = (hash * 3) + MessageChannel.GetHashCode();
             hash = (hash * 3) + registrationkey.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + invite.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + game.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + gamedir.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + backupdir.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + wsapikey.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + wscollectionid.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + GamelaunchARGSscript.GetHashCode(StringComparison.CurrentCulture);
             return hash;
         }
 
@@ -211,7 +239,7 @@ namespace DiscordGameServerManager
             {
                 return false;
             }
-            return left.id == right.id && left.DiscordChannel == right.DiscordChannel && left.MessageChannel == right.MessageChannel && left.registrationkey == right.registrationkey && left.invite == right.invite;
+            return left.id == right.id && left.DiscordChannel == right.DiscordChannel && left.MessageChannel == right.MessageChannel && left.registrationkey == right.registrationkey && left.invite == right.invite && left.game == right.game && left.gamedir == right.gamedir && left.backupdir == right.backupdir && left.GametrackingURL == right.GametrackingURL && left.wsapikey == right.wsapikey && left.wscollectionid == right.wscollectionid &&left.cluster.portGap == right.cluster.portGap && left.cluster.servers == right.cluster.servers;
         }
 
         public static bool operator !=(Globalvars left, Globalvars right)

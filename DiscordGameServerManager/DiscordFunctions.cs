@@ -18,8 +18,9 @@ namespace DiscordGameServerManager
     {
         static bool steamcode_requested = false;
         static bool backup_requested = false;
-        static readonly string prefix = Config.bot.prefix.ToLower(CultureInfo.CurrentCulture);
+        static bool guildidrequested = false;
         static string user = "";
+        static readonly string prefix = Config.bot.prefix;
         static DiscordGuild Guild;
         //static bool dmchannel = false;
         private static ulong userID;
@@ -80,7 +81,7 @@ namespace DiscordGameServerManager
             {
                 Contract.Requires(e != null);
                 bool[] perms = DiscordTrustManager.checkPermission(e.Channel.Id, e.Author.Id);
-                RespondMessage(e.Author.Username + e.Author.Discriminator, e.Message.Content, e.Channel, perms, e);
+                RespondMessage(e.Author.Username + e.Author.Discriminator, e.Message.Content, e.Channel, perms, e, GlobalServerConfig.gvars);
             }
         }
         public static void Connect() 
@@ -114,6 +115,13 @@ namespace DiscordGameServerManager
                 discord.GuildCreated += async e => 
                 {
                     DiscordTrustManager.AddGuild(e.Guild.Id);
+                    Setup setup = new Setup();
+                    GlobalServerConfig.Initialize(e.Guild.Id);
+                    for (int i = 0; i < GlobalServerConfig.gvars.cluster.servers.Length; i++)
+                    {
+                        setup.CreateScript(i,GlobalServerConfig.gvars);
+                    }
+                    setup.Dispose();
                 };
                 discord.GuildAvailable += async e => 
                 {
@@ -139,6 +147,8 @@ namespace DiscordGameServerManager
                         discordDm = e.Channel;
                         userID = e.Client.CurrentUser.Id;
                         await messageSend("" + Heuristics.newline + "Current Direct Message features are " + prefix + "_register and for others type " + prefix + "_help", e.Channel).ConfigureAwait(false);
+                        await messageSend("Please Enter Guild ID: ", e.Channel).ConfigureAwait(false);
+                        guildidrequested = true;
                         //Logs Direct messages in memory
                         await LogDMs().ConfigureAwait(false);
                     }
@@ -283,6 +293,10 @@ namespace DiscordGameServerManager
                                 //string user = e.Author.Username + e.Author.Discriminator;
                                 if (!Program.DisableTrustManagement) 
                                 {
+                                    if (guildidrequested) 
+                                    { 
+                                        
+                                    }
                                     if (e.Message.Content.ToLower(CultureInfo.CurrentCulture).Contains(prefix.ToLower(CultureInfo.CurrentCulture) + "_register", StringComparison.CurrentCulture))
                                     {
                                         string[] strarray = e.Message.Content.Split(' ');
@@ -371,7 +385,7 @@ namespace DiscordGameServerManager
                 return input;
             }
         }
-        public static async void RespondMessage(string Author, string message, DiscordChannel discordChannel, bool[] permValue, DSharpPlus.EventArgs.MessageCreateEventArgs e)
+        public static async void RespondMessage(string Author, string message, DiscordChannel discordChannel, bool[] permValue, DSharpPlus.EventArgs.MessageCreateEventArgs e, Globalvars globalvars)
         {
             Contract.Requires(message != null);
             Contract.Requires(permValue != null);
@@ -388,9 +402,9 @@ namespace DiscordGameServerManager
                     if (message.ToLower(CultureInfo.CurrentCulture).Equals(prefix + "_start", StringComparison.CurrentCulture))
                     {
                         await messageSend("Server is starting..." + Environment.NewLine + "check server status at the link below", discordChannel).ConfigureAwait(false);
-                        if (Config.bot.GametrackingURL != null)
+                        if (globalvars.GametrackingURL != null)
                         {
-                            await messageSend(Config.bot.GametrackingURL, discordChannel).ConfigureAwait(false);
+                            await messageSend(globalvars.GametrackingURL, discordChannel).ConfigureAwait(false);
                         }
                         else
                         {
@@ -470,9 +484,9 @@ namespace DiscordGameServerManager
                         if (message.ToLower(CultureInfo.CurrentCulture).Equals(prefix + "_start", StringComparison.CurrentCulture))
                         {
                             await messageSend("Server is starting..." + Environment.NewLine + "check server status at the link below", discordChannel).ConfigureAwait(false);
-                            if (Config.bot.GametrackingURL != null)
+                            if (globalvars.GametrackingURL != null)
                             {
-                                await messageSend(Config.bot.GametrackingURL, discordChannel).ConfigureAwait(false);
+                                await messageSend(globalvars.GametrackingURL, discordChannel).ConfigureAwait(false);
                             }
                             else
                             {
