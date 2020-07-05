@@ -17,30 +17,30 @@ namespace DiscordGameServerManager
         static LinkedList<int> process_ids = new LinkedList<int>();
         public static Thread[] RconThread;
         public static bool server_startup = false;
-        public static void CreateRcon(bool MainConfig)
+        public static void CreateRcon(bool MainConfig,Globalvars globalvars)
         {
             switch (MainConfig)
             {
                 case true:
-                    RconThread = new Thread[Config.bot.cluster.servers.Length];
-                    for (int i = 0; i < Config.bot.cluster.servers.Length; i++)
+                    RconThread = new Thread[globalvars.cluster.servers.Length];
+                    for (int i = 0; i < globalvars.cluster.servers.Length; i++)
                     {
-                        if (!string.IsNullOrEmpty(Config.bot.cluster.servers[i].RCONPass))
+                        if (!string.IsNullOrEmpty(globalvars.cluster.servers[i].RCONPass))
                         {
-                            if (!string.IsNullOrEmpty(Config.bot.cluster.servers[i].address))
+                            if (!string.IsNullOrEmpty(globalvars.cluster.servers[i].address))
                             {
                                 RconThread[i] = new Thread(() =>
                                 {
-                                    Rcon(Config.bot.cluster.servers[i].address, Config.bot.cluster.servers[i].RCONPort, Config.bot.cluster.servers[i].RCONPass, "cheats saveworld");
-                                    Rcon(Config.bot.cluster.servers[i].address, Config.bot.cluster.servers[i].RCONPort, Config.bot.cluster.servers[i].RCONPass, "cheats quit");
+                                    Rcon(globalvars.cluster.servers[i].address, globalvars.cluster.servers[i].RCONPort, globalvars.cluster.servers[i].RCONPass, "cheats saveworld");
+                                    Rcon(globalvars.cluster.servers[i].address, globalvars.cluster.servers[i].RCONPort, globalvars.cluster.servers[i].RCONPass, "cheats quit");
                                 });
                             }
                             else
                             {
                                 RconThread[i] = new Thread(() =>
                                 {
-                                    Rcon(Config.bot.cluster.servers[0].address, Config.bot.cluster.servers[0].RCONPort, Config.bot.cluster.servers[0].RCONPass, "cheats saveworld");
-                                    Rcon(Config.bot.cluster.servers[0].address, Config.bot.cluster.servers[0].RCONPort, Config.bot.cluster.servers[0].RCONPass, "cheats quit");
+                                    Rcon(globalvars.cluster.servers[0].address, globalvars.cluster.servers[0].RCONPort, globalvars.cluster.servers[0].RCONPass, "cheats saveworld");
+                                    Rcon(globalvars.cluster.servers[0].address, globalvars.cluster.servers[0].RCONPort, globalvars.cluster.servers[0].RCONPass, "cheats quit");
                                 });
                             }
                         }
@@ -85,7 +85,7 @@ namespace DiscordGameServerManager
                 }
             }
         }
-        public static void Manage_server(int option, DiscordChannel discordChannel)
+        public static void Manage_server(int option, DiscordChannel discordChannel, Globalvars g)
         {
             if (!Config.bot.useSSH) 
             {
@@ -102,11 +102,11 @@ namespace DiscordGameServerManager
                 psi.FileName = AppStringProducer.GetSystemCompatibleString("steamcmd.exe");
                 if (Details.d.first_run)
                 {
-                    psi.Arguments = " +login anonymous +force_install_dir " + Config.bot.gamedir + " +app_update 376030 validate +quit";
+                    psi.Arguments = " +login anonymous +force_install_dir " + g.gamedir + " +app_update 376030 validate +quit";
                 }
                 else
                 {
-                    psi.Arguments = "+login anonymous +run_script " + Config.bot.GamelaunchARGSscript + " +quit";
+                    psi.Arguments = "+login anonymous +run_script " + g.GamelaunchARGSscript + " +quit";
                 }
                 process_ids.AddLast(process.Id);
                 thread = new Thread(() =>
@@ -142,7 +142,7 @@ namespace DiscordGameServerManager
                     IsBackground = true
                 };
                 Console.WriteLine(psi.FileName);
-                switch (Config.bot.game)
+                switch (g.game)
                 {
                     case null:
                         break;
@@ -152,7 +152,7 @@ namespace DiscordGameServerManager
                         temp = null;
                         if (Game_Profile._profile.Is_Steam == true)
                         {
-                            CreateRcon(false);
+                            CreateRcon(false, g);
                             var user = Game_Profile._profile.user_and_pass.Keys;
                             var pass = Game_Profile._profile.user_and_pass.Values;
                             switch (option)
@@ -259,11 +259,10 @@ namespace DiscordGameServerManager
                         }
                         break;
                     case 3:
-                        Manage_server(1, discordChannel);
-                        ZipFile.CreateFromDirectory(Config.bot.gamedir, "backup_" + DateTime.UtcNow.Month + "_" + DateTime.UtcNow.Day + "_" + DateTime.UtcNow.Year + ".zip", CompressionLevel.Optimal, true);
-
-                        if (server_startup == true) { Manage_server(0, discordChannel); }
-                        DiscordFunctions.messageSend("Backup complete", discordChannel).ConfigureAwait(false).GetAwaiter().GetResult();
+                        Manage_server(1, discordChannel,g);
+                        ZipFile.CreateFromDirectory(g.gamedir, "backup_" + DateTime.UtcNow.Month + "_" + DateTime.UtcNow.Day + "_" + DateTime.UtcNow.Year + ".zip", CompressionLevel.Optimal, true);
+                        if (server_startup == true) { Manage_server(0, discordChannel,g); }
+                        DiscordFunctions.messageSend("Backup complete", discordChannel).ConfigureAwait(false);
                         break;
                 }
             }

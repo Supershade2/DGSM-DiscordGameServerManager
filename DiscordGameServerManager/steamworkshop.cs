@@ -18,15 +18,15 @@ namespace DiscordGameServerManager
         private const string download_workshop = "workshop_download_item ";
         //private static SteamWebInterfaceFactory InterfaceFactory = new SteamWebInterfaceFactory(Config.bot.wsapikey);
         //private static ISteamWebAPIUtil WebAPIUtil;
-        private static async Task<string> get_CollectionDetailsAsync() 
+        private static async Task<string> get_CollectionDetailsAsync(Globalvars g) 
         {
             //Steam.Models.SteamServerInfo serverInfo;
             //var steamInterface = InterfaceFactory.CreateSteamWebInterface<SteamUser>(new HttpClient());
             var values = new Dictionary<string, string>
             {
-                { "key", Config.bot.wsapikey},
+                { "key", g.wsapikey},
                 { "collectioncount", "1"},
-                { "publishedfileids[0]", Config.bot.wscollectionid}
+                { "publishedfileids[0]", g.wscollectionid}
             };
             var content = new FormUrlEncodedContent(values);
             var url = new Uri("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1");
@@ -36,14 +36,14 @@ namespace DiscordGameServerManager
             content.Dispose();
             return response_string;
         }
-        public static async Task<string[]> get_PublishedFileDetails(string[] files) 
+        public static async Task<string[]> get_PublishedFileDetails(string[] files, Globalvars g) 
         {
             string[] details = new string[files.Length];
             for(int index=0; index<files.Length; index++)
             {
                 var values = new Dictionary<string, string>
                     {
-                        { "key", Config.bot.wsapikey},
+                        { "key", g.wsapikey},
                         { "itemcount", "1"},
                         { "publishedfileids[0]", files[index]}
                     };
@@ -64,14 +64,14 @@ namespace DiscordGameServerManager
             }
             return details;
         }
-        public static async Task<string[]> get_UGCFileDetails(string[] ugc_ids) 
+        public static async Task<string[]> get_UGCFileDetails(string[] ugc_ids,Globalvars g) 
         {
             string[] details = new string[ugc_ids.Length];
             for (int i = 0; i < ugc_ids.Length; i++)
             {
                 var values = new Dictionary<string, string>
                     {
-                        { "key", Config.bot.wsapikey},
+                        { "key", g.wsapikey},
                         { "ugcid", ugc_ids[i]},
                         { "appid", Default_appID}
                     };
@@ -83,14 +83,14 @@ namespace DiscordGameServerManager
             }
             return details;
         }
-        public static async Task<string[]> get_UGCFileDetails(string[] ugc_ids, string app_id)
+        public static async Task<string[]> get_UGCFileDetails(string[] ugc_ids, string app_id, Globalvars g)
         {
             string[] details = new string[ugc_ids.Length];
             for (int i = 0; i < ugc_ids.Length; i++)
             {
                 var values = new Dictionary<string, string>
                     {
-                        { "key", Config.bot.wsapikey},
+                        { "key", g.wsapikey},
                         { "ugcid", ugc_ids[i]},
                         { "appid", app_id}
                     };
@@ -198,13 +198,13 @@ namespace DiscordGameServerManager
             }
             return items.ToArray();
         }
-        public static async Task<bool> GetFiles() 
+        public static async Task<bool> GetFiles(Globalvars g) 
         {
             //client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             try
             {
-                string[] collection = parse_Details(await get_CollectionDetailsAsync().ConfigureAwait(false));
-                string[] file_details = await get_PublishedFileDetails(collection).ConfigureAwait(false);
+                string[] collection = parse_Details(await get_CollectionDetailsAsync(g).ConfigureAwait(false));
+                string[] file_details = await get_PublishedFileDetails(collection,g).ConfigureAwait(false);
                 string combined = "";
                 for (int i = 0; i < file_details.Length; i++)
                 {
@@ -227,11 +227,11 @@ namespace DiscordGameServerManager
                 return false;
             }
         }
-        public static async void Download(System.Diagnostics.Process p, System.Diagnostics.ProcessStartInfo psi)
+        public static async void Download(System.Diagnostics.Process p, System.Diagnostics.ProcessStartInfo psi, Globalvars g)
         {
             if (!Config.bot.useSSH) 
             {
-                string[] collection = parse_Details(await get_CollectionDetailsAsync().ConfigureAwait(false));
+                string[] collection = parse_Details(await get_CollectionDetailsAsync(g).ConfigureAwait(false));
                 if (p == null)
                 {
                     await Console.Out.WriteLineAsync(Properties.Resources.NullProcessVariable).ConfigureAwait(false);
@@ -255,9 +255,9 @@ namespace DiscordGameServerManager
                 }
             }
         }
-        public static async void Download(System.Diagnostics.Process p) 
+        public static async void Download(System.Diagnostics.Process p, Globalvars g) 
         {
-            string[] collection = parse_Details(await get_CollectionDetailsAsync().ConfigureAwait(false));
+            string[] collection = parse_Details(await get_CollectionDetailsAsync(g).ConfigureAwait(false));
             for (int i = 0; i < collection.Length; i++)
             {
                 System.Diagnostics.ProcessStartInfo psi;

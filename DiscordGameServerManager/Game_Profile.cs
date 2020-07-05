@@ -14,9 +14,9 @@ namespace DiscordGameServerManager
         static Game_Profile()
         {
             
-            if (!File.Exists(Properties.Resources.ResourcesDir + "/" + GlobalServerConfig.gvars.game + "/" + config))
+            if (!File.Exists(Properties.Resources.ResourcesDir + "/" + GlobalServerConfig.gvars.id + "/" + GlobalServerConfig.gvars.game + "/" + config))
             {
-                File.Create(Properties.Resources.ResourcesDir + "/" + GlobalServerConfig.gvars.game + "/" + config).Close();
+                File.Create(Properties.Resources.ResourcesDir + "/" + GlobalServerConfig.gvars.id + "/" + GlobalServerConfig.gvars.game + "/" + config).Close();
                 _profile = new profile();
                 _profile.game = GlobalServerConfig.gvars.game;
                 _profile.user_and_pass = new Dictionary<string,string>();

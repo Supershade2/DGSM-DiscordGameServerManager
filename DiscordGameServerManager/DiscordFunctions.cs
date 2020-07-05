@@ -152,6 +152,10 @@ namespace DiscordGameServerManager
                         //Logs Direct messages in memory
                         await LogDMs().ConfigureAwait(false);
                     }
+                    else 
+                    {
+                        await messageSend("Direct Messaging features are disabled for this hosted bot instance.",e.Channel).ConfigureAwait(false);
+                    }
                 };
                 discord.GuildMemberAdded += async e =>
                 {
@@ -410,17 +414,17 @@ namespace DiscordGameServerManager
                         {
                             await messageSend("gametracking url not defined", discordChannel).ConfigureAwait(false);
                         }
-                        GameManager.Manage_server(0, discordChannel);
+                        GameManager.Manage_server(0, discordChannel,GlobalServerConfig.gvars);
                     }
                     if (message.ToLower(CultureInfo.CurrentCulture).Equals(prefix + "_stop", StringComparison.CurrentCulture))
                     {
                         await messageSend("Server is stopping...", discordChannel).ConfigureAwait(false);
-                        GameManager.Manage_server(1, discordChannel);
+                        GameManager.Manage_server(1, discordChannel, GlobalServerConfig.gvars);
                     }
                     if (message.ToLower(CultureInfo.CurrentCulture).Equals(prefix + "_restart", StringComparison.CurrentCulture))
                     {
                         await messageSend("Server is restarting...", discordChannel).ConfigureAwait(false);
-                        GameManager.Manage_server(2, discordChannel);
+                        GameManager.Manage_server(2, discordChannel, GlobalServerConfig.gvars);
                     }
                     if (message.ToLower(CultureInfo.CurrentCulture).Equals(prefix + "_backup", StringComparison.CurrentCulture))
                     {
@@ -432,7 +436,7 @@ namespace DiscordGameServerManager
                     {
                         GameManager.server_startup = true;
                         await messageSend("Server will be started after backup", discordChannel).ConfigureAwait(false);
-                        GameManager.Manage_server(3, discordChannel);
+                        GameManager.Manage_server(3, discordChannel, GlobalServerConfig.gvars);
                         GameManager.server_startup = false;
                         backup_requested = false;
                         user = "";
@@ -440,7 +444,7 @@ namespace DiscordGameServerManager
                     else if (backup_requested == true && Author == user && message.ToLower(CultureInfo.CurrentCulture).Equals("no", StringComparison.CurrentCulture))
                     {
                         await messageSend("Server will remain offline after backup", discordChannel).ConfigureAwait(false);
-                        GameManager.Manage_server(3, discordChannel);
+                        GameManager.Manage_server(3, discordChannel, GlobalServerConfig.gvars);
                         backup_requested = false;
                         user = "";
                     }
@@ -492,17 +496,17 @@ namespace DiscordGameServerManager
                             {
                                 await messageSend("gametracking url not defined", discordChannel).ConfigureAwait(false);
                             }
-                            GameManager.Manage_server(0, discordChannel);
+                            GameManager.Manage_server(0, discordChannel, GlobalServerConfig.gvars);
                         }
                         if (message.ToLower(CultureInfo.CurrentCulture).Equals(prefix + "_stop", StringComparison.CurrentCulture))
                         {
                             await messageSend("Server is stopping...", discordChannel).ConfigureAwait(false);
-                            GameManager.Manage_server(1, discordChannel);
+                            GameManager.Manage_server(1, discordChannel, GlobalServerConfig.gvars);
                         }
                         if (message.ToLower(CultureInfo.CurrentCulture).Equals(prefix + "_restart", StringComparison.CurrentCulture))
                         {
                             await messageSend("Server is restarting...", discordChannel).ConfigureAwait(false);
-                            GameManager.Manage_server(2, discordChannel);
+                            GameManager.Manage_server(2, discordChannel, GlobalServerConfig.gvars);
                         }
                         if (message.ToLower(CultureInfo.CurrentCulture).Equals(prefix + "_backup", StringComparison.CurrentCulture))
                         {
@@ -514,7 +518,7 @@ namespace DiscordGameServerManager
                         {
                             GameManager.server_startup = true;
                             await messageSend("Server will be started after backup", discordChannel).ConfigureAwait(false);
-                            GameManager.Manage_server(3, discordChannel);
+                            GameManager.Manage_server(3, discordChannel, GlobalServerConfig.gvars);
                             GameManager.server_startup = false;
                             backup_requested = false;
                             user = "";
@@ -522,7 +526,7 @@ namespace DiscordGameServerManager
                         else if (backup_requested == true && Author == user && message.ToLower(CultureInfo.CurrentCulture).Equals("no", StringComparison.CurrentCulture))
                         {
                             await messageSend("Server will remain offline after backup", discordChannel).ConfigureAwait(false);
-                            GameManager.Manage_server(3, discordChannel);
+                            GameManager.Manage_server(3, discordChannel, GlobalServerConfig.gvars);
                             backup_requested = false;
                             user = "";
                         }

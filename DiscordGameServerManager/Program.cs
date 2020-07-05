@@ -52,6 +52,9 @@ namespace DiscordGameServerManager
                         case "--memory":
                             MemoryStorage = true;
                             break;
+                        case "-m":
+                            MemoryStorage = true;
+                            break;
                         case "--notrust":
                             DisableTrustManagement = true;
                             break;
@@ -59,13 +62,14 @@ namespace DiscordGameServerManager
                     }
 
                 }
-                verboseoutput = args.Contains("--verbose") || args.Contains("-v");
+                //verboseoutput = args.Contains("--verbose") || args.Contains("-v");
             }
             DiscordFunctions.Connect();
             DiscordFunctions.MainDiscord();
             Console.CancelKeyPress += (sender, e) => 
             {
                 DiscordFunctions.Disconnect();
+                Logging.ExitLog();
             };
         }  
     }

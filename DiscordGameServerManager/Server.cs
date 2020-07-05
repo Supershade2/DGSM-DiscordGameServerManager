@@ -15,8 +15,12 @@ namespace DiscordGameServerManager
     {
         private const string config = "ssh.json";
         public static SSHInfo info = new SSHInfo();
-        public static SshClient client;
+        private static SshClient client;
+        private static SshClient falseclient;
         private static bool initialized = false;
+        private static MemoryStream input = new MemoryStream();
+        private static MemoryStream output = new MemoryStream();
+        private static MemoryStream extendedOutput = new MemoryStream();
         public static void Initialize() 
         {
             if(!File.Exists(Properties.Resources.ResourcesDir + "/" + config))
@@ -30,6 +34,10 @@ namespace DiscordGameServerManager
                 string json = JsonConvert.SerializeObject(info, Formatting.Indented);
                 File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
             }
+        }
+        public static void Initialize(Globalvars g) 
+        { 
+        
         }
         public static void Initialize(string address, string username, string pass, string path)
         {
@@ -46,6 +54,7 @@ namespace DiscordGameServerManager
                 PrivateKeyFile[] keyFiles = new[] { privateKey };
                 client = new SshClient(address, username, keyFiles);
             }
+            client.CreateShell(input, output, extendedOutput);
             initialized = true;
         }
         public static void Initialize(string address, int port, string username, string pass, string path) 
@@ -63,6 +72,7 @@ namespace DiscordGameServerManager
                 PrivateKeyFile[] keyFiles = new[] { privateKey };
                 client = new SshClient(address, port, username, keyFiles);
             }
+            client.CreateShell(input, output, extendedOutput);
             initialized = true;
         }
         public static void Initialize(string address, int port, string username, string pass, string path, string challenge)
@@ -89,16 +99,17 @@ namespace DiscordGameServerManager
             }
             initialized = true;
         }
-        public static void SendCommand(string command) 
+        public static void SendCommand(string cmd) 
         {
             if (initialized) 
             {
                 client.Connect();
                 if (client.IsConnected) 
                 {
-                    var commandtext = client.CreateCommand(command);
-                    client.RunCommand(commandtext.CommandText);
-                    var result = commandtext.Result;
+                    var command = client.CreateCommand(cmd);
+                    command.Execute();
+                    //client.RunCommand(command);
+                    var result = command.Result;
                     Console.Out.WriteLineAsync(result).ConfigureAwait(false);
                     Console.Out.FlushAsync();
                     client.Disconnect();
@@ -127,6 +138,7 @@ namespace DiscordGameServerManager
                 }
             }
         }
+
         private static void SetAddress(string address) 
         {
             if (string.IsNullOrWhiteSpace(address)) 

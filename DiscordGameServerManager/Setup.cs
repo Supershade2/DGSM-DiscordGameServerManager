@@ -12,13 +12,13 @@ namespace DiscordGameServerManager
     public class Setup : IDisposable
     {
         private readonly HttpClient client = new HttpClient();
-        const string ARK_WORKSHOP_DIR = "./steamcmd/steamapps/workshop/content/346110";
-        public void Initialize(Process p, ProcessStartInfo psi)
+        const string ARKWORKSHOPDIR = "./steamcmd/steamapps/workshop/content/346110";
+        public void Initialize(Process p, ProcessStartInfo psi,Globalvars g)
         {
             if (!Config.bot.useSSH)
             {
                 get_steamcmd();
-                steamworkshop.Download(p, psi);
+                steamworkshop.Download(p, psi,g);
             }
             else
             {
@@ -26,9 +26,9 @@ namespace DiscordGameServerManager
                 Server.SendCommand("wget http://media.steampowered.com/installer/steamcmd_linux.tar.gz");
             }
         }
-        public void CreateScript(int server, Globalvars globalvars)
+        public void CreateScript(int server, profile pfile,Globalvars globalvars)
         {
-            string[] steamcmdscriptdata = { "app_update", "quit" };
+            string[] steamcmdscriptdata = { "login","app_update",pfile.steam_app_id.ToString(CultureInfo.CurrentCulture),"quit" };
             const string batchnoecho = @"@echo off";
             const string batchstart = "start";
             const string batchwait = " /w ";
@@ -51,6 +51,8 @@ namespace DiscordGameServerManager
                     break;
             }
         }
+        //Method will be used to create the script to handle and launch multiple independent server sessions not in a cluster or seperate clusters
+        public void CreateScript(int server, profile pfile, Globalvars globalvars,int servers) { }
         //Gets steamcmd if steamcmd directory is not specified
         public void get_steamcmd()
         {
@@ -68,12 +70,12 @@ namespace DiscordGameServerManager
                 }
                 if (OSInfo.GetOSPlatform() == System.Runtime.InteropServices.OSPlatform.Windows)
                 {
-                    download(steamcmd_windows, Directory.GetCurrentDirectory() + "/steamcmd/steamcmd.zip");
+                    download(new Uri(steamcmd_windows), Directory.GetCurrentDirectory() + "/steamcmd/steamcmd.zip");
                     ZipFile.ExtractToDirectory(Directory.GetCurrentDirectory() + "/steamcmd/steamcmd.zip", Directory.GetCurrentDirectory() + "/steamcmd", System.Text.Encoding.UTF8, true);
                 }
                 else
                 {
-                    download(steamcmd_linux, "./steamcmd/steamcmd_linux.tar.gz");
+                    download(new Uri(steamcmd_linux), "./steamcmd/steamcmd_linux.tar.gz");
                     Tar.ExtractTarGz("./steamcmd/steamcmd_linux.tar.gz", "./steamcmd");
                 }
             }
