@@ -12,7 +12,7 @@ namespace DiscordGameServerManager
     public class Setup : IDisposable
     {
         private readonly HttpClient client = new HttpClient();
-        const string ARKWORKSHOPDIR = "./steamcmd/steamapps/workshop/content/346110";
+        const string ARKWORKSHOPDIR = "/steamcmd/steamapps/workshop/content/346110";
         public void Initialize(Process p, ProcessStartInfo psi,Globalvars g)
         {
             if (!Config.bot.useSSH)
@@ -23,6 +23,7 @@ namespace DiscordGameServerManager
             else
             {
                 Server.Initialize();
+                Server.SendCommand("uname -a");
                 Server.SendCommand("wget http://media.steampowered.com/installer/steamcmd_linux.tar.gz");
             }
         }

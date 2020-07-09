@@ -36,6 +36,16 @@ namespace DiscordGameServerManager
             content.Dispose();
             return response_string;
         }
+        //Installs app using steamcmd into the specified directory
+        public static async Task<bool> InstallApp(string dir) 
+        {
+            return true;
+        }
+        //Installs app using steamcmd installing an app other than Ark into the specified directory
+        public static async Task<bool> InstallApp(string appid,string dir) 
+        {
+            return true;
+        }
         public static async Task<string[]> get_PublishedFileDetails(string[] files, Globalvars g) 
         {
             string[] details = new string[files.Length];

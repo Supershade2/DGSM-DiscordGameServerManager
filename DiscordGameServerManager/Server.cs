@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 using System.IO;
 using Microsoft.Build.Logging;
 using Newtonsoft.Json;
+using System.Globalization;
+
 namespace DiscordGameServerManager
 {
     class Server
@@ -17,6 +19,7 @@ namespace DiscordGameServerManager
         public static SSHInfo info = new SSHInfo();
         private static SshClient client;
         private static SshClient falseclient;
+        private static Shell shell;
         private static bool initialized = false;
         private static MemoryStream input = new MemoryStream();
         private static MemoryStream output = new MemoryStream();
@@ -36,8 +39,18 @@ namespace DiscordGameServerManager
             }
         }
         public static void Initialize(Globalvars g) 
-        { 
-        
+        {
+            if (!File.Exists(Properties.Resources.ResourcesDir + "/"+ g.id + "/" + config)) 
+            {
+                info.Address = "127.0.0.1";
+                info.Pass = "password";
+                info.Port = 22;
+                info.fingerprint = new[] { 0x00, 0x01, 0x02 };
+                info.Keypath = info.Keypath;
+                info.Challenge = "Challenge type";
+                string json = JsonConvert.SerializeObject(info, Formatting.Indented);
+                File.WriteAllText(Properties.Resources.ResourcesDir + "/" + config, json);
+            }
         }
         public static void Initialize(string address, string username, string pass, string path)
         {
@@ -54,7 +67,7 @@ namespace DiscordGameServerManager
                 PrivateKeyFile[] keyFiles = new[] { privateKey };
                 client = new SshClient(address, username, keyFiles);
             }
-            client.CreateShell(input, output, extendedOutput);
+            shell = client.CreateShell(input, output, extendedOutput);
             initialized = true;
         }
         public static void Initialize(string address, int port, string username, string pass, string path) 
@@ -72,7 +85,7 @@ namespace DiscordGameServerManager
                 PrivateKeyFile[] keyFiles = new[] { privateKey };
                 client = new SshClient(address, port, username, keyFiles);
             }
-            client.CreateShell(input, output, extendedOutput);
+            shell = client.CreateShell(input, output, extendedOutput);
             initialized = true;
         }
         public static void Initialize(string address, int port, string username, string pass, string path, string challenge)
@@ -97,23 +110,35 @@ namespace DiscordGameServerManager
                     //TODO
                 }
             }
+            shell = client.CreateShell(input, output, extendedOutput);
             initialized = true;
         }
-        public static void SendCommand(string cmd) 
+        public static string SendCommand(string cmd) 
         {
+            string output = "";
             if (initialized) 
             {
+
                 client.Connect();
-                if (client.IsConnected) 
+                do
                 {
-                    var command = client.CreateCommand(cmd);
-                    command.Execute();
-                    //client.RunCommand(command);
-                    var result = command.Result;
-                    Console.Out.WriteLineAsync(result).ConfigureAwait(false);
-                    Console.Out.FlushAsync();
-                    client.Disconnect();
-                }
+                    if (client.IsConnected)
+                    {
+                        var command = client.CreateCommand(cmd);
+                        command.Execute();
+                        //client.RunCommand(command);
+                        var result = command.Result;
+                        Console.Out.WriteLineAsync(result).ConfigureAwait(false);
+                        Console.Out.FlushAsync();
+                        output = result.ToLower(CultureInfo.CurrentCulture);
+                    }
+                } while (!client.IsConnected);
+                client.Disconnect();
+                return output;
+            }
+            else 
+            {
+                return output;
             }
         }
         public static void SendCommands(string[] commands) 
@@ -165,7 +190,6 @@ namespace DiscordGameServerManager
                 info.Keypath = path;
             }
         }
-
     }
     struct SSHInfo 
     { 
