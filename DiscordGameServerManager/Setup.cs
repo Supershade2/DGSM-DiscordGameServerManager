@@ -43,7 +43,7 @@ namespace DiscordGameServerManager
                     {
                         using (var stream = File.CreateText(Properties.Resources.ResourcesDir + "/" + globalvars.game + "/" + AppStringProducer.GetSystemCompatibleString("LaunchScript.bat", true, true)))
                         {
-                            stream.Write(Game_Profile._profile.steam_game_args_script_data);
+                            stream.Write(pfile.steam_game_args_script_data);
                         }
                     }
                     break;

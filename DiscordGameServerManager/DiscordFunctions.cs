@@ -86,7 +86,15 @@ namespace DiscordGameServerManager
         }
         public static void Connect() 
         {
-            discord.ConnectAsync().ConfigureAwait(true);    
+            try
+            {
+                discord.ConnectAsync().ConfigureAwait(true);
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine("Error:"+ex.ParamName+"was null.");
+                throw;
+            }    
         }
         public static void Disconnect() 
         {
@@ -119,7 +127,7 @@ namespace DiscordGameServerManager
                     GlobalServerConfig.Initialize(e.Guild.Id);
                     for (int i = 0; i < GlobalServerConfig.gvars.cluster.servers.Length; i++)
                     {
-                        setup.CreateScript(i,GlobalServerConfig.gvars);
+                        setup.CreateScript(i,Game_Profile._profile,GlobalServerConfig.gvars);
                     }
                     setup.Dispose();
                 };
