@@ -225,6 +225,8 @@ namespace DiscordGameServerManager
             hash = (hash * 3) + wsapikey.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + wscollectionid.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + GamelaunchARGSscript.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + GametrackingURL.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + cluster.GetHashCode();
             return hash;
         }
 
