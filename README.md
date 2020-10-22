@@ -3,6 +3,9 @@ C# discord bot that can be utilized to manage game servers through discord<br />
 All code used or adapted is listed here, credit goes to producers of the code for each code sample or library<br />
 <em>Libraries/Sources used</em>
 <ul>
+	<li>
+		<a href="https://github.com/doug147/ARK-Console-ServerQuery">Ark Console Query</a>
+	</li>
   <li>
 	  <a href="https://github.com/DSharpPlus/DSharpPlus">DSharpplus</a>
   </li>
