@@ -19,7 +19,7 @@ namespace DiscordGameServerManager
     {
         private static EventWaitHandle clearCount =
         new EventWaitHandle(false, EventResetMode.AutoReset);
-        public static List<int> pipe_indexes = new List<int>();
+        static int activethreads = 0;
         public static int available_threads;
         public static int available_async_threads;
         public static Process process = new Process();
@@ -119,12 +119,12 @@ namespace DiscordGameServerManager
             process.StartInfo = startInfo;
             if (pipe_threads[current_pipe] != null) 
             {
-                pipe_threads[current_pipe] = new Thread(() =>
+                pipe_threads[current_pipe] = new Thread((object data) =>
                 {
-                    string current_name = pipenames[current_pipe];
+                    string current_name = pipenames[(int) data];
                     string directory = dir;
                     string mName = name;
-                    int current_index = current_pipe;
+                    int current_index = (int) data;
                     Process module = process;
                     module.Start();
                     ProcessModule pModule;
@@ -148,12 +148,12 @@ namespace DiscordGameServerManager
                     }
                     text.Flush();
                     text.Dispose();
+                    ReadPipesCallback(data);
                 });
             }
             ThreadPool.GetAvailableThreads(out available_threads, out available_async_threads);
             if (current_pipe+1 < (available_threads/2)-2 && pipe_threads[current_pipe].Name != name)
             {
-                pipe_indexes.Add(current_pipe);
                 pipe_threads[current_pipe].Name = name;
                 pipe_threads[current_pipe].IsBackground = true;
                 pipe_threads[current_pipe].Start();
@@ -171,7 +171,7 @@ namespace DiscordGameServerManager
         {
             List<byte> data_bytes = new List<byte>();
             byte[] message = new byte[1024];
-            bool connected = namedPipeServerStreams[current].IsConnected;
+            bool connected;
                 if (!namedPipeServerStreams[current].IsConnected)
                 {
                 namedPipeServerStreams[current].WaitForConnection();
@@ -208,11 +208,11 @@ namespace DiscordGameServerManager
             namedPipeServerStreams[current].WaitForConnection();
         }
 
-        public static void ReadPipes_Callback() 
+        public static void ReadPipesCallback(object data) 
         {
-            ReadPipes_Call rpipes = ReadPipes;
+            ReadPipesCall rpipes = ReadPipes;
             Action<object> action = new Action<object>(rpipes);
-            action?.Invoke(current_pipe);
+            action?.Invoke((int) data);
         }
 
         private static void ReadPipes(object pi)
@@ -240,9 +240,8 @@ namespace DiscordGameServerManager
             if (data.ToLower(CultureInfo.CurrentCulture).Equals("exit",StringComparison.CurrentCulture)) 
             {
                 ExitRequested(pipe_index);
-                pipe_indexes.Remove(pipe_index);
             }
         }
-        internal delegate void ReadPipes_Call(object p);
+        internal delegate void ReadPipesCall(object p);
     }
 }

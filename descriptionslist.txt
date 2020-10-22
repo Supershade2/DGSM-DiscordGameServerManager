@@ -1,0 +1,45 @@
+<li>
+        <b>id</b>: server id goes here
+</li>
+<li>
+	<b>discord_channel</b>: discord channel id for the designated management channel goes here
+</li>
+<li>
+	<b>message_channel</b>: discord channel id for special date messages goes here
+</li>
+<li>
+	<b>wsapikey</b>: steam workshop api key goes here
+</li>
+<li>
+	<b>wscollectionid</b>: id of the steam workshop collection goes here
+</li>
+<li>
+	<b>game_launch_args_script</b>: Steam game launch arguments script path, specific to Ark:Survival Evolved go here
+</li>
+<li>
+	<b>rcon_port</b>: rcon port number for the server goes here
+</li>
+<li>
+	<b>rcon_pass/<b>: rcon password goes here
+</li>
+<li>
+	<b>prefix</b>: prefix for denoting commands goes here e.g: ark, minecraft, etc
+</li>
+<li>
+	<b>backup_dir</b>: path to directory where backups are stored goes here
+</li>
+<li>
+	<b>game</b>: when specified creates a gameprofile.json for that game
+</li>
+<li>
+	<b>gametracking_url</b>: url for tracking game status using an external service goes here
+</li>
+<li>
+	<b>_messages</b>: list of special messages is found and can be modified here, follow example messages for how to define messages with exception to the first three being used for other purposes
+</li>
+<li>
+	<b>registration_key</b>: specify a registration key to enable users to register to receive an invite link to share with others
+</li>
+<li>
+	<b>invite</b>: invitation link that will be handed out to users on successful registration
+</li>

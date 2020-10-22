@@ -32,7 +32,7 @@ namespace DiscordGameServerManager
                                 RconThread[i] = new Thread(() =>
                                 {
                                     Rcon(globalvars.cluster.servers[i].address, globalvars.cluster.servers[i].RCONPort, globalvars.cluster.servers[i].RCONPass, "cheats saveworld");
-                                    Rcon(globalvars.cluster.servers[i].address, globalvars.cluster.servers[i].RCONPort, globalvars.cluster.servers[i].RCONPass, "cheats quit");
+                                    Rcon(globalvars.cluster.servers[i].address, globalvars.cluster.servers[i].RCONPort, globalvars.cluster.servers[i].RCONPass, "cheats doexit");
                                 });
                             }
                             else
@@ -40,7 +40,7 @@ namespace DiscordGameServerManager
                                 RconThread[i] = new Thread(() =>
                                 {
                                     Rcon(globalvars.cluster.servers[0].address, globalvars.cluster.servers[0].RCONPort, globalvars.cluster.servers[0].RCONPass, "cheats saveworld");
-                                    Rcon(globalvars.cluster.servers[0].address, globalvars.cluster.servers[0].RCONPort, globalvars.cluster.servers[0].RCONPass, "cheats quit");
+                                    Rcon(globalvars.cluster.servers[0].address, globalvars.cluster.servers[0].RCONPort, globalvars.cluster.servers[0].RCONPass, "cheats doexit");
                                 });
                             }
                         }

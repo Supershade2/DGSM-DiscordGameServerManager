@@ -125,11 +125,18 @@ namespace DiscordGameServerManager
                     DiscordTrustManager.AddGuild(e.Guild.Id);
                     Setup setup = new Setup();
                     GlobalServerConfig.Initialize(e.Guild.Id);
-                    for (int i = 0; i < GlobalServerConfig.gvars.cluster.servers.Length; i++)
+                    if (GlobalServerConfig.gvars.settingup) 
                     {
-                        setup.CreateScript(i,Game_Profile._profile,GlobalServerConfig.gvars);
+                        //Make a call to the server to request info be supplied into the webui
                     }
-                    setup.Dispose();
+                    else 
+                    {
+                        for (int i = 0; i < GlobalServerConfig.gvars.cluster.servers.Length; i++)
+                        {
+                            setup.CreateScript(i, Game_Profile._profile, GlobalServerConfig.gvars);
+                        }
+                        setup.Dispose();
+                    }
                 };
                 discord.GuildAvailable += async e => 
                 {
@@ -145,6 +152,7 @@ namespace DiscordGameServerManager
                     {
                         DiscordTrustManager.AddGuild(e.Guild.Id);
                     }
+                    //Make a call to the server to request info be supplied into the webui
                 };
                 //This will execute if a user dm's the bot, the bot then will add the dm as a list of logged dm's
                 discord.DmChannelCreated += async e =>

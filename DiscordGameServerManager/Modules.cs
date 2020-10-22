@@ -58,10 +58,27 @@ namespace DiscordGameServerManager
         }
         public static void BuildModules()
         {
-            List<bool> results = module_Collection.BuildModules(dir).GetResults();
-            for (int i = 0; i < results.Count; i++)
+            var data = module_Collection.BuildModules(dir);
+            List<bool> results = data.GetResults();
+            if (Program.verboseoutput) 
             {
-                Console.WriteLine("Module number:" + i + Heuristics.newline + "succeeded:" + results[i] + ".");
+                for (int i = 0; i < results.Count; i++)
+                {
+                    string end = Heuristics.newline + "succeeded:" + results[i] + ".";
+                    Console.Write("Module number:" + i + Heuristics.newline + "Module Info {" + Heuristics.newline + "   Main .cs file:" + data.Subprograms[i].mainCS + Heuristics.newline + " Resources:" + data.Subprograms[i].moduleResources + Heuristics.newline + "   References {" + Heuristics.newline);
+                    foreach (var reference in data.Subprograms[i].references)
+                    {
+                        Console.Write("     " + reference + Heuristics.newline);
+                    }
+                    Console.Write(" }" + Heuristics.newline+"   Package References {"+Heuristics.newline);
+                    foreach (var package in data.Subprograms[i].packageReferences.Keys)
+                    {
+                        string version = "";
+                        data.Subprograms[i].packageReferences.TryGetValue(package, out version);
+                        Console.Write("     Package: " +package+", version: "+version+Heuristics.newline);
+                    }
+                    Console.Write(" }" + Heuristics.newline + "   Properties {" + Heuristics.newline);
+                }
             }
         }
     }
@@ -119,6 +136,8 @@ namespace DiscordGameServerManager
         {
             this.modulelist = modulelist;
         }
+        /*! Use with Modulecollection.modulelist or  Modulecollection(old Modulecollectionobject.modulelist, bool PreservePrevious) 
+         * to preserve the old list up to one prior reinstantiation or = new Modulecollection */
         public extensions BuildModules(string dir)
         {
             extensions exts = new extensions();
@@ -127,7 +146,7 @@ namespace DiscordGameServerManager
             try
             {
                 IEnumerable<string> module_dirs = Directory.EnumerateDirectories(dir);
-                exts.subprograms = modulelist;
+                exts.Subprograms = modulelist;
                 foreach (var moduledir in module_dirs)
                 {
                     foreach (var module in modulelist)
@@ -207,6 +226,6 @@ namespace DiscordGameServerManager
             result.Add(r);
         }
         private List<bool> result;
-		public List<ModuleData> subprograms{get; set;}
+        public List<ModuleData> Subprograms { get; set; }
     }
 }

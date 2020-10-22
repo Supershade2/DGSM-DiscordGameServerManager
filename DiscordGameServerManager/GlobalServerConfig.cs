@@ -26,6 +26,7 @@ namespace DiscordGameServerManager
                 {
                     Globalvars g = new Globalvars();
                     g.id = id;
+                    g.settingup = true;
                     Cluster temp_clust = new Cluster();
                     temp_clust.servers = new GameServer[1];
                     temp_clust.servers[0].address = "127.0.0.1";
@@ -41,6 +42,7 @@ namespace DiscordGameServerManager
                 else
                 {
                     gvars.id = id;
+                    gvars.settingup = true;
                     Cluster temp_clust = new Cluster();
                     temp_clust.servers = new GameServer[1];
                     temp_clust.servers[0].address = "127.0.0.1";
@@ -194,6 +196,7 @@ namespace DiscordGameServerManager
     public struct Globalvars : IEquatable<Globalvars>
     {
         public ulong id { get; set; }
+        public bool settingup { get; set; }
         public ulong DiscordChannel { get; set; }
         public ulong MessageChannel { get; set; }
         public string registrationkey { get; set; }
@@ -215,6 +218,7 @@ namespace DiscordGameServerManager
         {
             int hash = 0;
             hash = (hash * 3) + id.GetHashCode();
+            hash = (hash * 3) + settingup.GetHashCode();
             hash = (hash * 3) + DiscordChannel.GetHashCode();
             hash = (hash * 3) + MessageChannel.GetHashCode();
             hash = (hash * 3) + registrationkey.GetHashCode(StringComparison.CurrentCulture);
@@ -241,7 +245,7 @@ namespace DiscordGameServerManager
             {
                 return false;
             }
-            return left.id == right.id && left.DiscordChannel == right.DiscordChannel && left.MessageChannel == right.MessageChannel && left.registrationkey == right.registrationkey && left.invite == right.invite && left.game == right.game && left.gamedir == right.gamedir && left.backupdir == right.backupdir && left.GametrackingURL == right.GametrackingURL && left.wsapikey == right.wsapikey && left.wscollectionid == right.wscollectionid &&left.cluster.portGap == right.cluster.portGap && left.cluster.servers == right.cluster.servers;
+            return left.id == right.id && left.settingup == right.settingup &&left.DiscordChannel == right.DiscordChannel && left.MessageChannel == right.MessageChannel && left.registrationkey == right.registrationkey && left.invite == right.invite && left.game == right.game && left.gamedir == right.gamedir && left.backupdir == right.backupdir && left.GametrackingURL == right.GametrackingURL && left.wsapikey == right.wsapikey && left.wscollectionid == right.wscollectionid &&left.cluster.portGap == right.cluster.portGap && left.cluster.servers == right.cluster.servers;
         }
 
         public static bool operator !=(Globalvars left, Globalvars right)
