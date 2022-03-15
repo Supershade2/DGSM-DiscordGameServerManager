@@ -54,6 +54,7 @@ namespace DiscordGameServerManager
         {
             namedPipeServerStreams = new NamedPipeServerStream[Modules.module_Collection.modulelist.Count];
             pipe_threads = new Thread[namedPipeServerStreams.Length];
+            activethreads = pipe_threads.Length;
             string name = System.Reflection.Assembly.GetEntryAssembly().FullName;
             char[] name_parts = name.ToCharArray();
             string pipename = "";
@@ -243,6 +244,7 @@ namespace DiscordGameServerManager
             { 
             
             }
+            //Exit read and shut down pipe for per instance called modules
             if (data.ToLower(CultureInfo.CurrentCulture).Equals("exit",StringComparison.CurrentCulture)) 
             {
                 ExitRequested(pipe_index);
