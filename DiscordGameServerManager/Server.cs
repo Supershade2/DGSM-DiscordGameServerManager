@@ -192,7 +192,8 @@ namespace DiscordGameServerManager
         }
     }
     struct SSHInfo 
-    { 
+    {
+        private string keypath;
         public string Address { get; set; }
         public string Username { get; set; }
         public string Pass { get; set; }
@@ -204,7 +205,7 @@ namespace DiscordGameServerManager
             {
                 if (!string.IsNullOrWhiteSpace(Keypath)) 
                 {
-                    return Keypath;
+                    return keypath;
                 }
                 else 
                 {
@@ -220,7 +221,7 @@ namespace DiscordGameServerManager
             }
             set 
             {
-                Keypath = value;
+                keypath = value;
             }
         }
         public string Challenge { get; set; }

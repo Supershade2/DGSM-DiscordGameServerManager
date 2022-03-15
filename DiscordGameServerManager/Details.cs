@@ -1,4 +1,4 @@
-﻿using System;
+﻿  using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -14,7 +14,7 @@ namespace DiscordGameServerManager
 #pragma warning restore CA1052 // Static holder types should be Static or NotInheritable
     {
         private const string config = "details.json";
-        public static details d = new details();
+        public static details d;
         private static System.Globalization.CultureInfo cinfo = System.Globalization.CultureInfo.GetCultureInfo(System.Globalization.CultureInfo.CurrentCulture.Name);
         static Details()
         { 

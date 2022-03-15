@@ -183,12 +183,14 @@ namespace DiscordGameServerManager
                 {
                     do
                     {
+                        //Length to be determined in testing for how large the smallest message will be or switch to BeginRead and EndRead
                         namedPipeServerStreams[current].Read(message, 0, 1024);
                         ms.Write(message, 0, message.Length);
                     } while (!namedPipeServerStreams[current].IsMessageComplete);
                     data_bytes.AddRange(ms.ToArray());
                 }
                 string reply = "processing";
+                //Alert 
                 namedPipeServerStreams[current].Write(Encoding.GetEncoding(reply).GetBytes(reply));
             }
             return data_bytes;

@@ -110,7 +110,7 @@ namespace DiscordGameServerManager
         public int queryPort { get; set; }
         public int RCONPort { get; set; }
         public string RCONPass { get; set; }
-
+        /*
         public override int GetHashCode()
         {
             int hash = 0;
@@ -149,13 +149,13 @@ namespace DiscordGameServerManager
         public bool Equals(GameServer other)
         {
             return this == other;
-        }
+        }*/
     }
     public struct Cluster
     {
         public int portGap { get; set; }
         public GameServer[] servers { get; set; }
-
+        /*
         public override int GetHashCode()
         {
             int hash = 0;
@@ -191,9 +191,9 @@ namespace DiscordGameServerManager
         public bool Equals(Cluster other)
         {
             return this == other;
-        }
+        }*/
     }
-    public struct Globalvars : IEquatable<Globalvars>
+    public struct Globalvars //: IEquatable<Globalvars>
     {
         public ulong id { get; set; }
         public bool settingup { get; set; }
@@ -201,8 +201,8 @@ namespace DiscordGameServerManager
         public ulong MessageChannel { get; set; }
         public string registrationkey { get; set; }
         public string invite { get; set; }
-        public string game { get; set; }
-        public string gamedir { get; set; }
+        //List of games that are assigned to each server
+        public List<profile> games { get; set; }
         public string backupdir { get; set; }
         public string wsapikey { get; set; }
         public string wscollectionid { get; set; }
@@ -210,7 +210,7 @@ namespace DiscordGameServerManager
         public string GametrackingURL { get; set; }
         public Cluster cluster { get; set; }
 
-
+        /*
         public override bool Equals(object obj) =>
             obj is Globalvars gv && this == gv;
 
@@ -223,8 +223,15 @@ namespace DiscordGameServerManager
             hash = (hash * 3) + MessageChannel.GetHashCode();
             hash = (hash * 3) + registrationkey.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + invite.GetHashCode(StringComparison.CurrentCulture);
-            hash = (hash * 3) + game.GetHashCode(StringComparison.CurrentCulture);
-            hash = (hash * 3) + gamedir.GetHashCode(StringComparison.CurrentCulture);
+            hash = (hash * 3) + games.GetHashCode();
+            foreach (var item in games) 
+            {
+                hash = (hash * 3) + item.game.GetHashCode(StringComparison.CurrentCulture);
+            }
+            foreach(var item in games) 
+            {
+                hash = (hash * 3) + item.gamedir.GetHashCode(StringComparison.CurrentCulture);
+            }
             hash = (hash * 3) + backupdir.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + wsapikey.GetHashCode(StringComparison.CurrentCulture);
             hash = (hash * 3) + wscollectionid.GetHashCode(StringComparison.CurrentCulture);
@@ -256,7 +263,7 @@ namespace DiscordGameServerManager
         public bool Equals(Globalvars other)
         {
             return this == other;
-        }
+        }*/
     }
    /*public struct userdata
     {

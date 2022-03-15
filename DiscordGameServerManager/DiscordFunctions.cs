@@ -16,12 +16,14 @@ namespace DiscordGameServerManager
 {
     public static class DiscordFunctions
     {
+        //Use queue to store guilds currently active or yet to be responded to, an idea is to queue up current guilds then clear them up
+        static Queue<DiscordGuild> guilds;
         static bool steamcode_requested = false;
         static bool backup_requested = false;
         static bool guildidrequested = false;
         static string user = "";
         static readonly string prefix = Config.bot.prefix;
-        static DiscordGuild Guild;
+        static DSharpPlus.Entities.DiscordGuild Guild;
         //static bool dmchannel = false;
         private static ulong userID;
         private static ulong GID = 0;
@@ -122,6 +124,7 @@ namespace DiscordGameServerManager
                 }
                 discord.GuildCreated += async e => 
                 {
+
                     DiscordTrustManager.AddGuild(e.Guild.Id);
                     Setup setup = new Setup();
                     GlobalServerConfig.Initialize(e.Guild.Id);
