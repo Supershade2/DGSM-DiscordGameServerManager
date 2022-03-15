@@ -15,7 +15,6 @@ using System.Linq;
 
 namespace DiscordGameServerManager
 {
-    //Class to facilitate communication from modules to the base application to access features such as sending a message and other base functions
     public class ModuleHandler
     {
         private static EventWaitHandle clearCount =
@@ -230,15 +229,12 @@ namespace DiscordGameServerManager
                 ProcessData(output,(int)pi);
             }
         }
-        //Method by which to process data received from each pipe associated with a module
         private static void ProcessData(string data,int pipe_index) 
         {
-            //If module sends discordsendmessage: "Data to send" broadcast message to discord can be altered to add or process based upon id and other details
             if (data.ToLower(CultureInfo.CurrentCulture).Contains("discordsendmessage:",StringComparison.CurrentCulture)) 
             { 
                 
             }
-            //Interact with discord data through this pipe condition
             if (data.ToLower(CultureInfo.CurrentCulture).Contains("discord:", StringComparison.CurrentCulture)) 
             { 
             

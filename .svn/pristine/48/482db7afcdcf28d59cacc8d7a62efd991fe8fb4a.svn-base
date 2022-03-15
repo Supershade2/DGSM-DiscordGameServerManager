@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DiscordGameServerManager
 {
-    //Modules Class for handling modules to extend base functionality using msbuild to create the modules from .cs files
+
     class Modules
     {
         private const string dir = "Resources/Modules";
